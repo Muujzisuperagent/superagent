@@ -27,21 +27,30 @@
 |---|---|---|
 | git hook | `.githooks/post-commit` | 每次提交后自动 `push`（含人工/AI 手动 commit） |
 | 守护进程 | `tools/auto-push.ps1` | 每 15 秒轮询 `git status`，**只要有改动就自动 commit + push**，不依赖是否有人提交 |
-| 计划任务 | Windows「Superagent AutoPush」 | 登录时自启动守护进程，重启后依然生效 |
+| 计划任务/守护进程 | 见下方说明 | |
 
 运行日志：`.git/auto-push.log`
+
+> **当前运行状态**：计划任务因权限原因未能注册，守护进程以独立 `powershell` 进程运行。
+> 若进程退出，请手动启动：
+> ```
+> powershell -ExecutionPolicy Bypass -File tools\auto-push.ps1 -IntervalSeconds 15 -Quiet
+> ```
 
 ### 常用命令
 
 ```powershell
-# 安装（或重装）自动推送机制
-pwsh -File tools\install-auto-push.ps1
+# 安装（或重装）自动推送机制（需管理员权限注册计划任务）
+powershell -ExecutionPolicy Bypass -File tools\install-auto-push.ps1
 
 # 查看状态 / 最近日志
-pwsh -File tools\auto-push-status.ps1
+powershell -ExecutionPolicy Bypass -File tools\auto-push-status.ps1
 
 # 停止守护进程并移除计划任务
-pwsh -File tools\auto-push-status.ps1 -Stop
+powershell -ExecutionPolicy Bypass -File tools\auto-push-status.ps1 -Stop
+
+# 手动启动守护进程（无需管理员）
+powershell -ExecutionPolicy Bypass -File tools\auto-push.ps1 -IntervalSeconds 15 -Quiet
 ```
 
 ### 例外
