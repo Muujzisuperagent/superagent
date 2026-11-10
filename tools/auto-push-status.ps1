@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    查看 / 停止「文件改动自动推送」守护进程。
+    View / stop the 'auto-push on file change' daemon.
 #>
 [CmdletBinding()]
 param(
@@ -19,41 +19,44 @@ if ($Stop) {
         Stop-Process -Id ([int]$pidFile) -Force -ErrorAction SilentlyContinue
         Remove-Item -LiteralPath $LockFile -ErrorAction SilentlyContinue
     }
-    Write-Host "已停止：计划任务「$TaskName」与守护进程均已移除。" -ForegroundColor Yellow
+    Write-Host "Stopped: scheduled task '$TaskName' and daemon removed." -ForegroundColor Yellow
     return
 }
 
-Write-Host '=== 计划任务 ===' -ForegroundColor Cyan
+Write-Host '=== Scheduled Task ===' -ForegroundColor Cyan
 $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($task) {
     $info = $task | Get-ScheduledTaskInfo
-    Write-Host ("状态：{0}   上次结果：{1}   下次运行：{2}" -f $task.State, $info.LastTaskResult, $info.NextRunTime)
-}
-else {
-    Write-Host '未注册（运行 tools\install-auto-push.ps1 安装）' -ForegroundColor Yellow
+    Write-Host ("State: {0}    LastResult: {1}    NextRun: {2}" -f $task.State, $info.LastTaskResult, $info.NextRunTime)
+} else {
+    Write-Host 'Not registered (run tools\install-auto-push.ps1 to install)' -ForegroundColor Yellow
 }
 
 Write-Host ''
 Write-Host '=== git hook ===' -ForegroundColor Cyan
 $hooksPath = (& git -C $RepoPath config core.hooksPath 2>$null)
-Write-Host "core.hooksPath = $(if ($hooksPath) { $hooksPath } else { '(未设置)' })"
+Write-Host "core.hooksPath = $(if ($hooksPath) { $hooksPath } else { '(not set)' })"
 
 Write-Host ''
-Write-Host '=== 远端 ===' -ForegroundColor Cyan
+Write-Host '=== Remote ===' -ForegroundColor Cyan
 $remote = (& git -C $RepoPath remote get-url origin 2>$null)
-Write-Host "origin = $(if ($remote) { $remote } else { '(未设置)' })"
+Write-Host "origin = $(if ($remote) { $remote } else { '(not set)' })"
 
 Write-Host ''
-Write-Host '=== 工作区 ===' -ForegroundColor Cyan
+Write-Host '=== Workspace ===' -ForegroundColor Cyan
 $status = (& git -C $RepoPath status --porcelain 2>$null)
-if ($status) { Write-Host "有 $(($status | Measure-Object).Count) 处未同步改动"; $status }
-else { Write-Host '干净，无待推送改动。' -ForegroundColor Green }
+if ($status) {
+    $count = (($status | Measure-Object).Count)
+    Write-Host "$count unsynced change(s):"
+    $status
+} else {
+    Write-Host 'Clean, no pending changes.' -ForegroundColor Green
+}
 
 Write-Host ''
-Write-Host '=== 最近日志（20 行） ===' -ForegroundColor Cyan
+Write-Host '=== Recent log (20 lines) ===' -ForegroundColor Cyan
 if (Test-Path -LiteralPath $LogFile) {
     Get-Content -LiteralPath $LogFile -Tail 20
-}
-else {
-    Write-Host '(暂无日志)'
+} else {
+    Write-Host '(no log yet)'
 }
