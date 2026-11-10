@@ -1,0 +1,10 @@
+{
+ "name":"@local/noteexpress-workbench",
+ "version":"1.1.0",
+ "private":true,
+ "type":"module",
+ "description":"NoteExpress AI workbench with local COM library access",
+ "exports":{".":"./index.js","./client":"./client.js","./locale/*.json":"./locale/*.json","./icon":"./icon.svg"},
+ "files":["index.js","operations.js","bridge.ps1","pdf.py","client.js","cordis.patch.yml","locale/*.json","icon.svg"],
+ "dsh":{"bundle":{"patch":"./cordis.patch.yml"},"client":{"platform":"web","immediately":true,"inject":["@deepseek-ai/dsh-client-ui-conversation"]}}
+}

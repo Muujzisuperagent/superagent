@@ -1,0 +1,31 @@
+# ---- 本机系统产物：不随项目分发 ----
+# ACL 备份 / 修复报告（仅本机安全排查用，含本机路径与权限信息）
+/acl-recovery/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+
+# ---- Node ----
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+
+# ---- 编辑器 / 操作系统 ----
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- Office 临时锁文件 ----
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# ---- 自动推送运行日志（另有副本在 .git/auto-push.log） ----
+/auto-push.log

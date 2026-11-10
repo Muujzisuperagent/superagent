@@ -1,0 +1,29 @@
+#!/bin/sh
+# ---------------------------------------------------------------------------
+# 提交后自动推送。
+# 说明：tools/auto-push.ps1 执行提交时会设置 AUTO_PUSH_SKIP=1，由它自己推送，
+#       避免重复推送；手动 commit 走这里，保证「提交即推送」。
+# 任何情况下都返回 0，绝不让推送失败阻断提交流程。
+# ---------------------------------------------------------------------------
+if [ "$AUTO_PUSH_SKIP" = "1" ]; then
+    exit 0
+fi
+
+REPO="$(git rev-parse --show-toplevel 2>/dev/null)"
+[ -z "$REPO" ] && exit 0
+
+cd "$REPO" || exit 0
+
+if ! git remote get-url origin >/dev/null 2>&1; then
+    echo "[auto-push] 未配置 origin 远端，跳过推送。" >&2
+    exit 0
+fi
+
+GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never GIT_ASKPASS=echo \
+    git push origin HEAD >/dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+    echo "[auto-push] 推送失败（网络/凭据），后台守护进程会继续重试。" >&2
+fi
+
+exit 0
