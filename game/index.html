@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>还魂路引 · 3D 密室原型</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <div id="crosshair" aria-hidden="true"></div>
+    <div id="hud">
+      <strong>还魂路引</strong>
+      <span>WASD 移动 · 鼠标环视 · E 交互 · Esc 释放鼠标</span>
+    </div>
+    <div id="prompt" class="hidden"></div>
+
+    <section id="keypad" class="overlay hidden" aria-label="密码锁">
+      <div class="panel">
+        <h2>黄铜密码锁</h2>
+        <p id="keypad-message">四位数。注意墙上的划痕。</p>
+        <form id="keypad-form" autocomplete="off">
+          <input
+            id="keypad-input"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="4"
+            placeholder="••••"
+            aria-label="四位密码"
+          />
+          <button type="submit">解锁</button>
+        </form>
+        <button id="keypad-close" class="ghost" type="button">离开</button>
+      </div>
+    </section>
+
+    <section id="win" class="overlay hidden" aria-live="polite">
+      <div class="panel">
+        <h2>门开了</h2>
+        <p>你走出了这间屋子。原型到此为止，下一关等你来写。</p>
+      </div>
+    </section>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

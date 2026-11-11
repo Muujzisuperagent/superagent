@@ -1,0 +1,154 @@
+:root {
+  color-scheme: dark;
+  --ink: #e9e4d8;
+  --brass: #c9a25a;
+  --blood: #8e2f2f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #0b0a0d;
+  color: var(--ink);
+  font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
+}
+
+#app,
+#app canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#hud {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+#hud strong {
+  font-size: 16px;
+  color: var(--brass);
+  letter-spacing: 0.18em;
+}
+
+#crosshair {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: rgba(233, 228, 216, 0.75);
+  pointer-events: none;
+}
+
+#prompt {
+  position: fixed;
+  left: 50%;
+  bottom: 16%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid rgba(201, 162, 90, 0.45);
+  background: rgba(12, 10, 12, 0.72);
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 3, 5, 0.72);
+  backdrop-filter: blur(3px);
+  z-index: 10;
+}
+
+.overlay.hidden,
+.hidden {
+  display: none !important;
+}
+
+.panel {
+  width: min(420px, 88vw);
+  padding: 26px;
+  border: 1px solid rgba(201, 162, 90, 0.55);
+  background: linear-gradient(160deg, #1a1618, #0f0d10);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+}
+
+.panel h2 {
+  margin: 0 0 8px;
+  color: var(--brass);
+  font-size: 22px;
+  letter-spacing: 0.12em;
+}
+
+.panel p {
+  margin: 0 0 18px;
+  line-height: 1.6;
+  font-size: 14px;
+  opacity: 0.82;
+}
+
+#keypad-form {
+  display: flex;
+  gap: 10px;
+}
+
+#keypad-input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid rgba(201, 162, 90, 0.5);
+  background: #0a090b;
+  color: var(--ink);
+  font-size: 22px;
+  letter-spacing: 0.5em;
+  text-align: center;
+}
+
+#keypad-input:focus {
+  outline: 1px solid var(--brass);
+}
+
+button {
+  padding: 12px 18px;
+  border: 1px solid var(--brass);
+  background: var(--brass);
+  color: #14100c;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.08);
+}
+
+button.ghost {
+  margin-top: 12px;
+  background: transparent;
+  color: var(--ink);
+  border-color: rgba(233, 228, 216, 0.25);
+}
+
+#keypad-message.error {
+  color: #e28a8a;
+}

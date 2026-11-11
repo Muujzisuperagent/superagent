@@ -29,3 +29,7 @@ desktop.ini
 
 # ---- 自动推送运行日志（另有副本在 .git/auto-push.log） ----
 /auto-push.log
+
+# node / vite
+node_modules/
+dist/
