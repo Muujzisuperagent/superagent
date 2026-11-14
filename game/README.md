@@ -6,10 +6,12 @@ Three.js + TypeScript + Vite 的连续三殿原型。药局、九宫阵、轮回
 
 Windows 用户双击 `启动密室.bat`。不要直接双击 `index.html`，浏览器会拦截 Vite 模块和 3D 模型资源。
 
+启动器优先使用系统 Node 和项目内的 Vite，不依赖全局 `pnpm`。首次运行缺少 `node_modules` 时，会用系统 `npm` 安装依赖。服务地址固定为 `http://127.0.0.1:5173`。
+
 ```sh
 cd game
-pnpm install
-pnpm start
+npm install
+npm run start
 ```
 
 浏览器打开 Vite 输出的地址，点击画面锁定鼠标。
@@ -39,8 +41,8 @@ game/
 
 ```sh
 cd game
-pnpm test    # 谜题逻辑
-pnpm build   # 类型检查 + 生产构建
+npm test
+npm run build
 ```
 
 ## 下一步
