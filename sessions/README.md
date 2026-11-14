@@ -9,6 +9,8 @@ sessions/
   README.md                        本文件：规则与索引
   STATE.md                         唯一事实源：当前状态、已验证结果、遗留问题、下一步
   codex/2026-11-14-handoff.md      Codex 截至 2026-11-14 的完整工作记录
+  codex/2026-11-14-acts-4-5-6.md   四五六殿首版与群核 MCP 资产记录
+  codex/2026-11-14-acts-4-6-reference-rework.md  按三张参考图重做四五六殿
   qoder/README.md                  Qoder 记录模板与写入规则
 ```
 
@@ -34,7 +36,7 @@ sessions/
 | 2026-11-10 | 仓库初始化大提交：自动推送机制、`3d-critique` 技能、DOCX 生成/提取/校验脚本、NoteExpress 工作台、生图提示词 v2/v3、剧本通俗版 v1.8、画风选择卡 |
 | 2026-11-11 | Three.js + TypeScript + Vite 第一人称密室原型（密码锁 `0427`，6 个单测） |
 | 2026-11-12 | 生成《剧本全文·纯净版 v1.0》与《3D 资产清单·分场景 v1.0》（197 条）；整理七段可直接复制的生图提示词；安装 Aholo MCP；修复 magpie 奇绩创坛 400 |
-| 2026-11-14 | Codex 建立本交接区，复验文档、单测与构建 |
+| 2026-11-14 | Codex 建立本交接区；接入四五六殿与 6 件群核 GLB；按三张参考图重做药局、九宫阵、忘川桥 |
 
 ## 快速接续
 
@@ -44,8 +46,8 @@ git log --oneline -10
 Get-Content sessions\STATE.md
 
 cd game
-pnpm test
-pnpm build
+npm.cmd test
+npm.cmd run build
 ```
 
 当前远端：`https://github.com/Muujzisuperagent/superagent.git`，分支 `main`。
