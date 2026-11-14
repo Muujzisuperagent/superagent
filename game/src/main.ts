@@ -15,16 +15,25 @@ const endingContent = document.getElementById('ending-content')!
 const restartButton = document.getElementById('restart') as HTMLButtonElement
 
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x0b0a0d)
-scene.fog = new THREE.FogExp2(0x0b0a0d, 0.035)
+scene.background = new THREE.Color(0x080d0d)
+scene.fog = new THREE.FogExp2(0x121c1a, 0.018)
 
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 130)
-camera.position.set(0, 1.65, 4.4)
+const previewMode = new URLSearchParams(window.location.search)
+const previewViews: Record<string, { position: [number, number, number]; target: [number, number, number] }> = {
+  medicine: { position: [0, 2.4, 4.7], target: [0, 1.35, -1.8] },
+  palace: { position: [0, 5, -21.2], target: [0, 0.2, -29.5] },
+  river: { position: [-3, 4.5, -43], target: [0, 1.4, -62] }
+}
+const camera = new THREE.PerspectiveCamera(66, window.innerWidth / window.innerHeight, 0.05, 130)
+const preview = previewViews[previewMode.get('view') ?? '']
+camera.position.set(...(preview?.position ?? [0, 1.65, 4.4]))
+if (preview) camera.lookAt(...preview.target)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.shadowMap.enabled = false
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 1.2
 app.appendChild(renderer.domElement)
@@ -43,10 +52,15 @@ const center = new THREE.Vector2(0, 0)
 
 let won = false
 let focused: WorldInteraction | null = null
-let currentAct: ActId = 'medicine'
+let currentAct: ActId = world.actAt(camera.position.z)
 let toastTimer = 0
 let combined = false
 let standingStone = 0
+world.setAtmosphere(currentAct)
+
+const initialAct = actDefinition(currentAct)
+actEl.textContent = `${initialAct.number} · ${initialAct.title}`
+objectiveEl.textContent = initialAct.objective
 
 function setPrompt(text: string | null): void {
   if (text === null) {
@@ -78,6 +92,7 @@ function updateAct(): void {
   const act = world.actAt(camera.position.z)
   if (act === currentAct) return
   currentAct = act
+  world.setAtmosphere(act)
   const definition = actDefinition(act)
   actEl.textContent = `${definition.number} · ${definition.title}`
   objectiveEl.textContent = definition.objective
@@ -151,8 +166,6 @@ window.addEventListener('keydown', (event) => {
   if (won) return
   keys.add(event.code)
   if (event.code === 'KeyE' && focused) interact(focused)
-  if (event.code === 'F8') camera.position.set(0, 1.65, -21)
-  if (event.code === 'F9') camera.position.set(0, 2, -47)
 })
 
 window.addEventListener('keyup', (event) => {
@@ -188,6 +201,7 @@ function updateMovement(delta: number): void {
             standingStone = value
             const result = palace.step(value)
             toast(result.message, 3)
+            world.markPalaceStep(value, result.ok, result.solved)
             if (result.solved) world.setActSolved('palace')
           }
         }
@@ -234,5 +248,9 @@ window.addEventListener('resize', () => {
 
 animate()
 
-dialogue('孟婆', '本房核汤。今天这碗，你自己配。当归三钱，远志一盏，合欢未开，忘忧在碗底。按君、臣、佐、使。', 12)
+if (!previewMode.has('clean')) {
+  if (currentAct === 'medicine') dialogue('孟婆', '本房核汤。今天这碗，你自己配。当归三钱，远志一盏，合欢未开，忘忧在碗底。按君、臣、佐、使。', 12)
+  if (currentAct === 'palace') dialogue('掌印司吏', '本房核位。戴九履一，左三右七。踩完，印自己会落。', 12)
+  if (currentAct === 'reincarnation') dialogue('孟婆', '汤带了没有？', 12)
+}
 updateInventory()

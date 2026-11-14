@@ -12,7 +12,7 @@ export type ActDefinition = {
 export const ACTS: readonly ActDefinition[] = [
   { id: 'medicine', number: '第四殿', title: '药局', subtitle: '五味 · 不忘汤', objective: '解藏头诗，按君臣佐使配出不忘汤。' },
   { id: 'palace', number: '第五殿', title: '九宫阵', subtitle: '步罡 · 核位', objective: '按洛书顺序踏完九块石板。' },
-  { id: 'reincarnation', number: '第六殿', title: '轮回门', subtitle: '合符 · 终局', objective: '拼合六枚半印，走完自己的案子。' }
+  { id: 'reincarnation', number: '第六殿', title: '忘川桥', subtitle: '孟婆亭 · 轮回门', objective: '沿忘川桥过孟婆亭，拼合六枚半印，走完自己的案子。' }
 ]
 
 export const HERBS = [
