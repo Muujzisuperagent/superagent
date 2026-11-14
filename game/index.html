@@ -5,8 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>还魂路引 · 3D 密室原型</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      #file-warning {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #0b0d0c;
+        color: #e9e4d8;
+        font: 16px/1.8 "Microsoft YaHei", sans-serif;
+      }
+      #file-warning[hidden] { display: none; }
+      #file-warning section { max-width: 620px; padding: 32px; border: 1px solid #927645; background: #151916; }
+      #file-warning h1 { color: #c9a25a; font-size: 24px; }
+      #file-warning code { color: #d9c99f; }
+    </style>
   </head>
   <body>
+    <div id="file-warning" hidden>
+      <section>
+        <h1>请用启动器打开密室</h1>
+        <p>你现在直接打开了 <code>index.html</code>。浏览器会拦截游戏所需的模块、样式和 3D 模型，所以画面无法加载。</p>
+        <p>请关闭此页，双击同一目录里的 <code>启动密室.bat</code>。它会启动本地游戏服务并自动打开正确页面。</p>
+      </section>
+    </div>
     <div id="app"></div>
 
     <div id="crosshair" aria-hidden="true"></div>
@@ -26,6 +50,11 @@
       <button id="restart" class="ghost" type="button">重走四五六殿</button>
     </section>
 
+    <script>
+      if (window.location.protocol === 'file:') {
+        document.getElementById('file-warning').hidden = false
+      }
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

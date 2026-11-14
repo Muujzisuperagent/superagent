@@ -4,10 +4,12 @@ Three.js + TypeScript + Vite 的连续三殿原型。药局、九宫阵、轮回
 
 ## 运行
 
+Windows 用户双击 `启动密室.bat`。不要直接双击 `index.html`，浏览器会拦截 Vite 模块和 3D 模型资源。
+
 ```sh
 cd game
 pnpm install
-pnpm dev
+pnpm start
 ```
 
 浏览器打开 Vite 输出的地址，点击画面锁定鼠标。
