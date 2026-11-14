@@ -32,6 +32,9 @@ desktop.ini
 # ---- 自动推送运行日志（另有副本在 .git/auto-push.log） ----
 /auto-push.log
 
+# ---- 本机会话交接记录：只保留在本机，不推送 ----
+/sessions/
+
 # node / vite
 node_modules/
 dist/
