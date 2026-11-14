@@ -1,0 +1,47 @@
+{
+  "provider": "群核科技 Aholo / Lux3D",
+  "generatedAt": "2026-11-14",
+  "assets": [
+    {
+      "id": "celadon-bowl",
+      "taskId": 7400735,
+      "file": "celadon-bowl.glb",
+      "sha256": "59A1B918B2B3159DD4901BB9F0F81418C391561121D86E011081D70A33936B3C"
+    },
+    {
+      "id": "six-realm-wheel",
+      "taskId": 7400753,
+      "file": "six-realm-wheel.glb",
+      "sha256": "113CE6044AAD08BF030F57804B2598AE493E22AA7F590E6B68BA1175F2DD8D2A"
+    },
+    {
+      "id": "herbal-cabinet",
+      "taskId": 7400776,
+      "file": "herbal-cabinet.glb",
+      "sha256": "8F9DBD29DF817B2476F1B11EA2A294AB975E3196F930C0BFA5123E81D6B70831"
+    },
+    {
+      "id": "dengzi-scale",
+      "taskId": 7400806,
+      "file": "dengzi-scale.glb",
+      "sha256": "E2E11400291BDEF56807E0850DDE759B117B4A2AFBD78077663ACD9C404136DD"
+    },
+    {
+      "id": "nine-palace",
+      "taskId": 7402698,
+      "file": "nine-palace.glb",
+      "sha256": "B1C8E0240BAA585490F881287E9171923BD183D8C9906F1B62969FD846D85A79"
+    },
+    {
+      "id": "stone-bridge",
+      "taskId": 7402772,
+      "file": "stone-bridge.glb",
+      "sha256": "68C9EA0E96B1E0A086EADDA10320A75E3301C551196D2ED15D8F31B86ACDCB5E"
+    }
+  ],
+  "worlds": [
+    { "id": "3FO4K4RD9C2P", "name": "还魂路引·场景四 药局" },
+    { "id": "3FO4K4RD9FEQ", "name": "中式九宫石板庭院" },
+    { "id": "3FO4K4RD95DN", "name": "中式雾中石桥花园" }
+  ]
+}

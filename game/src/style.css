@@ -35,8 +35,11 @@ body {
   gap: 4px;
   font-size: 13px;
   letter-spacing: 0.04em;
-  opacity: 0.78;
+  opacity: 0.86;
   pointer-events: none;
+  max-width: 520px;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, rgba(6, 10, 9, 0.72), transparent);
 }
 
 #hud strong {
@@ -44,6 +47,10 @@ body {
   color: var(--brass);
   letter-spacing: 0.18em;
 }
+
+#act { color: var(--brass); margin-top: 8px; }
+#objective { max-width: 420px; line-height: 1.6; }
+#inventory { color: #a5b6a5; font-size: 12px; }
 
 #crosshair {
   position: fixed;
@@ -80,6 +87,40 @@ body {
   backdrop-filter: blur(3px);
   z-index: 10;
 }
+
+#toast {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(650px, 85vw);
+  padding: 14px 20px;
+  text-align: center;
+  background: rgba(10, 15, 13, 0.88);
+  border-top: 1px solid rgba(201, 162, 90, 0.55);
+  border-bottom: 1px solid rgba(201, 162, 90, 0.55);
+  line-height: 1.7;
+}
+
+#dialogue {
+  position: fixed;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: min(760px, 88vw);
+  padding: 16px 22px;
+  background: rgba(7, 10, 9, 0.9);
+  border-left: 2px solid var(--brass);
+}
+
+#dialogue strong { color: var(--brass); letter-spacing: 0.12em; }
+#dialogue p { margin: 8px 0 0; line-height: 1.8; }
+
+#ending .panel { width: min(560px, 88vw); }
+#ending-content span, #ending-content small { color: #a5b6a5; line-height: 1.7; }
+#ending-content h2 { font-size: 36px; margin-top: 16px; }
+#ending-content p { line-height: 2; }
+#restart { position: fixed; bottom: 8%; left: calc(50% - 75px); }
 
 .overlay.hidden,
 .hidden {

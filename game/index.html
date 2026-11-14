@@ -12,34 +12,18 @@
     <div id="crosshair" aria-hidden="true"></div>
     <div id="hud">
       <strong>还魂路引</strong>
+      <span id="act">第四殿 · 药局</span>
+      <span id="objective">解藏头诗，按君臣佐使配出不忘汤。</span>
+      <span id="inventory">路引 · 半印 0/6　不忘汤 · 未配</span>
       <span>WASD 移动 · 鼠标环视 · E 交互 · Esc 释放鼠标</span>
     </div>
     <div id="prompt" class="hidden"></div>
+    <div id="toast" class="hidden" aria-live="polite"></div>
+    <div id="dialogue" class="hidden" aria-live="polite"></div>
 
-    <section id="keypad" class="overlay hidden" aria-label="密码锁">
-      <div class="panel">
-        <h2>黄铜密码锁</h2>
-        <p id="keypad-message">四位数。注意墙上的划痕。</p>
-        <form id="keypad-form" autocomplete="off">
-          <input
-            id="keypad-input"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            maxlength="4"
-            placeholder="••••"
-            aria-label="四位密码"
-          />
-          <button type="submit">解锁</button>
-        </form>
-        <button id="keypad-close" class="ghost" type="button">离开</button>
-      </div>
-    </section>
-
-    <section id="win" class="overlay hidden" aria-live="polite">
-      <div class="panel">
-        <h2>门开了</h2>
-        <p>你走出了这间屋子。原型到此为止，下一关等你来写。</p>
-      </div>
+    <section id="ending" class="overlay hidden" aria-live="polite">
+      <div class="panel" id="ending-content"></div>
+      <button id="restart" class="ghost" type="button">重走四五六殿</button>
     </section>
 
     <script type="module" src="/src/main.ts"></script>
