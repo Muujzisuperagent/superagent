@@ -2,8 +2,9 @@ import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { ACTS, type ActId } from './story'
+import { SCALE_WEIGHTS } from './puzzles_act23'
 
-export type InteractionKind = 'herb' | 'bowl' | 'seal' | 'exit' | 'combine' | 'ending' | 'evidence'
+export type InteractionKind = 'herb' | 'bowl' | 'seal' | 'exit' | 'combine' | 'ending' | 'evidence' | 'weight' | 'inscription' | 'hourplate' | 'register' | 'lamp' | 'brush'
 
 export type WorldInteraction = {
   object: THREE.Object3D
@@ -152,7 +153,7 @@ function bowl(parent: THREE.Object3D, position: [number, number, number], radius
   return mesh
 }
 
-function label(parent: THREE.Object3D, text: string, position: [number, number, number], width = 3.2, floor = false): void {
+function label(parent: THREE.Object3D, text: string, position: [number, number, number], width = 3.2, floor = false, rotationY = 0): void {
   const canvas = document.createElement('canvas')
   canvas.width = 768
   canvas.height = 160
@@ -172,6 +173,7 @@ function label(parent: THREE.Object3D, text: string, position: [number, number, 
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width / 4.8), new THREE.MeshStandardMaterial({ map: texture, roughness: 0.9, side: THREE.DoubleSide }))
   mesh.position.set(...position)
   if (floor) mesh.rotation.x = -Math.PI / 2
+  mesh.rotation.y = rotationY
   parent.add(mesh)
 }
 
@@ -343,11 +345,28 @@ export class EscapeWorld {
   readonly root = new THREE.Group()
   readonly interactions: WorldInteraction[] = []
   readonly zones: Zone[] = [
+    { act: 'scale', center: 48, halfDepth: 8, width: 13.6 },
+    { act: 'archive', center: 24, halfDepth: 8, width: 13.6 },
     { act: 'medicine', center: 0, halfDepth: 8, width: 13.6 },
     { act: 'palace', center: -28, halfDepth: 8, width: 13.6 },
     { act: 'reincarnation', center: -64, halfDepth: 19, width: 29 }
   ]
   private readonly stones = new Map<number, THREE.Mesh>()
+  private readonly weightMeshes = new Map<string, THREE.Object3D>()
+  private readonly obstacles: { x: number; z: number; r: number }[] = [
+    { x: -2.35, z: 47, r: 0.78 },
+    { x: 2.35, z: 47, r: 0.78 },
+    { x: 2.3, z: 44, r: 0.62 },
+    { x: -1.9, z: 22, r: 1.1 },
+    { x: -5.5, z: 30.2, r: 0.5 }
+  ]
+  private scaleBeam: THREE.Object3D | null = null
+  private scaleLeftPan: THREE.Object3D | null = null
+  private scaleRightPan: THREE.Object3D | null = null
+  private scaleTiltTarget = -0.085
+  private hourWeight: THREE.Object3D | null = null
+  private registerGlow: THREE.PointLight | null = null
+  private scrapeMark: THREE.Object3D | null = null
   private readonly seals: THREE.Object3D[] = []
   private readonly wheels: THREE.Object3D[] = []
   private portal: THREE.Mesh | null = null
@@ -370,6 +389,10 @@ export class EscapeWorld {
     fill.shadow.camera.top = 30
     fill.shadow.camera.bottom = -30
     scene.add(fill)
+    this.buildScale()
+    this.buildCorridor(36)
+    this.buildArchive()
+    this.buildCorridor(12)
     this.buildMedicine()
     this.buildCorridor(-12)
     this.buildPalace()
@@ -617,6 +640,290 @@ export class EscapeWorld {
       slip.material = PAPER.clone()
     }
     for (const x of [-5.8, -4.7, 4.7, 5.8]) addBanner(group, [x, 4.5, -4.2 + Math.random() * 7.5], [0.65, 2.1], x < 0 ? 0.04 : Math.PI - 0.04)
+  }
+
+  /** 第二殿 · 业秤：挑高大殿中央悬一杆铜秤，右盘空而更低；地面散砝码，东南角立时辰盘 */
+  private buildScale(): void {
+    const group = this.room('scale', 48, '第二殿 · 业秤')
+
+    // 北墙足秤偈碑
+    roundedBox(group, [3.4, 1.7, 0.18], [0, 2.35, 55.55], STONE, 0.04)
+    label(group, '十六两为斤 · 五十两为足秤', [0, 2.72, 55.43], 3.0, false, Math.PI)
+    this.addInteraction(group, 'inscription', 'scale', 'gatha', '读足秤偈', [0, 2.35, 55.5], [3.2, 1.6, 0.4], true)
+
+    // 中央杆秤：吊链 + 横梁 + 秤星 + 双盘
+    for (const dx of [-0.55, 0, 0.55]) cylinder(group, 0.022, 2.0, [dx, 3.75, 47], BRONZE)
+    const linkRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.024, 8, 18), BRONZE)
+    linkRing.position.set(0, 2.76, 47)
+    group.add(linkRing)
+    const beam = new THREE.Group()
+    beam.position.set(0, 2.72, 47)
+    group.add(beam)
+    const rod = cylinder(beam, 0.06, 5.4, [0, 0, 0], BRONZE)
+    rod.rotation.z = Math.PI / 2
+    for (let index = 0; index < 16; index += 1) {
+      const star = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), new THREE.MeshStandardMaterial({ color: 0x93a493, metalness: 0.85, roughness: 0.3 }))
+      star.position.set(-2.3 + index * 0.306, 0.08, 0)
+      beam.add(star)
+    }
+    this.scaleBeam = beam
+    const makePan = (x: number, y: number, loaded: boolean): THREE.Group => {
+      const pan = new THREE.Group()
+      pan.position.set(x, y, 47)
+      group.add(pan)
+      for (const [rx, rz] of [[0.3, 0], [-0.15, 0.26], [-0.15, -0.26]]) cylinder(pan, 0.014, 1.16, [rx * 0.55, 0.62, rz * 0.55], BRONZE)
+      const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.5, 0.1, 28), BRONZE)
+      pan.add(dish)
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.032, 8, 32), BRONZE)
+      rim.rotation.x = Math.PI / 2
+      rim.position.y = 0.05
+      pan.add(rim)
+      if (loaded) {
+        for (let index = 0; index < 9; index += 1) {
+          const weight = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.12, 0.18 + (index % 3) * 0.06, 14), BRONZE)
+          weight.position.set(Math.sin(index * 2.4) * 0.3, 0.14 + Math.floor(index / 3) * 0.15, Math.cos(index * 1.7) * 0.3)
+          weight.castShadow = true
+          pan.add(weight)
+        }
+      }
+      return pan
+    }
+    this.scaleLeftPan = makePan(-2.35, 1.42, true)
+    this.scaleRightPan = makePan(2.35, 1.42, false)
+    const ghostFlame = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.15, 8), new THREE.MeshBasicMaterial({ color: 0x69e6a8 }))
+    ghostFlame.position.set(2.35, 0.24, 47)
+    group.add(ghostFlame)
+    light(group, [2.35, 0.55, 47], 0x3fae7a, 2.4, 0.05)
+
+    // 冷白光柱斜落秤盘
+    const shaft = new THREE.SpotLight(0xdfeee6, 90, 15, 0.3, 0.55, 1.2)
+    shaft.position.set(1.7, 5.3, 48.7)
+    shaft.target.position.set(0.8, 1.3, 47)
+    group.add(shaft)
+    group.add(shaft.target)
+
+    // 东南角时辰盘
+    const pedestal = new THREE.Group()
+    pedestal.position.set(2.3, 0, 44)
+    group.add(pedestal)
+    roundedBox(pedestal, [0.95, 0.9, 0.95], [0, 0.45, 0], WOOD, 0.05)
+    roundedBox(pedestal, [1.15, 0.12, 1.15], [0, 0.95, 0], WOOD, 0.04)
+    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.055, 40), STONE)
+    dial.position.y = 1.08
+    pedestal.add(dial)
+    for (let index = 0; index < 12; index += 1) {
+      const tick = box(pedestal, [0.02, 0.012, 0.1], [Math.sin(index * Math.PI / 6) * 0.56, 1.115, Math.cos(index * Math.PI / 6) * 0.56], BRONZE)
+      tick.castShadow = false
+    }
+    const slot = roundedBox(pedestal, [0.17, 0.05, 0.17], [0, 1.1, 0.42], DARK_STONE, 0.02)
+    slot.castShadow = false
+    this.addEngraving(pedestal, '未', [0, 1.115, 0.42], 0.26)
+    label(pedestal, '十二时辰 · 未时压槽', [0, 1.66, 0], 0.95)
+    this.addInteraction(pedestal, 'hourplate', 'scale', 'hourplate', '查看时辰盘', [0, 1.15, 0.2], [1.1, 0.5, 1.1], true)
+
+    // 地面散砝码（六枚，可拾）
+    const pileSpots: [number, number, number][] = [
+      [-5.2, 0.14, 45.2], [-4.7, 0.16, 46.1], [-5.4, 0.13, 46.9],
+      [-4.5, 0.17, 47.6], [-5.1, 0.15, 48.5], [-4.3, 0.16, 49.3]
+    ]
+    for (const [index, weight] of SCALE_WEIGHTS.entries()) {
+      const mesh = new THREE.Group()
+      const spot = pileSpots[index]
+      mesh.position.set(spot[0], spot[1], spot[2])
+      mesh.rotation.y = index * 0.7
+      group.add(mesh)
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.22, 14), BRONZE)
+      mesh.add(body)
+      const knob = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), BRONZE)
+      knob.position.y = 0.15
+      mesh.add(knob)
+      label(group, weight.name, [spot[0], 0.55, spot[2]], 0.72, false, index % 2 ? -0.5 : 0.5)
+      const target = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }))
+      target.position.set(spot[0], 0.32, spot[2])
+      group.add(target)
+      this.weightMeshes.set(weight.id, mesh)
+      this.interactions.push({ object: target, kind: 'weight', act: 'scale', id: weight.id, label: `拾起 · ${weight.name}`, enabled: true })
+    }
+
+    // 多出的一两（秤平后才现身，悬在未时槽上方）
+    const extra = new THREE.Group()
+    extra.position.set(2.3, 1.72, 44.42)
+    extra.visible = false
+    group.add(extra)
+    const extraBody = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.08, 0.13, 12), new THREE.MeshStandardMaterial({ color: 0xb8c7bb, metalness: 0.9, roughness: 0.25, emissive: 0x1c3328, emissiveIntensity: 0.5 }))
+    extra.add(extraBody)
+    extra.userData.origin = extra.position.clone()
+    floatingObjects.push(extra)
+    this.hourWeight = extra
+    const extraTarget = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }))
+    extra.add(extraTarget)
+    this.interactions.push({ object: extraTarget, kind: 'weight', act: 'scale', id: 'yiliang-extra', label: '把多出的一两压进未时', enabled: false })
+
+    // 半印② 落在时辰盘上
+    this.addSeal(group, 'scale', 'seal2', '半印② · 多出的一两', [2.3, 1.85, 44])
+
+    addLantern(group, [-5.5, 2.7, 43.2], 0.78)
+    addLantern(group, [5.6, 2.9, 51], 0.82)
+    light(group, [0, 3.9, 47.5], 0xcfe8dc, 10, 0.06)
+    light(group, [-4.6, 2.9, 50.5], 0x9fcdb9, 4, 0.05)
+    light(group, [0.5, 2.4, 44], 0xa9d6c5, 3.4, 0.05)
+  }
+
+  /** 第三殿 · 簿库：六层簿架三面围合，中央长案侧光斜照，架尽黑暗里悬空一册自翻 */
+  private buildArchive(): void {
+    const group = this.room('archive', 24, '第三殿 · 簿库')
+
+    // 北墙大簿架（六层）
+    const shelfMaterial = WOOD.clone()
+    shelfMaterial.color.setHex(0x7d7158)
+    box(group, [10.9, 4.5, 0.8], [0, 2.3, 31.05], shelfMaterial)
+    const bookGeometry = new RoundedBoxGeometry(0.17, 0.32, 0.06, 1, 0.012)
+    const bookMaterial = new THREE.MeshStandardMaterial({ map: paperTexture, color: 0xd4c9a8, roughness: 0.94, emissive: 0x241a0c, emissiveIntensity: 0.8 })
+    const northBooks = new THREE.InstancedMesh(bookGeometry, bookMaterial, 168)
+    const transform = new THREE.Object3D()
+    let bookIndex = 0
+    for (let tier = 0; tier < 6; tier += 1) {
+      for (let column = 0; column < 28; column += 1) {
+        transform.position.set(-5.1 + column * 0.36, 0.62 + tier * 0.68, 30.6)
+        transform.rotation.set(0, Math.PI, (column % 5 - 2) * 0.02)
+        transform.updateMatrix()
+        northBooks.setMatrixAt(bookIndex, transform.matrix)
+        bookIndex += 1
+      }
+    }
+    northBooks.instanceMatrix.needsUpdate = true
+    group.add(northBooks)
+    // 东西两侧矮架
+    for (const side of [-1, 1]) {
+      box(group, [0.75, 3.1, 10.6], [side * 6.25, 1.58, 23.6], shelfMaterial)
+      const sideBooks = new THREE.InstancedMesh(bookGeometry, bookMaterial, 88)
+      let sideIndex = 0
+      for (let tier = 0; tier < 4; tier += 1) {
+        for (let row = 0; row < 22; row += 1) {
+          transform.position.set(side * 6.1, 0.5 + tier * 0.66, 18.8 + row * 0.44)
+          transform.rotation.set(0, side * Math.PI / 2, (row % 4 - 1) * 0.02)
+          transform.updateMatrix()
+          sideBooks.setMatrixAt(sideIndex, transform.matrix)
+          sideIndex += 1
+        }
+      }
+      sideBooks.instanceMatrix.needsUpdate = true
+      group.add(sideBooks)
+    }
+
+    // 翻错的两册（突出架外一小截）
+    for (const [id, x, y, name] of [
+      ['jiawu', -1.6, 1.95, '甲午册'],
+      ['gengshen', 1.9, 2.65, '庚申册']
+    ] as const) {
+      const poking = roundedBox(group, [0.2, 0.36, 0.3], [x, y, 30.55], bookMaterial, 0.015)
+      poking.rotation.y = Math.PI
+      this.addInteraction(group, 'register', 'archive', id, `翻查 · ${name}`, [x, y, 30.4], [0.42, 0.5, 0.5], true)
+    }
+
+    // 中央长案：摊开的簿子 + 侧光灯 + 朱笔
+    const desk = new THREE.Group()
+    desk.position.set(-1.9, 0, 22)
+    group.add(desk)
+    roundedBox(desk, [1.15, 0.09, 2.4], [0, 1.03, 0], WOOD, 0.045)
+    for (const [lx, lz] of [[-0.45, -1.05], [0.45, -1.05], [-0.45, 1.05], [0.45, 1.05]]) roundedBox(desk, [0.14, 1.0, 0.14], [lx, 0.5, lz], WOOD, 0.03)
+    const leftPage = roundedBox(desk, [0.44, 0.035, 0.62], [-0.23, 1.1, -0.3], PAPER, 0.012)
+    leftPage.rotation.z = 0.03
+    const rightPage = roundedBox(desk, [0.44, 0.035, 0.62], [0.23, 1.1, -0.3], PAPER, 0.012)
+    rightPage.rotation.z = -0.03
+    const spine = roundedBox(desk, [0.06, 0.05, 0.62], [0, 1.12, -0.3], shelfMaterial, 0.015)
+    spine.castShadow = false
+    this.addEngraving(desk, '卒于丙午', [0.23, 1.125, -0.28], 0.3)
+    label(desk, '生于', [0.2, 1.128, -0.1], 0.34, true)
+    this.scrapeMark = desk.children[desk.children.length - 1]
+    this.scrapeMark.visible = false
+    const brush = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.024, 0.4, 10), WOOD)
+    brush.position.set(0.05, 1.15, 0.55)
+    brush.rotation.z = Math.PI / 2 - 0.2
+    desk.add(brush)
+    const brushTip = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.09, 8), new THREE.MeshStandardMaterial({ color: 0x7a1d26, roughness: 0.6 }))
+    brushTip.position.set(0.05, 1.16, 0.78)
+    brushTip.rotation.x = Math.PI / 2
+    desk.add(brushTip)
+    const brushTarget = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }))
+    brushTarget.position.set(0.05, 1.25, 0.6)
+    desk.add(brushTarget)
+    this.interactions.push({ object: brushTarget, kind: 'brush', act: 'archive', id: 'brush', label: '取朱笔勘合', enabled: false })
+
+    // 铜侧光灯（窄束斜打纸面）
+    const lamp = new THREE.Group()
+    lamp.position.set(-0.52, 1.08, 0.15)
+    desk.add(lamp)
+    const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.05, 16), BRONZE)
+    lamp.add(lampBase)
+    const lampArm = cylinder(lamp, 0.016, 0.42, [0, 0.22, 0], BRONZE)
+    lampArm.rotation.x = -0.5
+    const lampHead = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.14, 12), BRONZE)
+    lampHead.position.set(0.02, 0.4, 0.18)
+    lampHead.rotation.x = 2.2
+    lamp.add(lampHead)
+    const sideBeam = new THREE.SpotLight(0xe8d9b0, 55, 6, 0.24, 0.65, 1.4)
+    sideBeam.position.set(-1.35, 1.62, 22.25)
+    sideBeam.target.position.set(-1.6, 1.12, 21.75)
+    desk.add(sideBeam)
+    desk.add(sideBeam.target)
+    const lampTarget = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }))
+    lampTarget.position.set(-0.52, 1.4, 0.15)
+    desk.add(lampTarget)
+    this.interactions.push({ object: lampTarget, kind: 'lamp', act: 'archive', id: 'lamp', label: '举起侧光灯', enabled: true })
+
+    // 架尽黑暗里悬空自翻的丙午册（唯一悬浮物，谜题关键）
+    const floatingBook = new THREE.Group()
+    floatingBook.position.set(5.15, 2.35, 17.7)
+    group.add(floatingBook)
+    for (const side of [-1, 1]) {
+      const page = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.42, 0.028), PAPER)
+      page.position.set(side * 0.16, 0, 0.03)
+      page.rotation.y = side * 0.55
+      page.rotation.x = side * 0.12
+      floatingBook.add(page)
+    }
+    floatingBook.userData.origin = floatingBook.position.clone()
+    floatingObjects.push(floatingBook)
+    const bookTarget = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }))
+    floatingBook.add(bookTarget)
+    this.interactions.push({ object: bookTarget, kind: 'register', act: 'archive', id: 'bingwu', label: '翻查 · 悬空自翻的那一册', enabled: true })
+
+    // 墙角纸扎人（半边肩膀藏在架后，无脸）
+    const figure = new THREE.Group()
+    figure.position.set(-5.5, 0, 30.2)
+    figure.rotation.y = 2.4
+    group.add(figure)
+    const paperSkin = new THREE.MeshStandardMaterial({ map: paperTexture, color: 0xd8d2bc, roughness: 0.96 })
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.26, 0.95, 10), paperSkin)
+    torso.position.y = 0.72
+    figure.add(torso)
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), paperSkin)
+    head.position.y = 1.32
+    figure.add(head)
+    for (const side of [-1, 1]) {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.6, 8), paperSkin)
+      arm.position.set(side * 0.26, 0.95, 0)
+      arm.rotation.z = side * -0.25
+      figure.add(arm)
+    }
+
+    // 长案通向架深处的纸灰脚印
+    for (let index = 0; index < 7; index += 1) {
+      const t = index / 6
+      const x = -1.4 + t * 6.1
+      const z = 23.4 - t * 5.2
+      addFootprint(group, [x, 0.02, z], -0.72 + Math.sin(index) * 0.18)
+    }
+
+    this.addSeal(desk, 'archive', 'seal3', '半印③ · 刮改勘合', [0, 1.42, 0.15])
+
+    addLantern(group, [5.4, 2.7, 28.5], 0.7)
+    light(group, [0, 3.8, 24], 0xd8c9a0, 13, 0.07)
+    light(group, [-4.2, 3.1, 19.8], 0xcbb98f, 6.5, 0.055)
+    light(group, [4.2, 3.1, 27.8], 0xcbb98f, 6.5, 0.055)
+    light(group, [-4.8, 2.7, 19.5], 0xbfae87, 3.5, 0.05)
+    light(group, [4.6, 2.2, 18.6], 0x86c9a8, 2.6, 0.045)
   }
 
   private buildCorridor(center: number): void {
@@ -1005,6 +1312,59 @@ export class EscapeWorld {
     }
   }
 
+  /** 砝码拾起/放回：拾起后从地面隐藏 */
+  setWeightVisible(id: string, visible: boolean): void {
+    const mesh = this.weightMeshes.get(id)
+    if (mesh) mesh.visible = visible
+  }
+
+  /** 左盘重量变化 → 秤杆倾斜（-0.085 为右盘低垂的初始异象，0 为水平） */
+  markScalePlaced(sum: number, over: boolean): void {
+    if (over) {
+      this.scaleTiltTarget = -0.085
+      return
+    }
+    const progress = THREE.MathUtils.clamp((sum - 30) / 20, 0, 1)
+    this.scaleTiltTarget = -0.085 * (1 - progress)
+  }
+
+  resetWeights(ids: string[]): void {
+    for (const id of ids) this.setWeightVisible(id, true)
+  }
+
+  /** 秤平后：多出的一两现身，悬在未时槽上方 */
+  spawnHourWeight(): void {
+    if (!this.hourWeight) return
+    this.hourWeight.visible = true
+    const interaction = this.interactions.find((item) => item.id === 'yiliang-extra')
+    if (interaction) interaction.enabled = true
+  }
+
+  /** 那一两压进未时：落到槽里，停止悬浮 */
+  pressHourVisual(): void {
+    if (!this.hourWeight) return
+    const index = floatingObjects.indexOf(this.hourWeight)
+    if (index >= 0) floatingObjects.splice(index, 1)
+    this.hourWeight.position.set(2.3, 1.16, 44.42)
+    this.scaleTiltTarget = 0.012
+    const interaction = this.interactions.find((item) => item.id === 'yiliang-extra')
+    if (interaction) interaction.enabled = false
+  }
+
+  /** 丙午册找到：书页间透出幽光 */
+  markRegisterFound(): void {
+    if (this.registerGlow) return
+    const glow = new THREE.PointLight(0x86c9a8, 2.6, 3.2, 1.8)
+    glow.position.set(5.15, 2.5, 17.7)
+    this.root.add(glow)
+    this.registerGlow = glow
+  }
+
+  /** 侧光显影：案上浮现「生于」刮改 */
+  revealScrape(): void {
+    if (this.scrapeMark) this.scrapeMark.visible = true
+  }
+
   markPalaceStep(value: number, correct: boolean, solved: boolean): void {
     const tile = this.stones.get(value)
     if (!tile) return
@@ -1025,7 +1385,15 @@ export class EscapeWorld {
   }
 
   setAtmosphere(act: ActId): void {
-    if (act === 'reincarnation') {
+    if (act === 'scale') {
+      this.backgroundTarget.setHex(0x0a1211)
+      this.fogTarget.setHex(0x151e1c)
+      this.fog.density = 0.02
+    } else if (act === 'archive') {
+      this.backgroundTarget.setHex(0x14100a)
+      this.fogTarget.setHex(0x241d12)
+      this.fog.density = 0.024
+    } else if (act === 'reincarnation') {
       this.backgroundTarget.setHex(0x1c2929)
       this.fogTarget.setHex(0x71817e)
       this.fog.density = 0.031
@@ -1037,6 +1405,8 @@ export class EscapeWorld {
   }
 
   actAt(z: number): ActId {
+    if (z > 40) return 'scale'
+    if (z > 16) return 'archive'
     if (z > -16) return 'medicine'
     if (z > -40) return 'palace'
     return 'reincarnation'
@@ -1045,13 +1415,25 @@ export class EscapeWorld {
   constrain(position: THREE.Vector3, previous: THREE.Vector3, completed: Set<ActId>): void {
     const act = this.actAt(position.z)
     const zone = this.zones.find((item) => item.act === act)!
-    position.z = THREE.MathUtils.clamp(position.z, -81, 7)
+    position.z = THREE.MathUtils.clamp(position.z, -81, 55)
     let width = 1.25
-    if (position.z > -8 || (position.z < -20 && position.z > -36) || position.z < -44) width = zone.width / 2
+    if (position.z > 40 || (position.z > 16 && position.z < 32) || (position.z > -8 && position.z < 8) || (position.z < -20 && position.z > -36) || position.z < -44) width = zone.width / 2
     if (position.z < -50 && position.z > -74) width = 1.45
     position.x = THREE.MathUtils.clamp(position.x, -width, width)
+    if (position.z > 8 && position.z < 16 && !completed.has('archive')) position.z = Math.max(position.z, 15.8)
+    if (position.z > 32 && position.z < 40 && !completed.has('scale')) position.z = Math.max(position.z, 39.8)
     if (position.z < -8 && position.z > -20 && !completed.has('medicine')) position.z = Math.max(position.z, -7.8)
     if (position.z < -36 && position.z > -44 && !completed.has('palace')) position.z = Math.max(position.z, -35.8)
+    for (const obstacle of this.obstacles) {
+      const dx = position.x - obstacle.x
+      const dz = position.z - obstacle.z
+      const distance = Math.hypot(dx, dz)
+      const minimum = obstacle.r + 0.32
+      if (distance < minimum && distance > 0.0001) {
+        position.x = obstacle.x + (dx / distance) * minimum
+        position.z = obstacle.z + (dz / distance) * minimum
+      }
+    }
     let floorHeight = 0
     if (position.z < -24.5 && position.z > -32.5 && Math.abs(position.x) < 3.2) floorHeight = 0.25
     if (position.z <= -52.2 && position.z >= -72.6) {
@@ -1069,6 +1451,15 @@ export class EscapeWorld {
     this.fog.color.lerp(this.fogTarget, Math.min(1, delta * 0.65))
     for (const seal of this.seals) seal.rotation.y += delta * 0.55
     for (const wheel of this.wheels) wheel.rotation.z += delta * 0.035
+    if (this.scaleBeam) {
+      this.scaleBeam.rotation.z += (this.scaleTiltTarget - this.scaleBeam.rotation.z) * Math.min(1, delta * 2.2)
+      if (this.scaleLeftPan && this.scaleRightPan) {
+        const tilt = this.scaleBeam.rotation.z
+        const arm = 2.35
+        this.scaleLeftPan.position.y = 1.42 - Math.sin(tilt) * arm
+        this.scaleRightPan.position.y = 1.42 + Math.sin(tilt) * arm
+      }
+    }
     if (this.portal) {
       const material = this.portal.material as THREE.MeshStandardMaterial
       material.opacity = 0.23 + Math.sin(this.elapsed * 1.3) * 0.07

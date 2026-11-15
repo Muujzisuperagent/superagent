@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "C:\\Users\\17374\\.workbuddy\\clipboard-images\\clipboard-2026-11-15T06-29-18-086Z-5b9bc9b5.jpg",
+      "sha256": "a4133d80352819daa51bb835ac6cf23289f03a4264be985c85621a4de1079cf6",
+      "scene": "二殿",
+      "width": 1920,
+      "height": 1080,
+      "aspect_ratio": 1.77778,
+      "visible_pixel_equivalent": 2073600.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.119757,
+      "luma_std_srgb": 0.154222,
+      "near_black_pct_luma_lt_0_05": 45.1277,
+      "near_white_pct_luma_gt_0_95": 0.125,
+      "saturation_hsv_mean": 0.359717,
+      "high_saturation_pct_gt_0_8": 4.737,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 11.5356,
+        "深木": 39.4718,
+        "烛黄": 0.0,
+        "朱砂": 0.0,
+        "宣纸": 1.1919,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 52.1994,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": [
+        "近黑像素较多；五殿可能符合意图，请在实际玩家机位核对关键线索",
+        "输入带ICC配置；本工具未做色彩管理，按sRGB数值解释，跨设备比较前请导出sRGB"
+      ]
+    },
+    {
+      "image": "C:\\Users\\17374\\.workbuddy\\clipboard-images\\clipboard-2026-11-15T06-29-18-087Z-a4ff879c.jpg",
+      "sha256": "a21758ea525198b37ffdb0e9f27eafe2098f30d9a0ea615688daa357711d7a6e",
+      "scene": "二殿",
+      "width": 1920,
+      "height": 1080,
+      "aspect_ratio": 1.77778,
+      "visible_pixel_equivalent": 2073600.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.121848,
+      "luma_std_srgb": 0.159802,
+      "near_black_pct_luma_lt_0_05": 47.3965,
+      "near_white_pct_luma_gt_0_95": 0.0609,
+      "saturation_hsv_mean": 0.357479,
+      "high_saturation_pct_gt_0_8": 2.2891,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 10.9311,
+        "深木": 41.174,
+        "烛黄": 0.0,
+        "朱砂": 0.0,
+        "宣纸": 0.2684,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 52.3735,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": [
+        "近黑像素较多；五殿可能符合意图，请在实际玩家机位核对关键线索",
+        "输入带ICC配置；本工具未做色彩管理，按sRGB数值解释，跨设备比较前请导出sRGB"
+      ]
+    },
+    {
+      "image": "C:\\Users\\17374\\.workbuddy\\clipboard-images\\clipboard-2026-11-15T06-29-18-088Z-2f020c20.jpg",
+      "sha256": "9138633608652e9750003b0a0e21f6e468aa65f55087d922042a16ab3500ad93",
+      "scene": "二殿",
+      "width": 1920,
+      "height": 1080,
+      "aspect_ratio": 1.77778,
+      "visible_pixel_equivalent": 2073600.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.153025,
+      "luma_std_srgb": 0.177525,
+      "near_black_pct_luma_lt_0_05": 39.3344,
+      "near_white_pct_luma_gt_0_95": 0.0958,
+      "saturation_hsv_mean": 0.262333,
+      "high_saturation_pct_gt_0_8": 2.4437,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 15.2516,
+        "深木": 48.4311,
+        "烛黄": 0.0001,
+        "朱砂": 0.0,
+        "宣纸": 1.9454,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 65.6282,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": [
+        "输入带ICC配置；本工具未做色彩管理，按sRGB数值解释，跨设备比较前请导出sRGB"
+      ]
+    }
+  ]
+}

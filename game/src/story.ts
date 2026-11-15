@@ -1,4 +1,4 @@
-export type ActId = 'medicine' | 'palace' | 'reincarnation'
+export type ActId = 'scale' | 'archive' | 'medicine' | 'palace' | 'reincarnation'
 export type EndingId = 'return' | 'replace' | 'judge'
 
 export type ActDefinition = {
@@ -10,6 +10,8 @@ export type ActDefinition = {
 }
 
 export const ACTS: readonly ActDefinition[] = [
+  { id: 'scale', number: '第二殿', title: '业秤', subtitle: '配平 · 未时', objective: '读偈文，往左盘补足五十两，再把多出的一两压进未时。' },
+  { id: 'archive', number: '第三殿', title: '簿库', subtitle: '检索 · 显影', objective: '找出丙午年册，侧光验刮改，朱笔勘合。' },
   { id: 'medicine', number: '第四殿', title: '药局', subtitle: '五味 · 不忘汤', objective: '解藏头诗，按君臣佐使配出不忘汤。' },
   { id: 'palace', number: '第五殿', title: '九宫阵', subtitle: '步罡 · 核位', objective: '按洛书顺序踏完九块石板。' },
   { id: 'reincarnation', number: '第六殿', title: '忘川桥', subtitle: '孟婆亭 · 轮回门', objective: '沿忘川桥过孟婆亭，拼合六枚半印，走完自己的案子。' }
@@ -74,12 +76,13 @@ export class NinePalacePuzzle {
 
 export class JourneyState {
   readonly seals = new Set<number>()
-  readonly evidence = new Set<string>(['A', 'B'])
+  // 证据 A 由序厅/一殿剧情预置；B 由第二殿业秤实际挣得；C 由第三殿簿库实际挣得
+  readonly evidence = new Set<string>(['A'])
   hasSoup = false
   hasFragment = false
 
   completeAct(act: ActId): void {
-    const seal = { medicine: 4, palace: 5, reincarnation: 6 }[act]
+    const seal = { scale: 2, archive: 3, medicine: 4, palace: 5, reincarnation: 6 }[act]
     this.seals.add(seal)
     if (act === 'medicine') this.hasSoup = true
   }

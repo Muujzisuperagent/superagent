@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "C:\\Users\\17374\\.workbuddy\\clipboard-images\\clipboard-2026-11-15T06-29-18-083Z-d94d5860.jpg",
+      "sha256": "2430337dca9441fdf921539155d836b201ea1bf256192d2604748845403b1b6a",
+      "scene": "三殿",
+      "width": 1920,
+      "height": 1080,
+      "aspect_ratio": 1.77778,
+      "visible_pixel_equivalent": 2073600.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.128111,
+      "luma_std_srgb": 0.108234,
+      "near_black_pct_luma_lt_0_05": 25.3716,
+      "near_white_pct_luma_gt_0_95": 0.0005,
+      "saturation_hsv_mean": 0.413943,
+      "high_saturation_pct_gt_0_8": 2.8343,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 0.0897,
+        "深木": 91.4408,
+        "烛黄": 0.0,
+        "朱砂": 0.0021,
+        "宣纸": 0.2959,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 91.8284,
+      "red_family_candidate_pct": 0.0021,
+      "review_notes": [
+        "输入带ICC配置；本工具未做色彩管理，按sRGB数值解释，跨设备比较前请导出sRGB"
+      ]
+    },
+    {
+      "image": "C:\\Users\\17374\\.workbuddy\\clipboard-images\\clipboard-2026-11-15T06-29-18-084Z-015db8d6.jpg",
+      "sha256": "47aa79068ce998966fc54468b4ff8cea8b174f16717df0e00d1c71639c00a301",
+      "scene": "三殿",
+      "width": 1920,
+      "height": 1080,
+      "aspect_ratio": 1.77778,
+      "visible_pixel_equivalent": 2073600.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.106539,
+      "luma_std_srgb": 0.110722,
+      "near_black_pct_luma_lt_0_05": 37.4613,
+      "near_white_pct_luma_gt_0_95": 0.0047,
+      "saturation_hsv_mean": 0.419524,
+      "high_saturation_pct_gt_0_8": 6.5424,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 3.1765,
+        "深木": 80.7676,
+        "烛黄": 0.0044,
+        "朱砂": 0.0004,
+        "宣纸": 0.4299,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 84.3788,
+      "red_family_candidate_pct": 0.0004,
+      "review_notes": [
+        "输入带ICC配置；本工具未做色彩管理，按sRGB数值解释，跨设备比较前请导出sRGB"
+      ]
+    },
+    {
+      "image": "C:\\Users\\17374\\.workbuddy\\clipboard-images\\clipboard-2026-11-15T06-29-18-085Z-38f4e3c1.jpg",
+      "sha256": "cba9aec83eb821e6ac27cb80cde36166a344d0cbd75360e7b579d1b3820f4363",
+      "scene": "三殿",
+      "width": 1920,
+      "height": 1080,
+      "aspect_ratio": 1.77778,
+      "visible_pixel_equivalent": 2073600.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.133548,
+      "luma_std_srgb": 0.127583,
+      "near_black_pct_luma_lt_0_05": 29.9041,
+      "near_white_pct_luma_gt_0_95": 0.0012,
+      "saturation_hsv_mean": 0.432663,
+      "high_saturation_pct_gt_0_8": 2.4396,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 0.0928,
+        "深木": 82.8751,
+        "烛黄": 0.0002,
+        "朱砂": 0.0112,
+        "宣纸": 0.4037,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 83.383,
+      "red_family_candidate_pct": 0.0112,
+      "review_notes": [
+        "输入带ICC配置；本工具未做色彩管理，按sRGB数值解释，跨设备比较前请导出sRGB"
+      ]
+    }
+  ]
+}
