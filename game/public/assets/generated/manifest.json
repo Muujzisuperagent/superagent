@@ -1,42 +1,74 @@
 {
   "provider": "群核科技 Aholo / Lux3D",
   "generatedAt": "2026-11-14",
+  "webpGeneratedAt": "2026-11-15",
+  "webpNote": "webp/ 为 gltf-transform 转码副本：仅将 2048 PNG 贴图转 WebP，不压几何、不减面；原件保留在同目录。",
   "assets": [
     {
       "id": "celadon-bowl",
       "taskId": 7400735,
       "file": "celadon-bowl.glb",
-      "sha256": "59A1B918B2B3159DD4901BB9F0F81418C391561121D86E011081D70A33936B3C"
+      "sha256": "59A1B918B2B3159DD4901BB9F0F81418C391561121D86E011081D70A33936B3C",
+      "webp": {
+        "file": "webp/celadon-bowl.glb",
+        "bytes": 1238768,
+        "sha256": "EA3187A22CF31A5180A461B58E7643AA9D6118BFDF444A8722AD1F87735362DC"
+      }
     },
     {
       "id": "six-realm-wheel",
       "taskId": 7400753,
       "file": "six-realm-wheel.glb",
-      "sha256": "113CE6044AAD08BF030F57804B2598AE493E22AA7F590E6B68BA1175F2DD8D2A"
+      "sha256": "113CE6044AAD08BF030F57804B2598AE493E22AA7F590E6B68BA1175F2DD8D2A",
+      "webp": {
+        "file": "webp/six-realm-wheel.glb",
+        "bytes": 1575920,
+        "sha256": "60B8B72816E69987E2D0CF4C91EA0FE28A3697321B0638BDB2CB27F3272FE4E4"
+      }
     },
     {
       "id": "herbal-cabinet",
       "taskId": 7400776,
       "file": "herbal-cabinet.glb",
-      "sha256": "8F9DBD29DF817B2476F1B11EA2A294AB975E3196F930C0BFA5123E81D6B70831"
+      "sha256": "8F9DBD29DF817B2476F1B11EA2A294AB975E3196F930C0BFA5123E81D6B70831",
+      "webp": {
+        "file": "webp/herbal-cabinet.glb",
+        "bytes": 2269040,
+        "sha256": "47D382F554B740EDD6344D2F0BEB12D8227CED2DEC654E17F611CF77E95A55FF"
+      }
     },
     {
       "id": "dengzi-scale",
       "taskId": 7400806,
       "file": "dengzi-scale.glb",
-      "sha256": "E2E11400291BDEF56807E0850DDE759B117B4A2AFBD78077663ACD9C404136DD"
+      "sha256": "E2E11400291BDEF56807E0850DDE759B117B4A2AFBD78077663ACD9C404136DD",
+      "webp": {
+        "file": "webp/dengzi-scale.glb",
+        "bytes": 1302940,
+        "sha256": "3A717F33604DAFE2D7A28D6CA8C016723D61EDCFAF0BF06BEE22DCB9E541A483"
+      }
     },
     {
       "id": "nine-palace",
       "taskId": 7402698,
       "file": "nine-palace.glb",
-      "sha256": "B1C8E0240BAA585490F881287E9171923BD183D8C9906F1B62969FD846D85A79"
+      "sha256": "B1C8E0240BAA585490F881287E9171923BD183D8C9906F1B62969FD846D85A79",
+      "webp": {
+        "file": "webp/nine-palace.glb",
+        "bytes": 2420312,
+        "sha256": "CE1A9234465743B6CF9F6DB37188AB00A92DD9B32C3E616948108C613BAE45C1"
+      }
     },
     {
       "id": "stone-bridge",
       "taskId": 7402772,
       "file": "stone-bridge.glb",
-      "sha256": "68C9EA0E96B1E0A086EADDA10320A75E3301C551196D2ED15D8F31B86ACDCB5E"
+      "sha256": "68C9EA0E96B1E0A086EADDA10320A75E3301C551196D2ED15D8F31B86ACDCB5E",
+      "webp": {
+        "file": "webp/stone-bridge.glb",
+        "bytes": 2173660,
+        "sha256": "2D31F8BC0D4E620FAAD2DF9CDD5497470880E54E8E92B22611296D2ACC8EE6F7"
+      }
     }
   ],
   "worlds": [

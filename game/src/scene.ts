@@ -1116,7 +1116,7 @@ export class EscapeWorld {
       { file: 'six-realm-wheel.glb', position: [0, 2.8, -75.6], size: [4.1, 4.1, 0.45], rotation: 0, nonUniform: true, replaces: 'six-realm-wheel-fallback' }
     ]
     for (const asset of assets) {
-      loader.load(`/assets/generated/${asset.file}`, (gltf) => {
+      const place = (gltf: { scene: THREE.Group }) => {
         const model = gltf.scene
         const bounds = new THREE.Box3().setFromObject(model)
         const dimensions = bounds.getSize(new THREE.Vector3())
@@ -1151,7 +1151,9 @@ export class EscapeWorld {
           if (fallback) fallback.visible = false
         }
         if (asset.file === 'six-realm-wheel.glb') this.wheels.push(wrapper)
-      }, undefined, () => undefined)
+      }
+      const originalUrl = `/assets/generated/${asset.file}`
+      loader.load(`/assets/generated/webp/${asset.file}`, place, undefined, () => loader.load(originalUrl, place, undefined, () => undefined))
     }
   }
 }
