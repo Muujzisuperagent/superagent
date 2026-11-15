@@ -1385,6 +1385,17 @@ export class EscapeWorld {
   }
 
   setAtmosphere(act: ActId): void {
+    // 性能：前向渲染下每盏灯都参与每像素计算，全场 17 盏点光常开会让填充率爆炸。
+    // 灯的衰减距离只有 9m，隔壁殿的灯本来就照不到——按殿启停，视觉不变、计算量大降。
+    this.scene.traverse((node) => {
+      if (node instanceof THREE.PointLight || node instanceof THREE.SpotLight) {
+        const z = node.position.z
+        if (z > 8) node.visible = act === 'scale' || act === 'archive'
+        else if (z > -16) node.visible = act === 'medicine'
+        else if (z > -44) node.visible = act === 'palace'
+        else node.visible = act === 'reincarnation'
+      }
+    })
     if (act === 'scale') {
       this.backgroundTarget.setHex(0x0a1211)
       this.fogTarget.setHex(0x151e1c)

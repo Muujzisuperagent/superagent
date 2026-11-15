@@ -33,8 +33,8 @@ camera.position.set(...(preview?.position ?? [1.6, 1.65, 52]))
 if (preview) camera.lookAt(...preview.target)
 else camera.lookAt(0, 1.7, 46.8)
 
-const renderer = new THREE.WebGLRenderer({ antialias: true })
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
@@ -56,6 +56,7 @@ const controls = new PointerLockControls(camera, renderer.domElement)
 const clock = new THREE.Clock()
 const keys = new Set<string>()
 const raycaster = new THREE.Raycaster()
+raycaster.far = 3.4
 const center = new THREE.Vector2(0, 0)
 
 let won = false
@@ -70,7 +71,10 @@ const initialAct = actDefinition(currentAct)
 actEl.textContent = `${initialAct.number} · ${initialAct.title}`
 objectiveEl.textContent = initialAct.objective
 
+let lastPrompt: string | null = null
 function setPrompt(text: string | null): void {
+  if (text === lastPrompt) return
+  lastPrompt = text
   if (text === null) {
     promptEl.classList.add('hidden')
     promptEl.textContent = ''
