@@ -66,8 +66,6 @@ for (const [view, cam] of Object.entries(VIEWS)) {
         let hidden = false
         while (p) { if (p.visible === false) { hidden = true; break } p = p.parent }
         if (hidden) return
-        const box = new (node.geometry ? node.geometry.boundingBox : Object)()
-        void box
         const corners = []
         if (node.isMesh && node.geometry) {
           if (!node.geometry.boundingBox) node.geometry.computeBoundingBox()

@@ -214,9 +214,9 @@ const TILE = new THREE.MeshStandardMaterial({ color: 0x2c3430, roughness: 0.88, 
 const TILE_EDGE = new THREE.MeshStandardMaterial({ color: 0x4b564d, roughness: 0.74, metalness: 0.04 })
 const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.06, color: 0x3a4a3c, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
 const LILY_RED = new THREE.MeshStandardMaterial({ color: 0xe21c35, emissive: 0x8b0715, emissiveIntensity: 0.65, roughness: 0.65, side: THREE.DoubleSide })
-const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.085, color: 0x9a9b8c, roughness: 1, side: THREE.DoubleSide, flatShading: true })
-const SOUL_INNER = new THREE.MeshStandardMaterial({ map: clothTexture, color: 0x8b8d7c, roughness: 1, side: THREE.DoubleSide })
-const SOUL_HEAD = new THREE.MeshStandardMaterial({ color: 0x6a6f64, roughness: 1 })
+const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.085, color: 0xb8b9a8, roughness: 1, side: THREE.DoubleSide, flatShading: true })
+const SOUL_INNER = new THREE.MeshStandardMaterial({ map: clothTexture, color: 0xa8aa98, roughness: 1, side: THREE.DoubleSide })
+const SOUL_HEAD = new THREE.MeshStandardMaterial({ color: 0x8a8f82, roughness: 1 })
 const SOUL_SASH = new THREE.MeshStandardMaterial({ color: 0x5a2524, roughness: 0.85 })
 const SOUL_FOOT = new THREE.MeshStandardMaterial({ color: 0x25241f, roughness: 1 })
 const LANTERN_PAPER = new THREE.MeshPhysicalMaterial({ color: 0xd4d2bb, roughness: 0.75, transparent: true, opacity: 0.78, emissive: 0x9fd8c0, emissiveIntensity: 0.5 })
@@ -698,18 +698,37 @@ function projectWorldUV(geometry: THREE.BufferGeometry, scale: THREE.Vector3, ti
   geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
 }
 
-/** 桥面中段台阶压平为连续石板坡（端台阶保留）：只动朝上的桥面顶点，拱/栏杆/石狮不碰。 */
-function flattenBridgeDeck(geometry: THREE.BufferGeometry): void {
-  const pos = geometry.attributes.position as THREE.BufferAttribute
-  const nor = geometry.attributes.normal as THREE.BufferAttribute
-  for (let index = 0; index < pos.count; index += 1) {
-    if (nor.getY(index) > 0.5 && Math.abs(pos.getZ(index)) < 0.55 && pos.getY(index) > -0.5 && Math.abs(pos.getX(index)) < 1.05) {
-      const t = (pos.getX(index) + 1.5) / 3
-      pos.setY(index, -0.4595 + 0.7391 * Math.sin(Math.PI * t) + 0.012)
+/** 桥面中段连续石板坡 overlay：新增程序几何盖住 GLB 端台阶之间的中段，
+ *  不触碰 GLB 顶点/法线/UV（f41831c 压顶点致栏板破碎回归，本轮禁改桥几何）。 */
+function addContinuousDeck(parent: THREE.Object3D, material: THREE.Material): void {
+  const segments = 36
+  const startZ = -55.3
+  const endZ = -69.5
+  const halfWidth = 1.8
+  const positions: number[] = []
+  const uvs: number[] = []
+  const indices: number[] = []
+  for (let step = 0; step <= segments; step += 1) {
+    const t = (startZ + (endZ - startZ) * (step / segments) + 52.2) / -20.4
+    const z = startZ + (endZ - startZ) * (step / segments)
+    const y = 0.22 + Math.sin(Math.PI * THREE.MathUtils.clamp(t, 0, 1)) * 1.8 + 0.06
+    for (const x of [-halfWidth, halfWidth]) {
+      positions.push(x, y, z)
+      uvs.push((x + halfWidth) / (halfWidth * 2), step / segments)
+    }
+    if (step < segments) {
+      const index = step * 2
+      indices.push(index, index + 2, index + 1, index + 1, index + 2, index + 3)
     }
   }
-  pos.needsUpdate = true
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.setIndex(indices)
   geometry.computeVertexNormals()
+  const deck = new THREE.Mesh(geometry, material)
+  deck.receiveShadow = true
+  parent.add(deck)
 }
 
 function addSteam(parent: THREE.Object3D, position: [number, number, number], heightScale = 1): void {
@@ -726,7 +745,7 @@ function addSteam(parent: THREE.Object3D, position: [number, number, number], he
   }
 }
 
-function addLantern(parent: THREE.Object3D, position: [number, number, number], scale = 1): void {
+function addLantern(parent: THREE.Object3D, position: [number, number, number], scale = 1, withLight = true): void {
   const lantern = new THREE.Group()
   lantern.position.set(...position)
   lantern.scale.setScalar(scale)
@@ -743,7 +762,8 @@ function addLantern(parent: THREE.Object3D, position: [number, number, number], 
     const bar = box(lantern, [0.018, 0.64, 0.018], [Math.cos(index * Math.PI / 2) * 0.19, 0, Math.sin(index * Math.PI / 2) * 0.19], BRONZE)
     bar.castShadow = false
   }
-  light(lantern, [0, 0, 0], 0xb8e7d5, 4.5, 0.07)
+  light(lantern, [0, 0, 0], 0xb8e7d5, withLight ? 4.5 : 0, 0.07)
+  if (!withLight) lantern.children[lantern.children.length - 1].visible = false
 }
 
 function addFootprint(parent: THREE.Object3D, position: [number, number, number], rotation = 0): void {
@@ -1109,27 +1129,41 @@ export class EscapeWorld {
       roundedBox(cabinet, [0.22, 0.18, 1.0], [x, 0.25, -7.02], BRONZE, 0.035)
     }
 
-    // P0-2：GLB 柜面程序差异层——缺板暗格 / 半开抽屉 / 真字药签，非等距且两柜不同
-    const labelCanvas = (text: string): THREE.CanvasTexture => {
-      const canvas = document.createElement('canvas')
-      canvas.width = 128
-      canvas.height = 64
-      const context = canvas.getContext('2d')!
-      context.fillStyle = '#c9bd9c'
-      context.fillRect(0, 0, 128, 64)
-      context.strokeStyle = '#6b5a41'
-      context.lineWidth = 3
-      context.strokeRect(3, 3, 122, 58)
-      context.fillStyle = '#3a2c1c'
-      context.font = '30px "Noto Serif SC", serif'
-      context.textAlign = 'center'
-      context.textBaseline = 'middle'
-      context.fillText(text, 64, 34)
-      const texture = new THREE.CanvasTexture(canvas)
-      texture.colorSpace = THREE.SRGBColorSpace
-      return texture
+    // P0-2：GLB 柜面程序差异层——微启/半开抽屉 + 真字药签，非等距且两柜不同
+    // 药签用单图集单材质：20 签合批 1 draw call（iGPU draw call 瓶颈）
+    const tagNames = ['当归', '远志', '合欢', '忘忧', '黄芪', '甘草', '茯苓', '半夏', '陈皮', '桂枝', '白芍', '川芎', '地黄', '麦冬', '五味', '枸杞', '丹参', '桔梗', '枳壳', '厚朴']
+    const atlasCanvas = document.createElement('canvas')
+    atlasCanvas.width = 640
+    atlasCanvas.height = 256
+    const atlasContext = atlasCanvas.getContext('2d')!
+    atlasContext.fillStyle = '#c9bd9c'
+    atlasContext.fillRect(0, 0, 640, 256)
+    atlasContext.strokeStyle = '#6b5a41'
+    atlasContext.lineWidth = 3
+    atlasContext.fillStyle = '#3a2c1c'
+    atlasContext.font = '30px "Noto Serif SC", serif'
+    atlasContext.textAlign = 'center'
+    atlasContext.textBaseline = 'middle'
+    for (let index = 0; index < tagNames.length; index += 1) {
+      const cx = (index % 5) * 128 + 64
+      const cy = Math.floor(index / 5) * 64 + 32
+      atlasContext.strokeRect((index % 5) * 128 + 3, Math.floor(index / 5) * 64 + 3, 122, 58)
+      atlasContext.fillText(tagNames[index], cx, cy)
     }
-    const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x1a140e, roughness: 1 })
+    const atlasTexture = new THREE.CanvasTexture(atlasCanvas)
+    atlasTexture.colorSpace = THREE.SRGBColorSpace
+    const tagMaterial = new THREE.MeshStandardMaterial({ map: atlasTexture, roughness: 0.92 })
+    const tagUV = (geometry: THREE.BufferGeometry, index: number): void => {
+      const uv = geometry.attributes.uv as THREE.BufferAttribute
+      const u0 = (index % 5) / 5
+      const v0 = 1 - (Math.floor(index / 5) + 1) / 4
+      for (let i = 0; i < uv.count; i += 1) {
+        uv.setXY(i, u0 + uv.getX(i) / 5, v0 + uv.getY(i) / 4)
+      }
+      uv.needsUpdate = true
+    }
+    const cavityMaterial = new THREE.MeshBasicMaterial({ color: 0x0d0a06, transparent: true, opacity: 0.6, depthWrite: false })
+    const drawerShadowMaterial = new THREE.MeshBasicMaterial({ color: 0x0d0a06, transparent: true, opacity: 0.5, depthWrite: false })
     const herbGreen = new THREE.MeshStandardMaterial({ color: 0x7c855f, roughness: 0.94 })
     const herbBrown = new THREE.MeshStandardMaterial({ color: 0x927455, roughness: 0.94 })
     const drawerVariants: Record<number, { recess: [number, number][]; open: [number, number][]; labels: [number, number, string][] }> = {
@@ -1147,24 +1181,42 @@ export class EscapeWorld {
       const spot = (row: number, col: number): [number, number] => [bank * 3.45 + (col - 3) * 0.571, 2.42 + (row - 3) * 0.621]
       for (const [row, col] of variant.recess) {
         const [x, y] = spot(row, col)
-        const cavity = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.56), cavityMaterial)
-        cavity.position.set(x, y, -6.635)
-        group.add(cavity)
+        // 微启抽屉：前脸滑出 0.05 + 顶部阴影缝，有体积无贴面黑块
+        const front = roundedBox(group, [0.5, 0.56, 0.03], [x, y, -6.6], MEDICINE_WOOD, 0.01)
+        front.rotation.z = 0.015
+        const gap = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.05), cavityMaterial)
+        gap.position.set(x, y + 0.3, -6.635)
+        group.add(gap)
+        const pull = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 6, 14), BRONZE)
+        pull.position.set(x, y, -6.575)
+        group.add(pull)
       }
       for (const [row, col] of variant.open) {
         const [x, y] = spot(row, col)
-        roundedBox(group, [0.52, 0.5, 0.34], [x, y - 0.02, -6.5], MEDICINE_WOOD, 0.02)
-        const shadow = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.18), new THREE.MeshBasicMaterial({ color: 0x0d0a06, transparent: true, opacity: 0.5, depthWrite: false }))
+        // 真实抽屉体：底板 + 双侧板 + 后板 + 前脸，滑出 0.34，内腔可见药枝
+        const drawer = new THREE.Group()
+        drawer.position.set(x, y - 0.02, -6.5)
+        group.add(drawer)
+        roundedBox(drawer, [0.5, 0.03, 0.32], [0, -0.2, 0], MEDICINE_WOOD, 0.01)
+        for (const side of [-1, 1]) roundedBox(drawer, [0.03, 0.22, 0.32], [side * 0.24, -0.09, 0], MEDICINE_WOOD, 0.01)
+        roundedBox(drawer, [0.5, 0.22, 0.03], [0, -0.09, -0.15], MEDICINE_WOOD, 0.01)
+        roundedBox(drawer, [0.5, 0.26, 0.03], [0, -0.08, 0.16], MEDICINE_WOOD, 0.01)
+        const pull = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 6, 14), BRONZE)
+        pull.position.set(0, -0.06, 0.18)
+        drawer.add(pull)
+        for (let sprig = 0; sprig < 4; sprig += 1) {
+          const herb = cylinder(drawer, 0.015, 0.14, [-0.15 + sprig * 0.1, -0.12, -0.02 + (sprig % 2) * 0.08], sprig % 2 ? herbGreen : herbBrown)
+          herb.rotation.z = (sprig - 1.5) * 0.25
+        }
+        const shadow = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.18), drawerShadowMaterial)
         shadow.position.set(x, y - 0.3, -6.635)
         group.add(shadow)
-        for (let sprig = 0; sprig < 3; sprig += 1) {
-          const herb = cylinder(group, 0.015, 0.16, [x - 0.12 + sprig * 0.12, y + 0.26, -6.42], sprig % 2 ? herbGreen : herbBrown)
-          herb.rotation.z = (sprig - 1) * 0.3
-        }
       }
       for (const [row, col, text] of variant.labels) {
         const [x, y] = spot(row, col)
-        const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.11), new THREE.MeshStandardMaterial({ map: labelCanvas(text), roughness: 0.92 }))
+        const geometry = new THREE.PlaneGeometry(0.22, 0.11)
+        tagUV(geometry, tagNames.indexOf(text))
+        const tag = new THREE.Mesh(geometry, tagMaterial)
         tag.position.set(x - 0.14, y + 0.18, -6.62)
         group.add(tag)
       }
@@ -1277,7 +1329,8 @@ export class EscapeWorld {
     this.interactions.push({ object: bowlTarget, kind: 'bowl', act: 'medicine', id: 'aman', label: '查看青瓷药碗', enabled: true })
 
     const evidence = new THREE.Group()
-    evidence.position.set(3.85, 1.3, -1.48)
+    // 纸包盒底贴案面（bench 顶 1.225），消悬浮间隙
+    evidence.position.set(3.85, 1.235, -1.48)
     bench.add(evidence)
     for (let index = 0; index < 4; index += 1) addPaper(evidence, [Math.sin(index) * 0.1, index * 0.012, Math.cos(index) * 0.07], [0.3, 0.4], [index * 0.02, index * 0.11, index * 0.05], false)
     const evidenceC = this.addInteraction(evidence, 'evidence', 'medicine', 'C', '取得证据 C · 朱笔改字与簿页残片', [0, 0.2, 0], [0.46, 0.42, 0.12], true)
@@ -1313,8 +1366,8 @@ export class EscapeWorld {
     pot.add(broth)
     addSteam(group, [4.4, 1.08, -5.5])
     addLantern(group, [5.35, 2.55, -4.0], 1.22)
-    // 灯笼移离左墙药签架（原 z-2.4 压住签格右列）
-    addLantern(group, [-6.2, 3.6, -5.6], 0.72)
+    // 灯笼移离左墙药签架（原 z-2.4 压住签格右列）；角落盏不点光省填充率
+    addLantern(group, [-6.2, 3.6, -5.6], 0.72, false)
     light(group, [-4.5, 2.4, -5.8], 0xd9c193, 9, 0.055)
     light(group, [0.2, 3.55, -5.7], 0xcbb489, 14, 0.05)
     light(group, [0.2, 3.4, -1.5], 0xe4c493, 32, 0.065)
@@ -1709,8 +1762,8 @@ export class EscapeWorld {
     // 入口上方梁会挡住俯视机位上部 1/4，仅保留远端梁与两侧纵梁。
     box(group, [14, 0.22, 0.36], [0, 4.78, -33.2], WOOD)
     for (const x of [-5.4, 5.4]) box(group, [0.36, 0.22, 10], [x, 4.78, -28], WOOD)
-    // 封顶：梁间黑洞改 mid-tone 顶面；无光材质省 13 盏点光下的全屏填充率
-    box(group, [14, 0.12, 16], [0, 5.26, -28], new THREE.MeshBasicMaterial({ color: 0x474c48 }))
+    // 封顶：深色木梁 + 暗瓦底纹理（非灰平板）；无光材质保填充率，明度控制在非近黑
+    box(group, [14, 0.12, 16], [0, 5.26, -28], new THREE.MeshBasicMaterial({ map: woodTexture, color: 0x6a5a44 }))
     // 中央细木条离俯视机位仅 1.84 m，会投成黑竖条挡住规则匾额，故不建；两侧梁保留。
     for (const index of [-2, 2]) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, -28], WOOD)
     // 不再放悬空藻井锥体：它遮住案台规则匾额，且没有结构依托。
@@ -1837,7 +1890,7 @@ export class EscapeWorld {
         flame.position.y = 0.12
         lamp.add(flame)
         // 八盏皆点光（中调光池承担熵/对比）；填充率靠天花不接阴影保
-        light(lamp, [0, 0.28, 0], 0x7fd8a8, 2.6, 0.05)
+        light(lamp, [0, 0.28, 0], 0x7fd8a8, 3.4, 0.05)
       }
     }
     for (const x of [-5.6, 5.6]) {
@@ -1865,13 +1918,16 @@ export class EscapeWorld {
     // B4：五殿环境光降约 30%，near_black 回 25–35%、luma 0.08–0.11，刻字靠自发光对比仍可辨
     light(group, [-4.7, 3.0, -24.8], 0xc3d4ca, 10.5, 0.035)
     light(group, [4.7, 3.0, -30], 0xadcfc0, 10.5, 0.035)
-    light(group, [0, 4.5, -28], 0xb8d5c8, 14, 0.04)
+    light(group, [0, 3.6, -28], 0xb8d5c8, 12, 0.04)
     light(group, [0, 2.9, -34.7], 0xcbd2b8, 9.5, 0.035)
-    // 朱砂楹联：匾额两侧高饱和强调，与绿焰/白骨签成色彩分族
+    // 匾额两侧宽幅墨绿破幡（与侧墙绿幡同族）+ 骨白卦线，撤纯红窄条
     for (const x of [-2.35, 2.35]) {
-      const couplet = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 2.6), new THREE.MeshStandardMaterial({ color: 0xa01824, roughness: 0.85, emissive: 0x30060c, emissiveIntensity: 0.4 }))
-      couplet.position.set(x, 2.6, -35.6)
-      group.add(couplet)
+      const banner = addBanner(group, [x, 3.9, -35.6], [1.1, 2.6], 0)
+      for (let row = 0; row < 3; row += 1) {
+        const mark = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.025), BANNER_MARK)
+        mark.position.set(0, -0.5 - row * 0.22, 0.1)
+        banner.add(mark)
+      }
     }
 
     const omenSeal = new THREE.Group()
@@ -1880,7 +1936,6 @@ export class EscapeWorld {
     group.add(omenSeal)
     box(omenSeal, [0.42, 0.18, 0.3], [-0.12, 0, 0], BRONZE)
     box(omenSeal, [0.13, 0.33, 0.18], [-0.23, 0.24, 0], BRONZE)
-    light(omenSeal, [-0.15, 0.05, 0.1], 0xc6a66b, 2.2, 0.035)
     label(group, '问案台 · 取簿', [0, 1.95, -34.08], 2.6)
     // B7：指路牌偏右低悬、独立吊杆，与规则匾额 / 半印互不遮挡
     const signGroup = new THREE.Group()
@@ -1927,7 +1982,7 @@ export class EscapeWorld {
       }
     }
 
-    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x020606, roughness: 0.8, metalness: 0, clearcoat: 0.05, clearcoatRoughness: 0.85, reflectivity: 0.01 })
+    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0e1a1a, roughness: 0.35, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.25, reflectivity: 0.06, bumpMap: stoneTexture, bumpScale: 0.02 })
     const water = new THREE.Mesh(new THREE.PlaneGeometry(46, 34, 64, 48), waterMaterial)
     water.rotation.x = -Math.PI / 2
     water.position.set(0, -0.55, -63)
@@ -2053,7 +2108,11 @@ export class EscapeWorld {
       [0, 4.6, -86, 26, 9, 0.26],
       [-9.0, 2.2, -66, 10, 5, 0.4],
       [8.5, 2.4, -72, 12, 5.5, 0.34],
-      [0, 1.1, -52, 8, 3.5, 0.42]
+      [0, 1.1, -52, 8, 3.5, 0.42],
+      // 近/中/远三层 + 地平线软带：水面-天空交界无硬边梯形
+      [0, 0.35, -60, 16, 2.2, 0.3],
+      [0, 0.5, -75, 30, 3, 0.26],
+      [0, 1.2, -95, 60, 8, 0.22]
     ] as const) {
       addMistPuff(group, [x, y, z], w, h, o)
     }
@@ -2168,11 +2227,12 @@ export class EscapeWorld {
     this.portal.position.set(0, 2.7, -80.3)
     group.add(this.portal)
     light(group, [0, 3.5, -79.0], 0xc1e4d5, 18, 0.12)
-    roundedBox(group, [1.65, 0.26, 1.0], [0, 0.16, -70.3], WET_STONE, 0.04)
+    // 合符台抬出桥面（z-70.3 桥面顶 ≈0.86）：底座贴桥面、整台顶 1.49 高于桥面 0.63m
+    roundedBox(group, [1.65, 0.1, 1.0], [0, 0.9, -70.3], WET_STONE, 0.04)
     const combineBox = this.addInteraction(group, 'combine', 'reincarnation', 'combine', '将六枚半印合于路引', [0, 1.25, -70.3], [1.35, 0.48, 0.78], true)
     // 合符台：旧木案面 + 青铜压边 + 印泥痕 + 四腿落地，替代纯绿 emissive 盒
     combineBox.material = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.03, color: 0x8a6f4a, roughness: 0.62, metalness: 0.08, emissive: 0x140b04, emissiveIntensity: 0.3 })
-    for (const x of [-0.55, 0.55]) for (const z of [-0.3, 0.3]) roundedBox(group, [0.12, 0.75, 0.12], [x, 0.66, -70.3 + z], WOOD, 0.02)
+    for (const x of [-0.55, 0.55]) for (const z of [-0.3, 0.3]) roundedBox(group, [0.12, 0.08, 0.12], [x, 0.99, -70.3 + z], WOOD, 0.02)
     for (const x of [-0.62, 0.62]) roundedBox(group, [0.1, 0.5, 0.82], [x, 1.25, -70.3], BRONZE, 0.02)
     const sealPad = new THREE.Mesh(new THREE.CircleGeometry(0.3, 20), new THREE.MeshStandardMaterial({ color: 0x761824, roughness: 0.8 }))
     sealPad.rotation.x = -Math.PI / 2
@@ -2531,18 +2591,25 @@ export class EscapeWorld {
       'dengzi-scale.glb': { metalness: 0.58, roughness: 0.46 }
     }
     // v2 石板/桥面改赋程序石材质：湿石磨痕 / 青石颗粒，消除大理石塑料感与熔融高光
-    const slabStone = WET_STONE.clone()
-    slabStone.bumpScale = 0.2
-    // 湿石磨痕：压低清漆光泽避免绿玻璃感，保留微湿反光
-    slabStone.clearcoat = 0.15
-    slabStone.roughness = 0.62
-    slabStone.color.setHex(0xc4d0ca)
-    const bridgeStone = STONE.clone()
-    bridgeStone.roughness = 0.7
-    // 暗 canvas map × 中灰 color 反照率过低会读作黑桥：纯色 + bump 颗粒
-    bridgeStone.map = null
-    bridgeStone.color.setHex(0xa8b4ae)
-    bridgeStone.side = THREE.DoubleSide
+    // 湿青石：Standard 材质（省 clearcoat 填充率），低粗糙度出水膜高光，bump 磨痕
+    const slabStone = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.25, color: 0xdfe8e4, roughness: 0.55, metalness: 0.015 })
+    // 桥材质：提亮石纹 canvas 防低反照率黑桥；repeat 补 0..1 atlas UV 的颗粒密度；单面保留原法线
+    const bridgeCanvas = document.createElement('canvas')
+    bridgeCanvas.width = 512
+    bridgeCanvas.height = 512
+    const bridgeContext = bridgeCanvas.getContext('2d')!
+    bridgeContext.drawImage(stoneTexture.image as HTMLCanvasElement, 0, 0)
+    bridgeContext.globalAlpha = 0.45
+    bridgeContext.fillStyle = '#c8d0cc'
+    bridgeContext.fillRect(0, 0, 512, 512)
+    bridgeContext.globalAlpha = 1
+    const bridgeMap = new THREE.CanvasTexture(bridgeCanvas)
+    bridgeMap.wrapS = THREE.RepeatWrapping
+    bridgeMap.wrapT = THREE.RepeatWrapping
+    bridgeMap.colorSpace = THREE.SRGBColorSpace
+    bridgeMap.repeat.set(6, 6)
+    bridgeMap.anisotropy = 8
+    const bridgeStone = new THREE.MeshStandardMaterial({ map: bridgeMap, bumpMap: bridgeMap, bumpScale: 0.05, color: 0xffffff, roughness: 0.7, metalness: 0.015 })
     for (const asset of assets) {
       const place = (gltf: { scene: THREE.Group }) => {
         const model = gltf.scene
@@ -2569,22 +2636,23 @@ export class EscapeWorld {
         wrapper.position.set(asset.position[0], asset.position[1], asset.position[2])
         wrapper.rotation.y += asset.rotation
         wrapper.userData.glbAsset = asset.file
-        // 石板/桥：丢弃拉伸的 baseColor，改赋程序湿石/青石 + 世界尺寸盒投影 UV（几何保留）
-        if (asset.file === 'nine-palace-v2.glb' || asset.file === 'stone-bridge-v2.glb') {
-          const localScale = asset.layFlat
-            ? new THREE.Vector3(wrapper.scale.x, wrapper.scale.z, wrapper.scale.y)
-            : asset.longAxis === 'z'
-              ? new THREE.Vector3(wrapper.scale.z, wrapper.scale.y, wrapper.scale.x)
-              : wrapper.scale.clone()
-          const stoneMaterial = asset.file === 'nine-palace-v2.glb' ? slabStone : bridgeStone
+        // 九宫：保留 GLB 九板几何，世界尺寸盒投影 UV 修拉伸
+        if (asset.file === 'nine-palace-v2.glb') {
+          const localScale = new THREE.Vector3(wrapper.scale.x, wrapper.scale.z, wrapper.scale.y)
           model.traverse((child) => {
             if (child instanceof THREE.Mesh) {
-              const geometry = child.geometry as THREE.BufferGeometry
-              if (asset.file === 'stone-bridge-v2.glb') flattenBridgeDeck(geometry)
-              projectWorldUV(geometry, localScale, 1)
-              child.material = stoneMaterial
+              projectWorldUV(child.geometry as THREE.BufferGeometry, localScale, 1)
+              child.material = slabStone
             }
           })
+        }
+        // 桥：几何零改动（f41831c 压顶点/DoubleSide 致破碎回归已回退），仅换石质 PBR；
+        // 中段连续石板坡用新增程序 overlay 承担，不碰 GLB 顶点/法线/UV
+        if (asset.file === 'stone-bridge-v2.glb') {
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) child.material = bridgeStone
+          })
+          addContinuousDeck(this.root, bridgeStone)
         }
         // 彼岸花 GLB：血红自发光强调，乳白雾里唯一高饱和色
         if (asset.file === 'spider-lily-v2.glb') {
