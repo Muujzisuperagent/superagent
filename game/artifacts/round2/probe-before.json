@@ -1,0 +1,650 @@
+{
+  "medicine": {
+    "drawCalls": 993,
+    "triangles": 385960,
+    "groups": [
+      {
+        "index": 0,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 173,
+        "visibleMeshes": 168,
+        "z": 0
+      },
+      {
+        "index": 1,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 2,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 125,
+        "visibleMeshes": 121,
+        "z": 0
+      },
+      {
+        "index": 3,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 4,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 243,
+        "visibleMeshes": 231,
+        "z": 0
+      },
+      {
+        "index": 5,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 6,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 168,
+        "visibleMeshes": 165,
+        "z": 0
+      },
+      {
+        "index": 7,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 8,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 608,
+        "visibleMeshes": 509,
+        "z": 0
+      },
+      {
+        "index": 9,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -1.48
+      },
+      {
+        "index": 10,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -75.6
+      },
+      {
+        "index": 11,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -6.04
+      },
+      {
+        "index": 12,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -7.02
+      },
+      {
+        "index": 13,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -62.4
+      },
+      {
+        "index": 14,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -28
+      }
+    ],
+    "suspects": [
+      {
+        "name": "(mesh)",
+        "chain": "Mesh < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-6.06"
+        ],
+        "size": [
+          "0.90",
+          "0.08",
+          "0.62"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      },
+      {
+        "name": "geometry_0",
+        "chain": "geometry_0 < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-7.02"
+        ],
+        "size": [
+          "10.90",
+          "4.35",
+          "0.76"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      }
+    ]
+  },
+  "palace": {
+    "drawCalls": 689,
+    "triangles": 261620,
+    "groups": [
+      {
+        "index": 0,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 173,
+        "visibleMeshes": 168,
+        "z": 0
+      },
+      {
+        "index": 1,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 2,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 125,
+        "visibleMeshes": 121,
+        "z": 0
+      },
+      {
+        "index": 3,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 4,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 243,
+        "visibleMeshes": 231,
+        "z": 0
+      },
+      {
+        "index": 5,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 6,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 168,
+        "visibleMeshes": 165,
+        "z": 0
+      },
+      {
+        "index": 7,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 8,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 608,
+        "visibleMeshes": 509,
+        "z": 0
+      },
+      {
+        "index": 9,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -1.48
+      },
+      {
+        "index": 10,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -75.6
+      },
+      {
+        "index": 11,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -6.04
+      },
+      {
+        "index": 12,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -7.02
+      },
+      {
+        "index": 13,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -62.4
+      },
+      {
+        "index": 14,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -28
+      }
+    ],
+    "suspects": [
+      {
+        "name": "(mesh)",
+        "chain": "Mesh < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-6.06"
+        ],
+        "size": [
+          "0.90",
+          "0.08",
+          "0.62"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      },
+      {
+        "name": "geometry_0",
+        "chain": "geometry_0 < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-7.02"
+        ],
+        "size": [
+          "10.90",
+          "4.35",
+          "0.76"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      }
+    ]
+  },
+  "river": {
+    "drawCalls": 597,
+    "triangles": 193230,
+    "groups": [
+      {
+        "index": 0,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 173,
+        "visibleMeshes": 168,
+        "z": 0
+      },
+      {
+        "index": 1,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 2,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 125,
+        "visibleMeshes": 121,
+        "z": 0
+      },
+      {
+        "index": 3,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 4,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 243,
+        "visibleMeshes": 231,
+        "z": 0
+      },
+      {
+        "index": 5,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 6,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 168,
+        "visibleMeshes": 165,
+        "z": 0
+      },
+      {
+        "index": 7,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 8,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 608,
+        "visibleMeshes": 593,
+        "z": 0
+      },
+      {
+        "index": 9,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -1.48
+      },
+      {
+        "index": 10,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -6.04
+      },
+      {
+        "index": 11,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -75.6
+      },
+      {
+        "index": 12,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -7.02
+      },
+      {
+        "index": 13,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -28
+      }
+    ],
+    "suspects": [
+      {
+        "name": "(mesh)",
+        "chain": "Mesh < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-6.06"
+        ],
+        "size": [
+          "0.90",
+          "0.08",
+          "0.62"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      },
+      {
+        "name": "geometry_0",
+        "chain": "geometry_0 < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-7.02"
+        ],
+        "size": [
+          "10.90",
+          "4.35",
+          "0.76"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      }
+    ]
+  },
+  "riverSide": {
+    "drawCalls": 471,
+    "triangles": 170432,
+    "groups": [
+      {
+        "index": 0,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 173,
+        "visibleMeshes": 168,
+        "z": 0
+      },
+      {
+        "index": 1,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 2,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 125,
+        "visibleMeshes": 121,
+        "z": 0
+      },
+      {
+        "index": 3,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 4,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 243,
+        "visibleMeshes": 231,
+        "z": 0
+      },
+      {
+        "index": 5,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 6,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 168,
+        "visibleMeshes": 165,
+        "z": 0
+      },
+      {
+        "index": 7,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 5,
+        "visibleMeshes": 5,
+        "z": 0
+      },
+      {
+        "index": 8,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 608,
+        "visibleMeshes": 593,
+        "z": 0
+      },
+      {
+        "index": 9,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -1.48
+      },
+      {
+        "index": 10,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -6.04
+      },
+      {
+        "index": 11,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -75.6
+      },
+      {
+        "index": 12,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -7.02
+      },
+      {
+        "index": 13,
+        "name": "(group)",
+        "type": "Group",
+        "meshes": 1,
+        "visibleMeshes": 1,
+        "z": -28
+      }
+    ],
+    "suspects": [
+      {
+        "name": "(mesh)",
+        "chain": "Mesh < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-6.06"
+        ],
+        "size": [
+          "0.90",
+          "0.08",
+          "0.62"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      },
+      {
+        "name": "geometry_0",
+        "chain": "geometry_0 < Group < Group",
+        "center": [
+          "0.00",
+          "2.42",
+          "-7.02"
+        ],
+        "size": [
+          "10.90",
+          "4.35",
+          "0.76"
+        ],
+        "rot": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      }
+    ]
+  }
+}

@@ -35,11 +35,12 @@ body {
   gap: 4px;
   font-size: 13px;
   letter-spacing: 0.04em;
-  opacity: 0.86;
+  opacity: 0.94;
   pointer-events: none;
   max-width: 520px;
   padding: 12px 16px;
-  background: linear-gradient(90deg, rgba(6, 10, 9, 0.72), transparent);
+  background: linear-gradient(90deg, rgba(5, 9, 8, 0.9) 0%, rgba(5, 9, 8, 0.78) 62%, rgba(5, 9, 8, 0) 100%);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 #hud strong {
@@ -50,7 +51,7 @@ body {
 
 #act { color: var(--brass); margin-top: 8px; }
 #objective { max-width: 420px; line-height: 1.6; }
-#inventory { color: #a5b6a5; font-size: 12px; }
+#inventory { color: #bccdbb; font-size: 12px; }
 
 #crosshair {
   position: fixed;
@@ -192,4 +193,183 @@ button.ghost {
 
 #keypad-message.error {
   color: #e28a8a;
+}
+
+/* ===================== 首屏引路遮罩 ===================== */
+#loading-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 118%, rgba(111, 174, 155, 0.16), transparent 62%),
+    radial-gradient(90% 60% at 50% -10%, rgba(201, 162, 90, 0.12), transparent 60%),
+    linear-gradient(168deg, #0a0f0e 0%, #080a0c 46%, #05070a 100%);
+  opacity: 1;
+  transition: opacity 400ms ease;
+}
+
+#loading-veil.veil-out { opacity: 0; }
+#loading-veil.veil-gone { display: none !important; pointer-events: none !important; }
+
+#loading-veil .veil-inner {
+  width: min(520px, 86vw);
+  padding: 34px 30px 28px;
+  text-align: center;
+  border: 1px solid rgba(201, 162, 90, 0.32);
+  background: linear-gradient(160deg, rgba(20, 26, 24, 0.86), rgba(9, 11, 13, 0.9));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), inset 0 0 60px rgba(111, 174, 155, 0.06);
+}
+
+#loading-veil .veil-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  color: #7fa898;
+}
+
+#loading-veil .veil-title {
+  margin: 12px 0 6px;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--brass);
+  text-shadow: 0 0 26px rgba(201, 162, 90, 0.35);
+}
+
+#loading-veil .veil-sub {
+  margin: 0 0 22px;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: rgba(233, 228, 216, 0.72);
+}
+
+#loading-veil .veil-track {
+  position: relative;
+  height: 3px;
+  overflow: hidden;
+  background: rgba(233, 228, 216, 0.12);
+}
+
+#loading-veil .veil-bar {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #6fae9b, var(--brass));
+  box-shadow: 0 0 12px rgba(201, 162, 90, 0.55);
+  transition: width 260ms ease;
+}
+
+#loading-veil.veil-indeterminate .veil-bar {
+  width: 34%;
+  transition: none;
+  animation: veil-sweep 1.25s ease-in-out infinite;
+}
+
+@keyframes veil-sweep {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(320%); }
+}
+
+#loading-veil .veil-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 228, 216, 0.6);
+}
+
+#loading-veil .veil-percent { color: var(--brass); }
+
+#loading-veil .veil-hint {
+  margin: 20px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: rgba(165, 182, 165, 0.72);
+}
+
+/* ===================== 声音开关 ===================== */
+#audio-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 12;
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  background: rgba(10, 15, 13, 0.82);
+  border: 1px solid rgba(201, 162, 90, 0.45);
+  cursor: pointer;
+}
+
+#audio-toggle:hover { border-color: var(--brass); filter: brightness(1.12); }
+#audio-toggle.muted { color: #9aa79a; border-color: rgba(233, 228, 216, 0.22); }
+
+/* ===================== 锁定提示 ===================== */
+#lock-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 26%;
+  transform: translateX(-50%);
+  z-index: 11;
+  padding: 10px 18px;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  background: rgba(8, 12, 11, 0.78);
+  border: 1px solid rgba(111, 174, 155, 0.4);
+  pointer-events: none;
+  animation: hint-breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes hint-breathe {
+  0%, 100% { opacity: 0.62; }
+  50% { opacity: 1; }
+}
+
+/* ===================== 引路牌 ===================== */
+#wayfinder {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 320px;
+  padding: 10px 14px;
+  background: linear-gradient(270deg, rgba(5, 9, 8, 0.9) 0%, rgba(5, 9, 8, 0.72) 70%, rgba(5, 9, 8, 0.35) 100%);
+  border-right: 2px solid rgba(201, 162, 90, 0.55);
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+#wayfinder .wf-arrow {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  font-size: 16px;
+  color: #6fae9b;
+  border: 1px solid rgba(111, 174, 155, 0.45);
+  border-radius: 50%;
+  transition: transform 120ms linear;
+}
+
+#wayfinder.near .wf-arrow { color: var(--brass); border-color: rgba(201, 162, 90, 0.7); }
+
+#wayfinder .wf-body { display: flex; flex-direction: column; gap: 3px; text-align: right; }
+#wayfinder .wf-name { font-size: 13px; letter-spacing: 0.08em; color: var(--ink); line-height: 1.4; }
+#wayfinder .wf-meta { font-size: 11px; letter-spacing: 0.1em; color: #a5b6a5; }
+
+@media (max-width: 720px) {
+  #hud { max-width: 62vw; font-size: 12px; }
+  #wayfinder { max-width: 44vw; top: auto; bottom: 62px; right: 12px; }
+  #loading-veil .veil-title { font-size: 30px; }
 }

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { ACTS, type ActId } from './story'
 import { SCALE_WEIGHTS } from './puzzles_act23'
 
@@ -109,6 +110,77 @@ const TILE_EDGE = new THREE.MeshStandardMaterial({ color: 0x4b564d, roughness: 0
 const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.03, color: 0x8d8267, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
 const LILY_RED = new THREE.MeshStandardMaterial({ color: 0x9c2530, emissive: 0x1c0608, emissiveIntensity: 0.45, roughness: 0.62, side: THREE.DoubleSide })
 const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.02, color: 0x6f7164, roughness: 0.96, side: THREE.DoubleSide })
+const SOUL_INNER = new THREE.MeshStandardMaterial({ map: clothTexture, color: 0x7b7d6c, roughness: 1, side: THREE.DoubleSide })
+const SOUL_HEAD = new THREE.MeshStandardMaterial({ color: 0x565b52, roughness: 1 })
+const SOUL_SASH = new THREE.MeshStandardMaterial({ color: 0x5a2524, roughness: 0.85 })
+const SOUL_FOOT = new THREE.MeshStandardMaterial({ color: 0x25241f, roughness: 1 })
+const LANTERN_PAPER = new THREE.MeshPhysicalMaterial({ color: 0xd4d2bb, roughness: 0.75, transparent: true, opacity: 0.78, emissive: 0x9fd8c0, emissiveIntensity: 0.5 })
+const WHEEL_SECTOR = [
+  new THREE.MeshStandardMaterial({ color: 0x303a34, emissive: 0x16211c, emissiveIntensity: 0.55, roughness: 0.82, side: THREE.DoubleSide }),
+  new THREE.MeshStandardMaterial({ color: 0x4a4d40, emissive: 0x1d231a, emissiveIntensity: 0.55, roughness: 0.82, side: THREE.DoubleSide })
+]
+const bulbMaterials = new Map<number, THREE.MeshBasicMaterial>()
+const GHOST_FLAME = new THREE.MeshBasicMaterial({ color: 0x69e6a8 })
+const BANNER_MARK = new THREE.MeshStandardMaterial({ color: 0x34423c, roughness: 1, transparent: true, opacity: 0.72 })
+const ROPE = new THREE.MeshStandardMaterial({ color: 0x6c6450, roughness: 1 })
+const BROTH = new THREE.MeshPhysicalMaterial({ color: 0x66776b, roughness: 0.2 })
+const STAR = new THREE.MeshStandardMaterial({ color: 0x93a493, metalness: 0.85, roughness: 0.3 })
+const JAR_MATERIALS = [
+  new THREE.MeshPhysicalMaterial({ color: 0x6e6551, roughness: 0.38, clearcoat: 0.35 }),
+  new THREE.MeshPhysicalMaterial({ color: 0x5e6860, roughness: 0.38, clearcoat: 0.35 })
+]
+
+/** 静态几何合批：把 group 内无动画/无交互引用的 mesh 按材质合并，draw call 从 N 降到材质数。
+ *  keep 集合里的节点（及其子树）原样保留；InstancedMesh 与带 userData 动画标记的节点跳过。 */
+function bakeStatic(group: THREE.Object3D, keep: Set<THREE.Object3D>): void {
+  group.updateMatrixWorld(true)
+  const inverse = new THREE.Matrix4().copy(group.matrixWorld).invert()
+  const buckets = new Map<THREE.Material, { geometries: THREE.BufferGeometry[]; meshes: THREE.Mesh[]; castShadow: boolean; receiveShadow: boolean }>()
+  const visit = (node: THREE.Object3D): void => {
+    if (keep.has(node)) return
+    if (node.userData.water || node.userData.mist || node.userData.hang || node.userData.origin || node.userData.steamOffset !== undefined) return
+    const mesh = node as THREE.Mesh
+    if (mesh.isMesh && !(mesh as THREE.InstancedMesh).isInstancedMesh && !Array.isArray(mesh.material)) {
+      const geometry = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone()
+      geometry.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse, mesh.matrixWorld))
+      for (const name of Object.keys(geometry.attributes)) {
+        if (name !== 'position' && name !== 'normal' && name !== 'uv') geometry.deleteAttribute(name)
+      }
+      if (!geometry.attributes.normal) geometry.computeVertexNormals()
+      if (!geometry.attributes.uv) {
+        const count = geometry.attributes.position.count
+        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(count * 2), 2))
+      }
+      let bucket = buckets.get(mesh.material as THREE.Material)
+      if (!bucket) {
+        bucket = { geometries: [], meshes: [], castShadow: false, receiveShadow: false }
+        buckets.set(mesh.material as THREE.Material, bucket)
+      }
+      bucket.geometries.push(geometry)
+      bucket.meshes.push(mesh)
+      bucket.castShadow = bucket.castShadow || mesh.castShadow
+      bucket.receiveShadow = bucket.receiveShadow || mesh.receiveShadow
+      return
+    }
+    for (const child of [...node.children]) visit(child)
+  }
+  for (const child of [...group.children]) visit(child)
+  for (const [material, bucket] of buckets) {
+    if (bucket.meshes.length < 2) {
+      for (const geometry of bucket.geometries) geometry.dispose()
+      continue
+    }
+    const merged = mergeGeometries(bucket.geometries, false)
+    for (const geometry of bucket.geometries) geometry.dispose()
+    if (!merged) continue
+    const mesh = new THREE.Mesh(merged, material)
+    mesh.castShadow = bucket.castShadow
+    mesh.receiveShadow = bucket.receiveShadow
+    mesh.name = `baked-${group.name || group.type}`
+    for (const original of bucket.meshes) original.removeFromParent()
+    group.add(mesh)
+  }
+}
 
 const floatingObjects: THREE.Object3D[] = []
 const animatedSteam: THREE.Object3D[] = []
@@ -183,7 +255,12 @@ function label(parent: THREE.Object3D, text: string, position: [number, number, 
 }
 
 function light(parent: THREE.Object3D, position: [number, number, number], color = 0xa8d8c3, intensity = 5, radius = 0.11): void {
-  const lamp = new THREE.Mesh(new THREE.SphereGeometry(radius, 16, 10), new THREE.MeshBasicMaterial({ color }))
+  let bulbMaterial = bulbMaterials.get(color)
+  if (!bulbMaterial) {
+    bulbMaterial = new THREE.MeshBasicMaterial({ color })
+    bulbMaterials.set(color, bulbMaterial)
+  }
+  const lamp = new THREE.Mesh(new THREE.SphereGeometry(radius, 16, 10), bulbMaterial)
   lamp.position.set(...position)
   parent.add(lamp)
   const source = new THREE.PointLight(color, intensity, 9, 1.7)
@@ -191,19 +268,35 @@ function light(parent: THREE.Object3D, position: [number, number, number], color
   parent.add(source)
 }
 
-function addPaper(parent: THREE.Object3D, position: [number, number, number], size: [number, number], rotation: [number, number, number] = [0, 0, 0]): THREE.Mesh {
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size[0], size[1]), PAPER.clone())
+function addPaper(parent: THREE.Object3D, position: [number, number, number], size: [number, number], rotation: [number, number, number] = [0, 0, 0], drift = true): THREE.Mesh {
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size[0], size[1]), PAPER)
   mesh.position.set(...position)
   mesh.rotation.set(...rotation)
-  mesh.userData.origin = mesh.position.clone()
-  floatingObjects.push(mesh)
+  if (drift) {
+    mesh.userData.origin = mesh.position.clone()
+    floatingObjects.push(mesh)
+  }
   parent.add(mesh)
   return mesh
 }
 
+/** 成串纸钱：可见麻绳 + 等距纸片，贴墙垂挂，不飘不转（替代随机 confetti）。 */
+function addPaperString(parent: THREE.Object3D, position: [number, number, number], count: number, rotationY = 0): void {
+  const string = new THREE.Group()
+  string.position.set(...position)
+  string.rotation.y = rotationY
+  parent.add(string)
+  const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, count * 0.3 + 0.2, 5), ROPE)
+  cord.position.y = -(count * 0.3) / 2
+  string.add(cord)
+  for (let index = 0; index < count; index += 1) {
+    addPaper(string, [0, -0.16 - index * 0.3, 0.012], [0.2, 0.26], [0, 0, (index % 2 ? 1 : -1) * 0.05], false)
+  }
+}
+
 function addBanner(parent: THREE.Object3D, position: [number, number, number], size: [number, number], rotationY = 0): THREE.Mesh {
-  const rows = 10
-  const columns = 6
+  const rows = 12
+  const columns = 8
   const positions: number[] = []
   const uvs: number[] = []
   const indices: number[] = []
@@ -213,7 +306,7 @@ function addBanner(parent: THREE.Object3D, position: [number, number, number], s
       const edge = (column === 0 || column === columns) && row === rows ? (column === 0 ? 0.08 : -0.05) : 0
       const x = (column / columns - 0.5) * size[0]
       const y = -t * size[1] + edge
-      const wave = Math.sin(column * 0.9 + row * 0.36) * t * 0.24
+      const wave = Math.sin(column * 0.9 + row * 0.36) * t * 0.34 + Math.sin(row * 1.9 + column * 0.5) * t * 0.06
       positions.push(x, y, wave)
       uvs.push(column / columns, 1 - t)
       if (row < rows && column < columns) {
@@ -234,6 +327,16 @@ function addBanner(parent: THREE.Object3D, position: [number, number, number], s
   banner.userData.hang = true
   floatingObjects.push(banner)
   parent.add(banner)
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, size[0] + 0.3, 8), WOOD)
+  rod.rotation.z = Math.PI / 2
+  rod.position.set(...position)
+  rod.rotation.y = rotationY
+  parent.add(rod)
+  for (const side of [-1, 1]) {
+    const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.34, 5), ROPE)
+    rope.position.set(position[0] + Math.cos(rotationY) * side * (size[0] / 2 - 0.06), position[1] + 0.17, position[2] - Math.sin(rotationY) * side * (size[0] / 2 - 0.06))
+    parent.add(rope)
+  }
   return banner
 }
 
@@ -277,7 +380,7 @@ function addRaggedBanner(parent: THREE.Object3D, position: [number, number, numb
   floatingObjects.push(banner)
   group.add(banner)
   for (const x of [-size[0] / 2 + 0.12, size[0] / 2 - 0.12]) {
-    const rope = cylinder(group, 0.012, 0.5, [x, 0.28, 0], new THREE.MeshStandardMaterial({ color: 0x6c6450, roughness: 1 }))
+    const rope = cylinder(group, 0.012, 0.5, [x, 0.28, 0], ROPE)
     rope.castShadow = false
   }
   return group
@@ -341,11 +444,13 @@ function addLanternBracket(parent: THREE.Object3D, postX: number, postY: number,
 
 function addLilyField(parent: THREE.Object3D): void {
   const clusters = 110
-  const petalGeometry = new THREE.SphereGeometry(0.15, 8, 5)
+  // 细长反卷瓣：窄长球壳沿瓣轴渐卷，尖端下垂；另加外伸蕊丝，去掉星芒感。
+  const petalGeometry = new THREE.SphereGeometry(0.15, 7, 5)
+  const stamenGeometry = new THREE.CylinderGeometry(0.0045, 0.002, 1, 4)
   const coreGeometry = new THREE.SphereGeometry(0.032, 6, 5)
   const stemGeometry = new THREE.CylinderGeometry(0.011, 0.011, 1, 5)
-  const petalCount = clusters * 7
-  const petals = new THREE.InstancedMesh(petalGeometry, LILY_RED, petalCount)
+  const petals = new THREE.InstancedMesh(petalGeometry, LILY_RED, clusters * 6)
+  const stamens = new THREE.InstancedMesh(stamenGeometry, new THREE.MeshStandardMaterial({ color: 0xc9a08a, roughness: 0.85 }), clusters * 6)
   const cores = new THREE.InstancedMesh(coreGeometry, new THREE.MeshStandardMaterial({ color: 0x6e2a2c, roughness: 0.8 }), clusters)
   const stems = new THREE.InstancedMesh(stemGeometry, new THREE.MeshStandardMaterial({ color: 0x2c352a, roughness: 1 }), clusters)
   const matrix = new THREE.Matrix4()
@@ -354,9 +459,11 @@ function addLilyField(parent: THREE.Object3D): void {
   const point = new THREE.Vector3()
   const euler = new THREE.Euler()
   let petalIndex = 0
+  let stamenIndex = 0
   for (let index = 0; index < clusters; index += 1) {
     const side = index % 2 === 0 ? -1 : 1
     const onBank = index % 5 !== 0
+    const clump = Math.random() < 0.3 ? 0.45 : 1
     const x = onBank
       ? side * (10.2 + Math.random() * 3.9)
       : side * (2.6 + Math.random() * 4.6)
@@ -364,24 +471,33 @@ function addLilyField(parent: THREE.Object3D): void {
       ? -48.5 - Math.random() * 28
       : (Math.random() < 0.5 ? -48.4 - Math.random() * 3.2 : -72.8 - Math.random() * 3.4)
     const ground = onBank ? 0.27 : 0.07
-    const stemHeight = 0.36 + Math.random() * 0.4
-    const bloomScale = 0.75 + Math.random() * 0.55
+    const stemHeight = (0.36 + Math.random() * 0.4) * clump
+    const bloomScale = (0.75 + Math.random() * 0.55) * clump
     const yaw = Math.random() * Math.PI * 2
     point.set(x, ground + stemHeight / 2, z)
     scale.set(1, stemHeight, 1)
     quaternion.identity()
     matrix.compose(point, quaternion, scale)
     stems.setMatrixAt(index, matrix)
-    for (let petal = 0; petal < 7; petal += 1) {
-      const angle = yaw + petal * Math.PI * 2 / 7
-      const reach = 0.16 * bloomScale
-      point.set(x + Math.cos(angle) * reach, ground + stemHeight + 0.1, z + Math.sin(angle) * reach)
-      euler.set(0.62, angle, 0.12)
+    for (let petal = 0; petal < 6; petal += 1) {
+      const angle = yaw + petal * Math.PI / 3
+      const curl = 1.15 + (petal % 3) * 0.16
+      const reach = 0.13 * bloomScale
+      point.set(x + Math.cos(angle) * reach, ground + stemHeight + 0.06 * bloomScale - (petal % 2) * 0.03 * bloomScale, z + Math.sin(angle) * reach)
+      euler.set(curl, angle, 0.1)
       quaternion.setFromEuler(euler)
-      scale.set(0.17 * bloomScale, 0.2 * bloomScale, 1.6 * bloomScale)
+      scale.set(0.05 * bloomScale, 0.055 * bloomScale, 2.0 * bloomScale)
       matrix.compose(point, quaternion, scale)
       petals.setMatrixAt(petalIndex, matrix)
       petalIndex += 1
+      const sAngle = angle + Math.PI / 6
+      point.set(x + Math.cos(sAngle) * 0.1 * bloomScale, ground + stemHeight + 0.12 * bloomScale, z + Math.sin(sAngle) * 0.1 * bloomScale)
+      euler.set(0.55, sAngle, 0)
+      quaternion.setFromEuler(euler)
+      scale.set(1, 0.3 * bloomScale, 1)
+      matrix.compose(point, quaternion, scale)
+      stamens.setMatrixAt(stamenIndex, matrix)
+      stamenIndex += 1
     }
     point.set(x, ground + stemHeight + 0.03, z)
     scale.set(1, 1, 1)
@@ -390,26 +506,28 @@ function addLilyField(parent: THREE.Object3D): void {
     cores.setMatrixAt(index, matrix)
   }
   petals.instanceMatrix.needsUpdate = true
+  stamens.instanceMatrix.needsUpdate = true
   cores.instanceMatrix.needsUpdate = true
   stems.instanceMatrix.needsUpdate = true
   petals.castShadow = false
+  stamens.castShadow = false
   cores.castShadow = false
   stems.castShadow = false
   petals.receiveShadow = false
-  parent.add(petals, cores, stems)
+  parent.add(petals, stamens, cores, stems)
 }
 
-function addSteam(parent: THREE.Object3D, position: [number, number, number]): void {
+function addSteam(parent: THREE.Object3D, position: [number, number, number], heightScale = 1): void {
   const steamMaterial = new THREE.MeshBasicMaterial({ color: 0xb5c9c1, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
   for (let index = 0; index < 4; index += 1) {
     const points = []
     for (let step = 0; step <= 10; step += 1) {
       const t = step / 10
-      points.push(new THREE.Vector3(Math.sin(t * 5 + index) * 0.08, t * (0.8 + index * 0.11), Math.cos(t * 3 + index) * 0.05))
+      points.push(new THREE.Vector3(Math.sin(t * 5 + index) * 0.08 * heightScale, t * (0.8 + index * 0.11) * heightScale, Math.cos(t * 3 + index) * 0.05 * heightScale))
     }
     const path = new THREE.CatmullRomCurve3(points)
-    const wisp = new THREE.Mesh(new THREE.TubeGeometry(path, 20, 0.018 + index * 0.003, 5, false), steamMaterial.clone())
-    wisp.position.set(position[0] + index * 0.05, position[1], position[2])
+    const wisp = new THREE.Mesh(new THREE.TubeGeometry(path, 20, (0.018 + index * 0.003) * heightScale, 5, false), steamMaterial.clone())
+    wisp.position.set(position[0] + index * 0.05 * heightScale, position[1], position[2])
     wisp.userData.steamOffset = index
     animatedSteam.push(wisp)
     parent.add(wisp)
@@ -421,7 +539,7 @@ function addLantern(parent: THREE.Object3D, position: [number, number, number], 
   lantern.position.set(...position)
   lantern.scale.setScalar(scale)
   parent.add(lantern)
-  const lanternPaper = new THREE.MeshPhysicalMaterial({ color: 0xd4d2bb, roughness: 0.75, transparent: true, opacity: 0.78, emissive: 0x38433c, emissiveIntensity: 0.24 })
+  const lanternPaper = LANTERN_PAPER
   roundedBox(lantern, [0.42, 0.7, 0.42], [0, 0, 0], lanternPaper, 0.12)
   for (const y of [-0.26, 0.26]) {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.245, 0.018, 6, 24), BRONZE)
@@ -462,10 +580,10 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.45, 1.35, 10, 1, true), robeMaterial)
   robe.position.y = 0.82
   soul.add(robe)
-  const innerRobe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.4, 10, 1, true), new THREE.MeshStandardMaterial({ map: clothTexture, color: 0x7b7d6c, roughness: 1, side: THREE.DoubleSide }))
+  const innerRobe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.4, 10, 1, true), SOUL_INNER)
   innerRobe.position.y = 0.83
   soul.add(innerRobe)
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshStandardMaterial({ color: 0x565b52, roughness: 1 }))
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), SOUL_HEAD)
   head.position.y = 1.68
   soul.add(head)
   const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.43, 0.055, 20), WOOD)
@@ -483,11 +601,11 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
     sleeve.rotation.z = side * -0.18
     soul.add(sleeve)
   }
-  const sash = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.055, 0.025), new THREE.MeshStandardMaterial({ color: 0x5a2524, roughness: 0.85 }))
+  const sash = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.055, 0.025), SOUL_SASH)
   sash.position.set(0, 0.75, 0.34)
   soul.add(sash)
   for (const side of [-1, 1]) {
-    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.26), new THREE.MeshStandardMaterial({ color: 0x25241f, roughness: 1 }))
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.26), SOUL_FOOT)
     foot.position.set(side * 0.1, 0.045, 0.05)
     soul.add(foot)
   }
@@ -575,6 +693,7 @@ export class EscapeWorld {
 
   private room(act: ActId, center: number, title: string): THREE.Group {
     const group = new THREE.Group()
+    group.userData.act = act
     this.root.add(group)
     box(group, [14, 0.35, 16], [0, -0.175, center], STONE)
     const floorGeometry = new RoundedBoxGeometry(1.84, 0.13, 1.84, 1, 0.035)
@@ -627,8 +746,8 @@ export class EscapeWorld {
       box(group, [0.06, 2.3, 2.1], [x, 2.35, center + 0.4], CLOTH)
       for (let index = 0; index < 5; index += 1) box(group, [0.045, 2.35, 0.035], [x + (x < 0 ? 0.035 : -0.035), 2.35, center - 0.45 + index * 0.42], WOOD)
     }
-    addPaper(group, [-6.72, 2.3, center - 2.8], [0.68, 1.4], [0, Math.PI / 2, -0.04])
-    addPaper(group, [6.72, 2.6, center + 2.7], [0.58, 1.2], [0, -Math.PI / 2, 0.06])
+    addPaper(group, [-6.72, 2.3, center - 2.8], [0.68, 1.4], [0, Math.PI / 2, -0.04], false)
+    addPaper(group, [6.72, 2.6, center + 2.7], [0.58, 1.2], [0, -Math.PI / 2, 0.06], false)
     this.addInteraction(group, 'exit', act, 'exit', '穿过暗门，前往下一殿', [0, 1.3, center - 7.65], [1.65, 2.5, 0.25], false)
     return group
   }
@@ -638,17 +757,23 @@ export class EscapeWorld {
     const cabinet = new THREE.Group()
     cabinet.name = 'medicine-cabinet-fallback'
     group.add(cabinet)
-    box(cabinet, [10.9, 4.35, 0.76], [0, 2.42, -7.02], WOOD)
+    // 柜分两段、中间留 2.9m 门洞对齐北门（x±1.45），出口与雾不再被柜体封死。
+    for (const side of [-1, 1]) box(cabinet, [4.0, 4.35, 0.76], [side * 3.45, 2.42, -7.02], WOOD)
     const drawerMaterial = WOOD.clone()
     drawerMaterial.color.setHex(0x999078)
-    const drawerGeometry = new RoundedBoxGeometry(0.76, 0.37, 0.43, 2, 0.035)
+    const drawerGeometry = new RoundedBoxGeometry(0.6, 0.37, 0.43, 2, 0.035)
     const drawers = new THREE.InstancedMesh(drawerGeometry, drawerMaterial, 108)
     const transform = new THREE.Object3D()
+    const drawerSpot = (index: number): [number, number, number] => {
+      const bank = index < 54 ? -1 : 1
+      const local = index % 54
+      const row = Math.floor(local / 6)
+      const column = local % 6
+      const open = bank === -1 && row === 4 && column === 2
+      return [bank * (1.78 + column * 0.66), 0.58 + row * 0.45, -6.56 + (open ? 0.22 : 0)]
+    }
     for (let index = 0; index < 108; index += 1) {
-      const row = Math.floor(index / 12)
-      const column = index % 12
-      const openDrawer = row === 4 && column === 5
-      transform.position.set(-4.85 + column * 0.88, 0.58 + row * 0.45, -6.56 + (openDrawer ? 0.22 : 0))
+      transform.position.set(...drawerSpot(index))
       transform.updateMatrix()
       drawers.setMatrixAt(index, transform.matrix)
     }
@@ -657,14 +782,12 @@ export class EscapeWorld {
     const pulls = new THREE.InstancedMesh(new THREE.TorusGeometry(0.058, 0.015, 7, 18), BRONZE, 108)
     const drawerLabels = new THREE.InstancedMesh(new RoundedBoxGeometry(0.2, 0.105, 0.035, 1, 0.018), BRONZE, 108)
     for (let index = 0; index < 108; index += 1) {
-      const row = Math.floor(index / 12)
-      const column = index % 12
-      const openDrawer = row === 4 && column === 5
-      transform.position.set(-4.85 + column * 0.88, 0.58 + row * 0.45, -6.295 + (openDrawer ? 0.22 : 0))
+      const [dx, dy, dz] = drawerSpot(index)
+      transform.position.set(dx, dy, dz + 0.265)
       transform.rotation.set(0, 0, 0)
       transform.updateMatrix()
       pulls.setMatrixAt(index, transform.matrix)
-      transform.position.set(-5.08 + column * 0.88, 0.64 + row * 0.45, -6.27 + (openDrawer ? 0.22 : 0))
+      transform.position.set(dx - 0.23, dy + 0.06, dz + 0.29)
       transform.updateMatrix()
       drawerLabels.setMatrixAt(index, transform.matrix)
     }
@@ -672,18 +795,18 @@ export class EscapeWorld {
     drawerLabels.instanceMatrix.needsUpdate = true
     cabinet.add(pulls)
     cabinet.add(drawerLabels)
-    for (const x of [-5.45, 5.45]) {
+    for (const x of [-5.45, 5.45, -1.45, 1.45]) {
       roundedBox(cabinet, [0.18, 4.55, 0.92], [x, 2.42, -7.02], WOOD, 0.04)
       roundedBox(cabinet, [0.22, 0.18, 1.0], [x, 0.25, -7.02], BRONZE, 0.035)
     }
 
     const openTray = new THREE.Group()
-    openTray.position.set(0, 0, -6.06)
+    openTray.position.set(-3.1, 0, -6.12)
     group.add(openTray)
-    roundedBox(openTray, [0.9, 0.08, 0.62], [0, 2.42, 0], WOOD, 0.04)
-    const heroBowl = bowl(openTray, [0, 2.43, 0.03], 0.3, 0.24, CELADON)
+    roundedBox(openTray, [0.9, 0.08, 0.62], [0, 2.6, 0], WOOD, 0.04)
+    const heroBowl = bowl(openTray, [0, 2.61, 0.03], 0.3, 0.24, CELADON)
     heroBowl.name = 'celadon-bowl-fallback'
-    light(openTray, [0, 2.91, 0.03], 0xb6e7d4, 3.5, 0.045)
+    light(openTray, [0, 3.09, 0.03], 0xb6e7d4, 3.5, 0.045)
 
     const sideCabinet = new THREE.Group()
     sideCabinet.position.set(5.65, 0, -2.5)
@@ -719,21 +842,26 @@ export class EscapeWorld {
     const mill = new THREE.Group()
     mill.position.set(-1.6, 1.3, -1.48)
     bench.add(mill)
-    const millBowl = new THREE.Mesh(new THREE.CylinderGeometry(0.39, 0.47, 0.22, 32), BRONZE)
-    mill.add(millBowl)
-    const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.16, 28), WET_STONE)
+    // 船形碾槽 + 横立碾轮：读作药碾而非黑球
+    roundedBox(mill, [1.05, 0.22, 0.44], [0, 0.04, 0], WET_STONE, 0.1)
+    const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.1, 24), WET_STONE)
     roller.rotation.x = Math.PI / 2
-    roller.position.set(0.04, 0.23, 0)
+    roller.position.set(0.08, 0.26, 0)
     mill.add(roller)
-    const pestle = cylinder(mill, 0.05, 0.96, [0, 0.28, 0], WOOD)
-    pestle.rotation.z = Math.PI / 2
+    const axle = cylinder(mill, 0.024, 0.56, [0.08, 0.26, 0], WOOD)
+    axle.rotation.x = Math.PI / 2
+    for (const side of [-1, 1]) {
+      const handle = cylinder(mill, 0.028, 0.34, [0.08, 0.26, side * 0.36], WOOD)
+      handle.rotation.x = Math.PI / 2
+    }
 
     const herbs = [
       { id: 'danggui', x: -0.35, color: 0x927455, name: '当归（君）', type: 'root' },
       { id: 'yuanzhi', x: 0.48, color: 0x7c855f, name: '远志（臣）', type: 'leaf' },
-      { id: 'hehuan', x: 1.28, color: 0x9a6262, name: '合欢（佐）', type: 'flower' },
+      { id: 'hehuan', x: 1.28, color: 0x8a5a52, name: '合欢（佐）', type: 'flower' },
       { id: 'wangyou', x: 2.08, color: 0x9a8b5d, name: '忘忧（使）', type: 'leaf' }
     ]
+    const flowerMaterial = new THREE.MeshStandardMaterial({ color: 0x96605c, roughness: 0.82 })
     for (const herb of herbs) {
       const bundle = new THREE.Group()
       bundle.position.set(herb.x, 1.29, -1.53)
@@ -742,22 +870,23 @@ export class EscapeWorld {
       for (let piece = 0; piece < 10; piece += 1) {
         if (herb.type === 'root') {
           const root = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.007, 0.25 + (piece % 3) * 0.07, 7), material)
-          root.position.set(Math.sin(piece * 4) * 0.11, 0.03, Math.cos(piece * 2) * 0.09)
+          root.position.set(Math.sin(piece * 4) * 0.11, 0.03 + (piece % 3) * 0.02, Math.cos(piece * 2) * 0.09)
           root.rotation.z = (piece - 3) * 0.12
           bundle.add(root)
         } else {
           const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 7), material)
-          leaf.scale.set(0.58, 0.15, 1.35)
-          leaf.position.set(Math.sin(piece * 5) * 0.11, 0.04, Math.cos(piece * 3) * 0.1)
+          leaf.scale.set(0.5, 0.3, 1.2)
+          leaf.position.set(Math.sin(piece * 5) * 0.11, 0.04 + (piece % 4) * 0.035, Math.cos(piece * 3) * 0.1)
           leaf.rotation.y = piece * 0.72
+          leaf.rotation.x = (piece % 3 - 1) * 0.22
           bundle.add(leaf)
         }
       }
       if (herb.type === 'flower') {
         for (let petal = 0; petal < 8; petal += 1) {
-          const flower = new THREE.Mesh(new THREE.SphereGeometry(0.12, 9, 6), new THREE.MeshStandardMaterial({ color: 0xa56368, roughness: 0.82 }))
-          flower.scale.set(0.4, 0.16, 0.9)
-          flower.position.set(Math.cos(petal * Math.PI / 4) * 0.12, 0.14, Math.sin(petal * Math.PI / 4) * 0.12)
+          const flower = new THREE.Mesh(new THREE.SphereGeometry(0.12, 9, 6), flowerMaterial)
+          flower.scale.set(0.4, 0.22, 0.9)
+          flower.position.set(Math.cos(petal * Math.PI / 4) * 0.12, 0.16 + (petal % 2) * 0.04, Math.sin(petal * Math.PI / 4) * 0.12)
           flower.rotation.y = petal * Math.PI / 4
           bundle.add(flower)
         }
@@ -778,8 +907,16 @@ export class EscapeWorld {
     const evidence = new THREE.Group()
     evidence.position.set(3.85, 1.3, -1.48)
     bench.add(evidence)
-    for (let index = 0; index < 4; index += 1) addPaper(evidence, [Math.sin(index) * 0.1, index * 0.012, Math.cos(index) * 0.07], [0.3, 0.4], [index * 0.02, index * 0.11, index * 0.05])
+    for (let index = 0; index < 4; index += 1) addPaper(evidence, [Math.sin(index) * 0.1, index * 0.012, Math.cos(index) * 0.07], [0.3, 0.4], [index * 0.02, index * 0.11, index * 0.05], false)
     this.addInteraction(evidence, 'evidence', 'medicine', 'C', '取得证据 C · 朱笔改字与簿页残片', [0, 0.2, 0], [0.46, 0.42, 0.12], true)
+    // 朱砂点缀：印泥盒 + 药束朱绳
+    roundedBox(bench, [0.18, 0.1, 0.18], [3.9, 1.28, -2.3], RED, 0.03)
+    for (const herb of herbs) {
+      const cord = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.014, 6, 16), RED)
+      cord.position.set(herb.x, 1.33, -1.53)
+      cord.rotation.x = Math.PI / 2
+      bench.add(cord)
+    }
     roundedBox(bench, [0.42, 0.4, 0.42], [4.55, 1.38, -2.6], BRONZE, 0.045)
     this.addSeal(group, 'medicine', 'seal4', '半印④ · 不忘汤已成', [4.55, 1.52, -2.6])
 
@@ -804,13 +941,19 @@ export class EscapeWorld {
     light(group, [0.2, 3.55, -5.7], 0xa9d6c5, 13, 0.05)
     light(group, [0.2, 3.4, -1.5], 0xb3d4c5, 17, 0.065)
     light(group, [0.7, 3.2, -6.1], 0x9bc9b7, 8, 0.05)
-    for (let index = 0; index < 18; index += 1) {
-      addPaper(group, [-5.5 + Math.random() * 11, 1.3 + Math.random() * 3.4, -6.3 + Math.random() * 11], [0.12 + Math.random() * 0.13, 0.18 + Math.random() * 0.16], [Math.random() * 0.7, Math.random() * Math.PI, Math.random()])
+    // 纸钱成串贴墙 + 落地散张：不再随机 confetti（随机 z 曾落到相机脸上变成悬空大板）
+    addPaperString(group, [-6.7, 3.4, -3.6], 6, Math.PI / 2)
+    addPaperString(group, [-6.7, 3.1, -1.2], 5, Math.PI / 2)
+    addPaperString(group, [6.7, 3.5, 1.6], 6, -Math.PI / 2)
+    for (const [x, z, r] of [[-4.6, 2.6, 0.4], [-2.2, 3.4, 1.2], [3.4, 2.2, 2.1], [1.6, 4.2, 0.8], [-5.2, -3.4, 1.7]] as const) {
+      addPaper(group, [x, 0.17, z], [0.24, 0.32], [-Math.PI / 2, 0, r], false)
     }
-    for (let index = 0; index < 12; index += 1) {
-      const slip = addPaper(group, [-6.0, 1.15 + index * 0.27, -4.0 + index * 0.22], [0.16, 0.32], [0.03, 0.18, (index % 3 - 1) * 0.08])
-      slip.material = PAPER.clone()
-    }
+    addPaper(group, [-1.1, 1.24, -1.2], [0.26, 0.34], [-Math.PI / 2, 0, 0.5], false)
+    // 北门洞见雾：门后一片乳白雾幕
+    const doorMist = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 3.1), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xb9c4bd, transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide }))
+    doorMist.position.set(0, 1.7, -9.4)
+    doorMist.userData.mist = true
+    group.add(doorMist)
     for (const x of [-5.8, -4.7, 4.7, 5.8]) addBanner(group, [x, 4.5, -4.2 + Math.random() * 7.5], [0.65, 2.1], x < 0 ? 0.04 : Math.PI - 0.04)
   }
 
@@ -862,7 +1005,7 @@ export class EscapeWorld {
     }
     this.scaleLeftPan = makePan(-2.35, 1.42, true)
     this.scaleRightPan = makePan(2.35, 1.42, false)
-    const ghostFlame = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.15, 8), new THREE.MeshBasicMaterial({ color: 0x69e6a8 }))
+    const ghostFlame = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.15, 8), GHOST_FLAME)
     ghostFlame.position.set(2.35, 0.24, 47)
     group.add(ghostFlame)
     light(group, [2.35, 0.55, 47], 0x3fae7a, 2.4, 0.05)
@@ -1100,6 +1243,7 @@ export class EscapeWorld {
 
   private buildCorridor(center: number): void {
     const group = new THREE.Group()
+    group.userData.corridor = center
     this.root.add(group)
     box(group, [3.2, 0.2, 8], [0, -0.1, center], STONE)
     box(group, [0.25, 3.3, 8], [-1.7, 1.65, center], DARK_STONE)
@@ -1110,6 +1254,24 @@ export class EscapeWorld {
 
   private buildPalace(): void {
     const group = this.room('palace', -28, '第五殿 · 九宫阵')
+    // 墙/顶微 emissive + 冷青 rim：勾出大殿四至，不拉全局曝光
+    const palaceStone = DARK_STONE.clone()
+    palaceStone.emissive = new THREE.Color(0x0a1210)
+    palaceStone.emissiveIntensity = 0.4
+    group.traverse((node) => {
+      const mesh = node as THREE.Mesh
+      if (mesh.isMesh && mesh.material === DARK_STONE) mesh.material = palaceStone
+    })
+    for (const z of [-33.2, -22.8]) box(group, [14, 0.22, 0.36], [0, 4.78, z], WOOD)
+    for (const x of [-5.4, 5.4]) box(group, [0.36, 0.22, 10], [x, 4.78, -28], WOOD)
+    for (let index = -2; index <= 2; index += 2) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, -28], WOOD)
+    const caisson = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.7, 0.18, 8), new THREE.MeshStandardMaterial({ color: 0x3a443d, emissive: 0x14231e, emissiveIntensity: 0.9, roughness: 0.85 }))
+    caisson.position.set(0, 4.95, -28)
+    group.add(caisson)
+    const caissonRing = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.05, 8, 8), BRONZE)
+    caissonRing.rotation.x = Math.PI / 2
+    caissonRing.position.set(0, 4.86, -28)
+    group.add(caissonRing)
     const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
     for (let row = 0; row < 3; row += 1) {
       for (let column = 0; column < 3; column += 1) {
@@ -1136,34 +1298,44 @@ export class EscapeWorld {
     altar.add(halfSeal)
     this.addSeal(group, 'palace', 'seal5', '半印⑤ · 案由未问', [0, 1.58, -34.25])
     const evidence = new THREE.Group()
-    evidence.position.set(1.2, 1.18, -34.25)
+    // 局部坐标：altar 已在 z=-34.25，此处再写 -34.25 会双重偏移到六殿桥面
+    evidence.position.set(1.2, 1.18, 0)
     altar.add(evidence)
-    addPaper(evidence, [0, 0, 0], [0.45, 0.6], [0, 0.2, 0])
+    addPaper(evidence, [0, 0, 0], [0.45, 0.6], [0, 0.2, 0], false)
     this.addInteraction(evidence, 'evidence', 'palace', 'D', '取得证据 D · 有人一直在替你担责', [0, 0.13, 0], [0.42, 0.4, 0.1], true)
     label(group, '戴九履一 · 左三右七', [0, 2.7, -35.72], 4.0)
+    light(group, [0, 1.75, -34.25], 0x8de1bc, 2.4, 0.04)
 
     const lampSpots: [number, number, number][] = [
       [-4.6, 0.34, -23.6], [0, 0.34, -23.6], [4.6, 0.34, -23.6],
       [-4.6, 0.34, -28], [4.6, 0.34, -28],
       [-4.6, 0.34, -32.5], [0, 0.34, -32.5], [4.6, 0.34, -32.5]
     ]
-    for (const [x, y, z] of lampSpots.filter((spot) => Math.abs(spot[0]) > 0.1 || spot[2] < -31)) {
+    // 八盏亮 +  front 中盏刚熄冒青烟
+    for (const [x, y, z] of lampSpots) {
       const lamp = new THREE.Group()
       lamp.position.set(x, y, z)
       group.add(lamp)
       const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, 0.12, 18), BRONZE)
       lamp.add(cup)
-      const flame = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.12, 8), new THREE.MeshBasicMaterial({ color: 0xb4f2d5 }))
-      flame.position.y = 0.12
-      lamp.add(flame)
-      light(lamp, [0, 0.28, 0], 0x8de1bc, 3.4, 0.05)
+      if (x === 0 && z === -23.6) {
+        const char = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 8), new THREE.MeshStandardMaterial({ color: 0x1a1d1a, roughness: 1 }))
+        char.position.y = 0.08
+        lamp.add(char)
+        addSteam(lamp, [0, 0.12, 0], 0.45)
+      } else {
+        const flame = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.12, 8), GHOST_FLAME)
+        flame.position.y = 0.12
+        lamp.add(flame)
+        light(lamp, [0, 0.28, 0], 0x8de1bc, 4.2, 0.05)
+      }
     }
     for (const x of [-5.6, 5.6]) {
       for (const z of [-23.5, -27.5, -31.5]) {
         const banner = addBanner(group, [x, 4.35, z], [0.92, 3.25], x < 0 ? Math.PI / 2 : -Math.PI / 2)
         for (let row = 0; row < 3; row += 1) {
           const broken = row === 1
-          const mark = new THREE.Mesh(new THREE.BoxGeometry(broken ? 0.28 : 0.46, 0.055, 0.025), new THREE.MeshStandardMaterial({ color: 0x34423c, roughness: 1, transparent: true, opacity: 0.72 }))
+          const mark = new THREE.Mesh(new THREE.BoxGeometry(broken ? 0.28 : 0.46, 0.055, 0.025), BANNER_MARK)
           mark.position.set(0, -0.55 - row * 0.18, 0.1)
           banner.add(mark)
           if (broken) {
@@ -1174,11 +1346,18 @@ export class EscapeWorld {
         }
       }
     }
-    for (let index = 0; index < 20; index += 1) {
-      addPaper(group, [-5.8 + Math.random() * 11.6, 1.6 + Math.random() * 3.1, -23 + Math.random() * 10], [0.1 + Math.random() * 0.12, 0.18 + Math.random() * 0.18], [Math.random(), Math.random() * Math.PI, Math.random()])
+    addPaperString(group, [-6.7, 3.2, -25.5], 5, Math.PI / 2)
+    addPaperString(group, [6.7, 3.4, -30.5], 6, -Math.PI / 2)
+    for (const [x, z, r] of [[-4.9, -22.6, 0.3], [4.4, -23.4, 1.1], [-3.6, -33.4, 2.0], [2.8, -33.8, 0.6], [0.4, -22.2, 1.6]] as const) {
+      addPaper(group, [x, 0.17, z], [0.22, 0.3], [-Math.PI / 2, 0, r], false)
     }
-    light(group, [-5.1, 2.1, -27], 0x95e1bf, 2.5, 0.055)
-    light(group, [5.1, 2.1, -30], 0x95e1bf, 2.5, 0.055)
+    light(group, [-5.1, 2.1, -27], 0x95e1bf, 5, 0.055)
+    light(group, [5.1, 2.1, -30], 0x95e1bf, 5, 0.055)
+    light(group, [-6.3, 3.4, -24.5], 0x9fd8c0, 7, 0.05)
+    light(group, [6.3, 3.4, -24.5], 0x9fd8c0, 7, 0.05)
+    light(group, [-6.3, 3.4, -31.5], 0x9fd8c0, 7, 0.05)
+    light(group, [6.3, 3.4, -31.5], 0x9fd8c0, 7, 0.05)
+    light(group, [0, 4.5, -28], 0x8fc9b2, 6, 0.06)
   }
 
   private addEngraving(parent: THREE.Object3D, text: string, position: [number, number, number], width: number): void {
@@ -1203,6 +1382,7 @@ export class EscapeWorld {
 
   private buildReincarnation(): void {
     const group = new THREE.Group()
+    group.userData.act = 'reincarnation'
     this.root.add(group)
     box(group, [18, 0.36, 10], [0, -0.18, -47], STONE)
     for (let row = 0; row < 4; row += 1) {
@@ -1332,7 +1512,7 @@ export class EscapeWorld {
       [0, 6.5, -88, 24, 8],
       [-2.4, 1.3, -60, 17, 4]
     ] as const) {
-      const mist = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({ map: mistMap, color: 0x95a6a0, transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide }))
+      const mist = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xb9c4bd, transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide }))
       mist.position.set(x, y, z)
       mist.userData.mist = true
       group.add(mist)
@@ -1362,9 +1542,14 @@ export class EscapeWorld {
     pot.position.set(0, 1.4, 0)
     pavilion.add(pot)
     addSteam(pavilion, [0, 1.75, 0])
+    light(pavilion, [0, 2.1, 0.4], 0xcfe8dc, 2.6, 0.05)
     addLanternBracket(pavilion, 1.35, 2.55, 1.35, 1, 0.8)
-    for (let index = 0; index < 4; index += 1) {
-      bowl(pavilion, [-0.75 + index * 0.5, 1.04, 0.12], 0.12, 0.1, CELADON)
+    for (let index = 0; index < 6; index += 1) {
+      bowl(pavilion, [-1.0 + index * 0.4, 1.04, 0.12], 0.12, 0.1, CELADON)
+      const broth = new THREE.Mesh(new THREE.CircleGeometry(0.095, 12), new THREE.MeshPhysicalMaterial({ color: 0x66776b, roughness: 0.2 }))
+      broth.rotation.x = -Math.PI / 2
+      broth.position.set(-1.0 + index * 0.4, 1.125, 0.12)
+      pavilion.add(broth)
     }
 
     for (let index = 0; index < 12; index += 1) {
@@ -1383,6 +1568,7 @@ export class EscapeWorld {
     const wheelCenter = new THREE.Group()
     wheelCenter.name = 'six-realm-wheel-fallback'
     wheelCenter.position.set(0, 2.8, -75.6)
+    wheelCenter.scale.setScalar(1.95)
     group.add(wheelCenter)
     const wheelRing = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.16, 12, 64), BRONZE)
     wheelCenter.add(wheelRing)
@@ -1403,13 +1589,14 @@ export class EscapeWorld {
     const distantWheel = new THREE.Group()
     distantWheel.position.set(0, 5.4, -90)
     group.add(distantWheel)
-    const shadowRing = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.075, 8, 64), new THREE.MeshBasicMaterial({ color: 0x8fa19a, transparent: true, opacity: 0.17 }))
+    const shadowRing = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.075, 8, 64), new THREE.MeshBasicMaterial({ color: 0x8fa19a, transparent: true, opacity: 0.3 }))
     distantWheel.add(shadowRing)
     for (let index = 0; index < 6; index += 1) {
-      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.07, 8.1, 0.08), new THREE.MeshBasicMaterial({ color: 0x87938d, transparent: true, opacity: 0.15 }))
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.07, 8.1, 0.08), new THREE.MeshBasicMaterial({ color: 0x87938d, transparent: true, opacity: 0.26 }))
       spoke.rotation.z = index * Math.PI / 3
       distantWheel.add(spoke)
     }
+    light(group, [0, 3.4, -73.6], 0xb9d8c8, 10, 0.09)
 
     const doorFrame = new THREE.Group()
     doorFrame.position.set(0, 0, -80.2)
@@ -1482,7 +1669,7 @@ export class EscapeWorld {
       shape.lineTo(Math.cos(angle) * 1.43, Math.sin(angle) * 1.43)
     }
     shape.closePath()
-    const material = new THREE.MeshStandardMaterial({ color: index % 2 === 0 ? 0x303a34 : 0x4a4d40, roughness: 0.82, side: THREE.DoubleSide })
+    const material = WHEEL_SECTOR[index % 2]
     return new THREE.Mesh(new THREE.ShapeGeometry(shape, 12), material)
   }
 
@@ -1579,8 +1766,9 @@ export class EscapeWorld {
     const tile = this.stones.get(value)
     if (!tile) return
     const material = tile.material as THREE.MeshPhysicalMaterial
-    material.emissive = new THREE.Color(correct ? (solved ? 0x345947 : 0x1b3b2e) : 0x160d0b)
-    material.emissiveIntensity = correct ? 0.72 : 0.24
+    // 步态反馈降饱和：刻字/边缘微光为主，整面不再像着色玻璃
+    material.emissive = new THREE.Color(correct ? (solved ? 0x233c31 : 0x1d332a) : 0x160d0b)
+    material.emissiveIntensity = correct ? (solved ? 0.5 : 0.4) : 0.24
     tile.position.y = correct ? 0.02 : 0.13
     if (!correct) window.setTimeout(() => { tile.position.y = 0.13 }, 420)
   }

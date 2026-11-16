@@ -1,7 +1,7 @@
 {
   "gate": "G3",
   "baseUrl": "http://127.0.0.1:5173",
-  "ranAt": "2026-11-16T02:19:37.260Z",
+  "ranAt": "2026-11-16T03:43:39.118Z",
   "pageErrors": [],
   "steps": [
     {
@@ -92,7 +92,7 @@
     {
       "name": "五殿收证据 D",
       "ok": true,
-      "detail": "跳过：坐标 bug，见 knownIssues"
+      "detail": "证据 D 已收入路引。"
     },
     {
       "name": "五殿收半印⑤",
@@ -117,20 +117,18 @@
     {
       "name": "收尾状态",
       "ok": true,
-      "detail": "路引 · 半印 3/6　不忘汤 · 已收　证据 A/C | drawCalls=38"
+      "detail": "路引 · 半印 3/6　不忘汤 · 已收　证据 A/C/D | drawCalls=39"
     }
   ],
-  "knownIssues": [
-    "证据 D 世界坐标 z=-68.50，落在六殿桥面（scene.ts altar 双重 z 偏移）；不影响 G3，但 replace 结局拿不到 D"
-  ],
+  "knownIssues": [],
   "unlockedEndings": [
     "return",
     "judge"
   ],
   "endingTitle": "还阳",
   "perf": {
-    "drawCalls": 38,
-    "triangles": 104162
+    "drawCalls": 39,
+    "triangles": 102402
   },
   "ok": true
 }

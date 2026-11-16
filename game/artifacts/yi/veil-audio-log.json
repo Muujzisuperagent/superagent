@@ -1,0 +1,82 @@
+{
+  "ranAt": "2026-11-16T03:43:11.446Z",
+  "baseUrl": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "name": "A 遮罩首屏出现",
+      "ok": true,
+      "detail": "{\"present\":true,\"display\":\"grid\",\"opacity\":1,\"pointerEvents\":\"none\",\"indeterminate\":true,\"percent\":\"…\",\"count\":\"正在铺开阴司\",\"barWidth\":\"\"}"
+    },
+    {
+      "name": "A 遮罩期间点击仍锁定鼠标",
+      "ok": true,
+      "detail": "locked=true veil.pointerEvents=none"
+    },
+    {
+      "name": "A 点击后解锁 AudioContext",
+      "ok": true,
+      "detail": "{\"contexts\":1,\"oscillators\":17}"
+    },
+    {
+      "name": "A 无进度事件时兜底淡出",
+      "ok": true,
+      "detail": "display=none opacity=0 遮罩出现后2753ms"
+    },
+    {
+      "name": "A M 键静音",
+      "ok": true,
+      "detail": "音 · 开（M） → {\"badge\":\"音 · 静音（M）\",\"pressed\":\"true\",\"master\":0}"
+    },
+    {
+      "name": "A M 键恢复",
+      "ok": true,
+      "detail": "{\"badge\":\"音 · 开（M）\",\"master\":0.2199999988079071}"
+    },
+    {
+      "name": "A 按殿切换环境音",
+      "ok": true,
+      "detail": "ramps=[{\"value\":0,\"at\":4.13},{\"value\":1,\"at\":4.13},{\"value\":0,\"at\":4.13},{\"value\":0,\"at\":4.13},{\"value\":0,\"at\":4.13}]"
+    },
+    {
+      "name": "A 引路牌随殿更新",
+      "ok": true,
+      "detail": "拾起 · 十两砝码 → {\"name\":\"踏石板 1\",\"meta\":\"已踏 0 / 9 步 · 1.3 m\",\"act\":\"第五殿 · 九宫阵\"}"
+    },
+    {
+      "name": "A Esc 释放后可重新锁定",
+      "ok": true,
+      "detail": "{\"locked\":false,\"hint\":\"block\"} → {\"locked\":true,\"hint\":\"none\",\"veil\":\"none\"}"
+    },
+    {
+      "name": "A pageErrors",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "name": "B 进度百分比与件数一致",
+      "ok": true,
+      "detail": "{\"present\":true,\"display\":\"grid\",\"opacity\":1,\"pointerEvents\":\"none\",\"indeterminate\":false,\"percent\":\"50%\",\"count\":\"3 / 6 件资产\",\"barWidth\":\"50%\"}"
+    },
+    {
+      "name": "B ready 后 100%",
+      "ok": true,
+      "detail": "{\"present\":true,\"display\":\"grid\",\"opacity\":1,\"pointerEvents\":\"none\",\"indeterminate\":false,\"percent\":\"100%\",\"count\":\"6 / 6 件资产\",\"barWidth\":\"100%\"}"
+    },
+    {
+      "name": "B ready 后淡出并 display:none",
+      "ok": true,
+      "detail": "{\"present\":true,\"display\":\"none\",\"opacity\":0,\"pointerEvents\":\"none\",\"indeterminate\":false,\"percent\":\"100%\",\"count\":\"6 / 6 件资产\",\"barWidth\":\"100%\"}"
+    },
+    {
+      "name": "B 淡出后指针锁定",
+      "ok": true,
+      "detail": "locked=true"
+    },
+    {
+      "name": "B pageErrors",
+      "ok": true,
+      "detail": "[]"
+    }
+  ],
+  "ok": true
+}

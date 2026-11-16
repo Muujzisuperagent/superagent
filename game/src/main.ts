@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js'
 import { actDefinition, EscapeWorld, type WorldInteraction } from './scene'
-import { ENDINGS, JourneyState, MedicinePuzzle, NinePalacePuzzle, type ActId, type EndingId } from './story'
+import { ACTS, ENDINGS, HERBS, JourneyState, MedicinePuzzle, NinePalacePuzzle, type ActId, type EndingId } from './story'
 import { ArchivePuzzle, CORRECT_HOUR, ScalePuzzle } from './puzzles_act23'
 
 const app = document.getElementById('app')!
@@ -14,6 +14,19 @@ const dialogueEl = document.getElementById('dialogue')!
 const endingEl = document.getElementById('ending')!
 const endingContent = document.getElementById('ending-content')!
 const restartButton = document.getElementById('restart') as HTMLButtonElement
+
+// 首屏引路遮罩：必须在 EscapeWorld（程序化贴图 + GLB）之前挂进 DOM。
+// 数据只来自 scene.ts 的 window 事件契约：assets-progress {loaded,total} / assets-ready {total}。
+const veil = createLoadingVeil()
+window.addEventListener('assets-progress', (event) => {
+  const detail = (event as CustomEvent<{ loaded?: number; total?: number }>).detail
+  if (!detail) return
+  veil.progress(Number(detail.loaded) || 0, Number(detail.total) || 0)
+})
+window.addEventListener('assets-ready', (event) => {
+  const detail = (event as CustomEvent<{ total?: number }>).detail
+  veil.ready(Number(detail?.total) || 0)
+})
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x080d0d)
@@ -66,6 +79,7 @@ let currentAct: ActId = world.actAt(camera.position.z)
 let toastTimer = 0
 let combined = false
 let standingStone = 0
+let stepDistance = 0
 world.setAtmosphere(currentAct)
 
 const initialAct = actDefinition(currentAct)
@@ -122,6 +136,7 @@ function updateAct(): void {
   if (act === currentAct) return
   currentAct = act
   world.setAtmosphere(act)
+  rig?.setAct(act)
   const definition = actDefinition(act)
   actEl.textContent = `${definition.number} · ${definition.title}`
   objectiveEl.textContent = definition.objective
@@ -164,26 +179,32 @@ function finishAct(act: ActId): void {
 function showEnding(id: EndingId): void {
   won = true
   controls.unlock()
+  lockHint.classList.add('hidden')
+  wayfinder.classList.add('hidden')
   const ending = ENDINGS[id]
   endingContent.innerHTML = `<span>${ending.subtitle}</span><h2>${ending.title}</h2><p>${ending.text}</p><small>${ending.condition}</small>`
   endingEl.classList.remove('hidden')
 }
 
-function interact(target: WorldInteraction): void {
+function interact(target: WorldInteraction): CueKind {
   if (target.kind === 'herb') {
     const result = medicine.select(target.id)
     toast(result.message)
     if (result.solved) world.setActSolved('medicine')
+    return result.ok ? (result.solved ? 'seal' : 'ok') : 'fail'
   } else if (target.kind === 'bowl') {
     dialogue('青瓷药碗', '碗沿一圈旧药渍。碗底刻着两个字：阿满。你不认得这个名字。手却没放下。', 10)
+    return 'ok'
   } else if (target.kind === 'evidence') {
     journey.collectEvidence(target.id)
     target.enabled = false
     target.object.visible = false
     toast(`证据 ${target.id} 已收入路引。`)
     updateInventory()
+    return 'ok'
   } else if (target.kind === 'seal') {
     finishAct(target.act)
+    return 'seal'
   } else if (target.kind === 'weight') {
     if (target.id === 'yiliang-extra') {
       const result = scalePuzzle.pressHour(CORRECT_HOUR)
@@ -194,6 +215,7 @@ function interact(target: WorldInteraction): void {
         world.setActSolved('scale')
         updateScaleObjective()
       }
+      return result.solved ? 'seal' : result.ok ? 'ok' : 'fail'
     } else {
       const result = scalePuzzle.place(target.id)
       toast(result.message, 5)
@@ -212,11 +234,14 @@ function interact(target: WorldInteraction): void {
         dialogue('业秤司吏', '善恶自有斤两。多出这一两，不是你的。压进未时，这一案就算你认了。', 10)
       }
       updateScaleObjective()
+      return result.ok ? 'ok' : 'fail'
     }
   } else if (target.kind === 'inscription') {
     dialogue('足秤偈', '十六两为一斤，五十两为足秤。左盘三十两，是你生前自己称下的。补足它。多一两者过，少一两者贪。', 12)
+    return 'ok'
   } else if (target.kind === 'hourplate') {
     dialogue('十二时辰盘', '盘上十二槽。只有未时槽里落了东西——秤平之后，它自己会认你。', 9)
+    return 'ok'
   } else if (target.kind === 'register') {
     const result = archive.openRegister(target.id)
     toast(result.message, 6)
@@ -224,6 +249,7 @@ function interact(target: WorldInteraction): void {
       world.markRegisterFound()
       updateArchiveObjective()
     }
+    return result.ok ? 'ok' : 'fail'
   } else if (target.kind === 'lamp') {
     const result = archive.shineLamp()
     toast(result.message, 7)
@@ -233,6 +259,7 @@ function interact(target: WorldInteraction): void {
       if (brushTarget) brushTarget.enabled = true
       updateArchiveObjective()
     }
+    return result.ok ? 'ok' : 'fail'
   } else if (target.kind === 'brush') {
     const result = archive.compare()
     toast(result.message, 7)
@@ -240,34 +267,50 @@ function interact(target: WorldInteraction): void {
       world.setActSolved('archive')
       updateArchiveObjective()
     }
+    return result.solved ? 'seal' : result.ok ? 'ok' : 'fail'
   } else if (target.kind === 'exit') {
     camera.position.z -= 1.1
     updateAct()
+    return 'ok'
   } else if (target.kind === 'combine') {
     if (!journey.canCombine) {
       toast('骑缝未合。先取得第四、第五殿的半印。')
-      return
+      return 'fail'
     }
-    if (combined) return
+    if (combined) return 'fail'
     combined = true
     world.showEndings()
     journey.completeAct('reincarnation')
     updateInventory()
     dialogue('崔珏', '三年前，阿满病危。你拿自己的名字，押她几年阳寿。原告是你。被告是你。办案的，也是你。这案子，我审不了。', 14)
     toast('六印合成。朱字浮出——那是你的笔迹。三条路已亮。', 8)
+    return 'seal'
   } else if (target.kind === 'ending') {
     const id = target.id as EndingId
-    if (journey.unlockedEndings.includes(id)) showEnding(id)
-    else toast(`结局未解锁：${ENDINGS[id].condition}`)
+    if (journey.unlockedEndings.includes(id)) {
+      showEnding(id)
+      return 'ending'
+    }
+    toast(`结局未解锁：${ENDINGS[id].condition}`)
+    return 'fail'
   }
+  return 'fail'
 }
 
 restartButton.addEventListener('click', () => window.location.reload())
 
 window.addEventListener('keydown', (event) => {
+  if (event.code === 'KeyM') {
+    toggleMute()
+    return
+  }
   if (won) return
+  unlockAudio()
   keys.add(event.code)
-  if (event.code === 'KeyE' && focused) interact(focused)
+  if (event.code === 'KeyE') {
+    if (focused) rig?.cue(interact(focused))
+    else rig?.cue('fail')
+  }
 })
 
 window.addEventListener('keyup', (event) => {
@@ -275,7 +318,18 @@ window.addEventListener('keyup', (event) => {
 })
 
 renderer.domElement.addEventListener('click', () => {
+  unlockAudio()
   if (!won && !controls.isLocked) controls.lock()
+})
+
+controls.addEventListener('lock', () => {
+  unlockAudio()
+  lockHint.classList.add('hidden')
+})
+
+controls.addEventListener('unlock', () => {
+  keys.clear()
+  if (!won) lockHint.classList.remove('hidden')
 })
 
 function updateMovement(delta: number): void {
@@ -290,6 +344,14 @@ function updateMovement(delta: number): void {
   if (keys.has('KeyD') || keys.has('ArrowRight')) controls.moveRight(step)
 
   world.constrain(camera.position, previous, completed)
+  const travelled = Math.hypot(camera.position.x - previous.x, camera.position.z - previous.z)
+  if (travelled > 0.0005) {
+    stepDistance += travelled
+    if (stepDistance >= 0.78) {
+      stepDistance = 0
+      rig?.cue('step')
+    }
+  }
   updateAct()
   if (currentAct === 'palace' && !palace.isSolved) {
     const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
@@ -303,6 +365,7 @@ function updateMovement(delta: number): void {
             standingStone = value
             const result = palace.step(value)
             toast(result.message, 3)
+            rig?.cue(result.solved ? 'seal' : result.ok ? 'ok' : 'fail')
             world.markPalaceStep(value, result.ok, result.solved)
             if (result.solved) world.setActSolved('palace')
           }
@@ -326,7 +389,582 @@ function updateFocus(): void {
   const hits = raycaster.intersectObjects(enabled.map((item) => item.object), false)
   const hit = hits.find((item) => item.distance <= 3.4)
   focused = hit ? enabled.find((item) => item.object === hit.object) ?? null : null
-  setPrompt(focused ? `E · ${focused.label}` : null)
+  setPrompt(focused ? promptFor(focused) : null)
+}
+
+// B8：把「E · 标签」补成带去向/条件的可读提示，出口与结局不再只写一句泛泛的动词。
+function promptFor(target: WorldInteraction): string {
+  if (target.kind === 'exit') {
+    const index = ACTS.findIndex((item) => item.id === target.act)
+    const next = ACTS[index + 1]
+    return next ? `E · 推门 → ${next.number} · ${next.title}` : 'E · 推门 → 下一殿'
+  }
+  if (target.kind === 'ending') {
+    const id = target.id as EndingId
+    return journey.unlockedEndings.includes(id)
+      ? `E · 走这条路 · ${ENDINGS[id].title}`
+      : `E · ${ENDINGS[id].title}（未解锁：${ENDINGS[id].condition}）`
+  }
+  if (target.kind === 'combine' && !journey.canCombine) return 'E · 合六印（还缺半印④⑤）'
+  if (target.kind === 'seal') return `E · 收取${target.label}`
+  return `E · ${target.label}`
+}
+
+// ===================== 首屏引路遮罩 =====================
+type LoadingVeil = {
+  element: HTMLDivElement
+  progress: (loaded: number, total: number) => void
+  ready: (total: number) => void
+}
+
+function createLoadingVeil(): LoadingVeil {
+  const element = document.createElement('div')
+  element.id = 'loading-veil'
+  element.setAttribute('aria-hidden', 'true')
+  // pointer-events 全程 none：遮罩绝不拦截 canvas 点击与指针锁定，也不吃键盘。
+  element.style.pointerEvents = 'none'
+  element.innerHTML = `
+    <div class="veil-inner">
+      <p class="veil-eyebrow">阴司 · 引路</p>
+      <h1 class="veil-title">还魂路引</h1>
+      <p class="veil-sub">引路中…</p>
+      <div class="veil-track"><span class="veil-bar"></span></div>
+      <p class="veil-meta"><span class="veil-percent">0%</span><span class="veil-count">正在铺开阴司</span></p>
+      <p class="veil-hint">WASD 移动 · 鼠标环视 · E 交互 · M 静音</p>
+    </div>`
+  document.body.appendChild(element)
+
+  const bar = element.querySelector<HTMLElement>('.veil-bar')!
+  const percentEl = element.querySelector<HTMLElement>('.veil-percent')!
+  const countEl = element.querySelector<HTMLElement>('.veil-count')!
+  const subEl = element.querySelector<HTMLElement>('.veil-sub')!
+  let dismissed = false
+  let sawProgress = false
+  let readyTotal = 0
+
+  const dismiss = (): void => {
+    if (dismissed) return
+    dismissed = true
+    stopObserver()
+    element.classList.remove('veil-indeterminate')
+    element.classList.add('veil-out')
+    window.setTimeout(() => {
+      element.style.display = 'none'
+      element.style.pointerEvents = 'none'
+      element.classList.add('veil-gone')
+    }, 420)
+  }
+
+  const paint = (loaded: number, total: number): void => {
+    if (total > 0 && loaded > 0) {
+      const ratio = Math.max(0, Math.min(1, loaded / total))
+      element.classList.remove('veil-indeterminate')
+      bar.style.width = `${(ratio * 100).toFixed(1)}%`
+      percentEl.textContent = `${Math.round(ratio * 100)}%`
+      countEl.textContent = `${loaded} / ${total} 件资产`
+    } else {
+      // loaded 恒 0（或 total 未知）：走不确定态动画，不假报百分比。
+      element.classList.add('veil-indeterminate')
+      bar.style.width = ''
+      percentEl.textContent = '…'
+      countEl.textContent = total > 0 ? `共 ${total} 件资产` : '正在铺开阴司'
+    }
+  }
+
+  paint(0, 0)
+  // 兜底一：6.5s 内没收到 ready 也淡出，宁可早退也不卡死。
+  window.setTimeout(dismiss, 6500)
+  // 兜底二：scene.ts 若完全没派发进度事件，2.6s 后早退；但 .glb 还没落地时继续等（最多到 6.5s 硬上限）。
+  // 用 PerformanceObserver 数已完成的 .glb 请求，不依赖 scene.ts 内部结构。
+  let glbDone = 0
+  let observer: PerformanceObserver | null = null
+  try {
+    observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) if (/\.glb(\?|$)/.test(entry.name)) glbDone += 1
+    })
+    observer.observe({ type: 'resource', buffered: true })
+  } catch {
+    observer = null
+  }
+  const stopObserver = (): void => {
+    observer?.disconnect()
+    observer = null
+  }
+  window.setTimeout(() => {
+    if (sawProgress || dismissed) return
+    const settle = (): void => {
+      stopObserver()
+      window.setTimeout(dismiss, 600)
+    }
+    if (glbDone > 0 || !observer) {
+      settle()
+      return
+    }
+    const poll = window.setInterval(() => {
+      if (dismissed) {
+        window.clearInterval(poll)
+        stopObserver()
+        return
+      }
+      if (glbDone > 0) {
+        window.clearInterval(poll)
+        settle()
+      }
+    }, 400)
+  }, 2600)
+
+  return {
+    element,
+    progress: (loaded, total) => {
+      sawProgress = true
+      if (dismissed) return
+      paint(loaded, total)
+    },
+    ready: (total) => {
+      sawProgress = true
+      readyTotal = total
+      if (dismissed) return
+      if (total > 0) paint(total, total)
+      else {
+        element.classList.remove('veil-indeterminate')
+        bar.style.width = '100%'
+        percentEl.textContent = '100%'
+      }
+      subEl.textContent = readyTotal > 0 ? `引路已毕 · ${readyTotal} 件资产就位` : '引路已毕'
+      window.setTimeout(dismiss, 220)
+    }
+  }
+}
+
+// ===================== 程序化声音（Web Audio，零音频文件） =====================
+const MASTER_VOLUME = 0.22
+type CueKind = 'ok' | 'fail' | 'seal' | 'ending' | 'step' | 'ui'
+type AudioRig = {
+  context: AudioContext
+  setAct: (act: ActId) => void
+  cue: (kind: CueKind) => void
+  setMuted: (value: boolean) => void
+}
+
+let rig: AudioRig | null = null
+let muted = false
+let audioUnlocked = false
+
+function createAudioRig(): AudioRig | null {
+  const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  if (!Ctor) return null
+  const context = new Ctor()
+  const master = context.createGain()
+  master.gain.value = MASTER_VOLUME
+  master.connect(context.destination)
+  const ambience = context.createGain()
+  ambience.gain.value = 0.9
+  ambience.connect(master)
+  const sfx = context.createGain()
+  sfx.gain.value = 0.85
+  sfx.connect(master)
+
+  // 一段 3s 棕噪 + 少量白噪，循环复用：风、研药、水声都由它滤波而来。
+  const buffer = context.createBuffer(1, Math.floor(context.sampleRate * 3), context.sampleRate)
+  const data = buffer.getChannelData(0)
+  let brown = 0
+  for (let index = 0; index < data.length; index += 1) {
+    const white = Math.random() * 2 - 1
+    brown = (brown + 0.02 * white) / 1.02
+    data[index] = Math.max(-1, Math.min(1, brown * 3.2 + white * 0.22))
+  }
+
+  const gainNode = (value: number): GainNode => {
+    const node = context.createGain()
+    node.gain.value = value
+    return node
+  }
+  const filter = (type: BiquadFilterType, frequency: number, q: number): BiquadFilterNode => {
+    const node = context.createBiquadFilter()
+    node.type = type
+    node.frequency.value = frequency
+    node.Q.value = q
+    return node
+  }
+  const noise = (): AudioBufferSourceNode => {
+    const source = context.createBufferSource()
+    source.buffer = buffer
+    source.loop = true
+    source.start()
+    return source
+  }
+  const tone = (type: OscillatorType, frequency: number): OscillatorNode => {
+    const osc = context.createOscillator()
+    osc.type = type
+    osc.frequency.value = frequency
+    osc.start()
+    return osc
+  }
+  const lfo = (frequency: number, depth: number, target: AudioParam): void => {
+    const osc = context.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.value = frequency
+    const depthGain = gainNode(depth)
+    osc.connect(depthGain)
+    depthGain.connect(target)
+    osc.start()
+  }
+
+  // 底噪风：所有殿共用，音量极低。
+  const windFilter = filter('lowpass', 300, 0.7)
+  const windGain = gainNode(0.42)
+  noise().connect(windFilter)
+  windFilter.connect(windGain)
+  windGain.connect(ambience)
+  lfo(0.06, 0.16, windGain.gain)
+
+  const layers = {} as Record<ActId, GainNode>
+  const buildLayer = (act: ActId, build: (out: GainNode) => void): void => {
+    const out = gainNode(0)
+    out.connect(ambience)
+    build(out)
+    layers[act] = out
+  }
+
+  // 第四殿药局：研药沙沙 + 石碾低鸣。
+  buildLayer('medicine', (out) => {
+    const grind = filter('bandpass', 1750, 0.9)
+    const grindGain = gainNode(0.16)
+    noise().connect(grind)
+    grind.connect(grindGain)
+    grindGain.connect(out)
+    lfo(0.55, 0.12, grindGain.gain)
+    const rumble = filter('lowpass', 190, 0.7)
+    const rumbleGain = gainNode(0.2)
+    noise().connect(rumble)
+    rumble.connect(rumbleGain)
+    rumbleGain.connect(out)
+    lfo(0.4, 0.08, rumbleGain.gain)
+    const mortar = gainNode(0.05)
+    tone('sine', 96).connect(mortar)
+    mortar.connect(out)
+  })
+
+  // 第五殿九宫：低沉石鸣 + 缓慢共振。
+  buildLayer('palace', (out) => {
+    const low = filter('lowpass', 240, 1.2)
+    const lowGain = gainNode(0.28)
+    low.connect(lowGain)
+    lowGain.connect(out)
+    tone('triangle', 57).connect(low)
+    tone('sine', 85.5).connect(low)
+    lfo(0.13, 0.1, lowGain.gain)
+    const ring = filter('bandpass', 430, 7)
+    const ringGain = gainNode(0.14)
+    noise().connect(ring)
+    ring.connect(ringGain)
+    ringGain.connect(out)
+    lfo(0.07, 0.11, ringGain.gain)
+  })
+
+  // 第六殿忘川：水流 + 拍岸碎响 + 河底低吟。
+  buildLayer('reincarnation', (out) => {
+    const flow = filter('bandpass', 880, 0.6)
+    const flowGain = gainNode(0.28)
+    noise().connect(flow)
+    flow.connect(flowGain)
+    flowGain.connect(out)
+    lfo(0.21, 0.15, flowGain.gain)
+    lfo(0.09, 260, flow.frequency)
+    const lap = filter('highpass', 2400, 0.7)
+    const lapGain = gainNode(0.06)
+    noise().connect(lap)
+    lap.connect(lapGain)
+    lapGain.connect(out)
+    lfo(0.33, 0.045, lapGain.gain)
+    const drone = gainNode(0.11)
+    tone('sine', 48).connect(drone)
+    drone.connect(out)
+  })
+
+  // 第二殿业秤：铜梁微颤。
+  buildLayer('scale', (out) => {
+    const beam = filter('lowpass', 520, 1)
+    const beamGain = gainNode(0.18)
+    beam.connect(beamGain)
+    beamGain.connect(out)
+    tone('sine', 110).connect(beam)
+    tone('sine', 164.8).connect(beam)
+    lfo(0.19, 0.07, beamGain.gain)
+    const air = filter('highpass', 1800, 0.6)
+    const airGain = gainNode(0.045)
+    noise().connect(air)
+    air.connect(airGain)
+    airGain.connect(out)
+  })
+
+  // 第三殿簿库：纸页浮尘。
+  buildLayer('archive', (out) => {
+    const paper = filter('highpass', 1500, 0.5)
+    const paperGain = gainNode(0.08)
+    noise().connect(paper)
+    paper.connect(paperGain)
+    paperGain.connect(out)
+    lfo(0.27, 0.055, paperGain.gain)
+    const dust = gainNode(0.09)
+    tone('sine', 72).connect(dust)
+    dust.connect(out)
+  })
+
+  const setAct = (act: ActId): void => {
+    const now = context.currentTime
+    for (const key of Object.keys(layers) as ActId[]) {
+      const param = layers[key].gain
+      param.cancelScheduledValues(now)
+      param.setValueAtTime(param.value, now)
+      param.linearRampToValueAtTime(key === act ? 1 : 0, now + 1.4)
+    }
+  }
+
+  const cue = (kind: CueKind): void => {
+    const now = context.currentTime
+    const blip = (type: OscillatorType, frequency: number, peak: number, decay: number): void => {
+      const osc = context.createOscillator()
+      osc.type = type
+      osc.frequency.value = frequency
+      const env = gainNode(0.0001)
+      env.gain.setValueAtTime(0.0001, now)
+      env.gain.exponentialRampToValueAtTime(peak, now + 0.012)
+      env.gain.exponentialRampToValueAtTime(0.0001, now + decay)
+      osc.connect(env)
+      env.connect(sfx)
+      osc.start(now)
+      osc.stop(now + decay + 0.05)
+      osc.onended = () => { osc.disconnect(); env.disconnect() }
+    }
+    const burst = (type: BiquadFilterType, frequency: number, peak: number, decay: number): void => {
+      const source = context.createBufferSource()
+      source.buffer = buffer
+      source.loop = true
+      const shaped = filter(type, frequency, 0.8)
+      const env = gainNode(0.0001)
+      env.gain.setValueAtTime(0.0001, now)
+      env.gain.exponentialRampToValueAtTime(peak, now + 0.01)
+      env.gain.exponentialRampToValueAtTime(0.0001, now + decay)
+      source.connect(shaped)
+      shaped.connect(env)
+      env.connect(sfx)
+      source.start(now)
+      source.stop(now + decay + 0.05)
+      source.onended = () => { source.disconnect(); shaped.disconnect(); env.disconnect() }
+    }
+    if (kind === 'ok') {
+      blip('sine', 660, 0.3, 0.24)
+      blip('sine', 990, 0.15, 0.2)
+      burst('bandpass', 2600, 0.06, 0.07)
+    } else if (kind === 'fail') {
+      blip('sine', 98, 0.32, 0.3)
+      blip('triangle', 62, 0.16, 0.26)
+      burst('lowpass', 200, 0.13, 0.16)
+    } else if (kind === 'seal') {
+      blip('sine', 523.25, 0.26, 0.9)
+      blip('sine', 784, 0.17, 0.8)
+      blip('sine', 1046.5, 0.1, 0.7)
+      burst('bandpass', 1800, 0.08, 0.12)
+    } else if (kind === 'ending') {
+      blip('sine', 130.8, 0.3, 2.4)
+      blip('sine', 196, 0.19, 2)
+      blip('triangle', 261.6, 0.1, 1.6)
+      burst('bandpass', 320, 0.12, 0.9)
+    } else if (kind === 'step') {
+      burst('lowpass', 340 + Math.random() * 90, 0.085, 0.1)
+    } else {
+      blip('sine', 440, 0.12, 0.12)
+    }
+  }
+
+  const setMuted = (value: boolean): void => {
+    const now = context.currentTime
+    master.gain.cancelScheduledValues(now)
+    master.gain.setValueAtTime(master.gain.value, now)
+    master.gain.linearRampToValueAtTime(value ? 0 : MASTER_VOLUME, now + 0.18)
+  }
+
+  return { context, setAct, cue, setMuted }
+}
+
+const audioToggle = document.createElement('button')
+audioToggle.id = 'audio-toggle'
+audioToggle.type = 'button'
+document.body.appendChild(audioToggle)
+
+function updateAudioToggle(): void {
+  audioToggle.textContent = !audioUnlocked ? '音 · 待启（M）' : muted ? '音 · 静音（M）' : '音 · 开（M）'
+  audioToggle.classList.toggle('muted', muted)
+  audioToggle.setAttribute('aria-pressed', String(muted))
+}
+
+// 只在真实用户手势里创建 / 恢复 AudioContext，无手势绝不出声。
+function unlockAudio(): void {
+  if (rig) {
+    if (rig.context.state === 'suspended') void rig.context.resume().catch(() => undefined)
+    return
+  }
+  try {
+    rig = createAudioRig()
+    if (!rig) return
+    audioUnlocked = true
+    rig.setMuted(muted)
+    rig.setAct(currentAct)
+    void rig.context.resume().catch(() => undefined)
+  } catch {
+    rig = null
+    audioUnlocked = false
+  }
+  updateAudioToggle()
+}
+
+function toggleMute(): void {
+  muted = !muted
+  if (!rig) unlockAudio()
+  rig?.setMuted(muted)
+  updateAudioToggle()
+  toast(muted ? '声音已静音。再按 M 恢复。' : '声音已开启。', 2.5)
+}
+
+audioToggle.addEventListener('click', (event) => {
+  event.stopPropagation()
+  toggleMute()
+})
+
+document.addEventListener('visibilitychange', () => {
+  if (!rig) return
+  if (document.hidden) void rig.context.suspend().catch(() => undefined)
+  else if (audioUnlocked) void rig.context.resume().catch(() => undefined)
+})
+
+updateAudioToggle()
+
+// ===================== 引路牌与锁定提示（B8 导航可读性） =====================
+const lockHint = document.createElement('div')
+lockHint.id = 'lock-hint'
+lockHint.textContent = '点击画面 · 锁定鼠标，开始引路'
+document.body.appendChild(lockHint)
+
+const wayfinder = document.createElement('div')
+wayfinder.id = 'wayfinder'
+wayfinder.innerHTML = `
+  <span class="wf-arrow" aria-hidden="true">↑</span>
+  <span class="wf-body"><strong class="wf-name">引路</strong><small class="wf-meta">—</small></span>`
+document.body.appendChild(wayfinder)
+const wfArrow = wayfinder.querySelector<HTMLElement>('.wf-arrow')!
+const wfName = wayfinder.querySelector<HTMLElement>('.wf-name')!
+const wfMeta = wayfinder.querySelector<HTMLElement>('.wf-meta')!
+
+const PALACE_LAYOUT = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
+const goalPosition = new THREE.Vector3()
+const goalForward = new THREE.Vector3()
+const goalDelta = new THREE.Vector3()
+const goalRight = new THREE.Vector3()
+let wayfinderTimer = 0
+let lastWayfinderKey = ''
+
+function findInteraction(kind: string, id?: string, act?: ActId): WorldInteraction | null {
+  return world.interactions.find((item) => item.kind === kind && item.enabled && (id === undefined || item.id === id) && (act === undefined || item.act === act)) ?? null
+}
+
+function currentGoal(): { name: string; meta: string; position: THREE.Vector3 } | null {
+  const act = currentAct
+  const definition = actDefinition(act)
+  const nextAct = ACTS[ACTS.findIndex((item) => item.id === act) + 1]
+  const exit = findInteraction('exit', 'exit', act)
+  const seal = findInteraction('seal', undefined, act)
+
+  if (act === 'reincarnation') {
+    if (!combined) {
+      const combine = findInteraction('combine')
+      if (combine) return { name: '合六印 · 开三条路', meta: journey.canCombine ? '骑缝可合' : '还缺半印④⑤', position: combine.object.getWorldPosition(goalPosition) }
+      return null
+    }
+    const unlocked = journey.unlockedEndings
+    let best: WorldInteraction | null = null
+    let bestDistance = Number.POSITIVE_INFINITY
+    for (const id of unlocked) {
+      const candidate = findInteraction('ending', id)
+      if (!candidate) continue
+      const distance = candidate.object.getWorldPosition(goalDelta).distanceTo(camera.position)
+      if (distance < bestDistance) { bestDistance = distance; best = candidate }
+    }
+    if (best) return { name: `结局 · ${ENDINGS[best.id as EndingId].title}`, meta: `已解锁 ${unlocked.length} / 3`, position: best.object.getWorldPosition(goalPosition) }
+    return null
+  }
+
+  if (completed.has(act) && exit) {
+    return { name: nextAct ? `出门 → ${nextAct.number} · ${nextAct.title}` : '出门 → 下一殿', meta: '殿门已开', position: exit.object.getWorldPosition(goalPosition) }
+  }
+  if (seal) return { name: seal.label, meta: '谜题已成 · 收印', position: seal.object.getWorldPosition(goalPosition) }
+
+  if (act === 'medicine') {
+    const taken = medicine.progress
+    const next = HERBS.find((herb) => !taken.includes(herb.id))
+    const herb = next ? findInteraction('herb', next.id) : null
+    if (herb && next) return { name: `药柜 · ${next.name}（${next.role}）`, meta: `已入 ${taken.length} / 4 味`, position: herb.object.getWorldPosition(goalPosition) }
+  }
+  if (act === 'palace') {
+    const value = PALACE_LAYOUT.flat().includes(palace.progress + 1) ? palace.progress + 1 : 1
+    const row = PALACE_LAYOUT.findIndex((line) => line.includes(value))
+    const column = PALACE_LAYOUT[row].indexOf(value)
+    goalPosition.set((column - 1) * 2.05, 0.2, -25.7 - row * 2.05)
+    return { name: `踏石板 ${value}`, meta: `已踏 ${palace.progress} / 9 步`, position: goalPosition }
+  }
+  if (act === 'scale') {
+    if (scalePuzzle.isBalanced) {
+      const hour = findInteraction('weight', 'yiliang-extra')
+      if (hour) return { name: '把多出的一两压进未时', meta: `左盘 ${scalePuzzle.sum} 两 · 已平`, position: hour.object.getWorldPosition(goalPosition) }
+    }
+    const weight = findInteraction('weight', undefined, 'scale')
+    if (weight) return { name: weight.label, meta: `左盘 ${scalePuzzle.sum} / 50 两`, position: weight.object.getWorldPosition(goalPosition) }
+    const gatha = findInteraction('inscription', 'gatha')
+    if (gatha) return { name: '读足秤偈', meta: '十六两为一斤', position: gatha.object.getWorldPosition(goalPosition) }
+  }
+  if (act === 'archive') {
+    const target = !archive.isFound ? findInteraction('register', undefined, 'archive')
+      : !archive.isRevealed ? findInteraction('lamp', undefined, 'archive')
+        : findInteraction('brush', undefined, 'archive')
+    if (target) {
+      const meta = !archive.isFound ? '先找丙午年册' : !archive.isRevealed ? '侧光验刮改' : '朱笔勘合'
+      return { name: target.label, meta, position: target.object.getWorldPosition(goalPosition) }
+    }
+  }
+  const fallback = findInteraction('exit', 'exit', act) ?? findInteraction('herb', undefined, act)
+  if (fallback) return { name: fallback.label, meta: definition.subtitle, position: fallback.object.getWorldPosition(goalPosition) }
+  return null
+}
+
+function updateWayfinder(): void {
+  if (won) {
+    wayfinder.classList.add('hidden')
+    return
+  }
+  wayfinder.classList.remove('hidden')
+  const goal = currentGoal()
+  if (!goal) {
+    wfArrow.style.transform = 'rotate(0deg)'
+    wfName.textContent = '引路'
+    wfMeta.textContent = '殿内已无事 · 找暗门'
+    return
+  }
+  goalDelta.copy(goal.position).sub(camera.position)
+  goalDelta.y = 0
+  const distance = goalDelta.length()
+  camera.getWorldDirection(goalForward)
+  goalForward.y = 0
+  if (goalForward.lengthSq() < 1e-6) goalForward.set(0, 0, -1)
+  goalForward.normalize()
+  goalRight.set(-goalForward.z, 0, goalForward.x)
+  const angle = Math.atan2(goalDelta.dot(goalRight), goalDelta.dot(goalForward))
+  wfArrow.style.transform = `rotate(${(angle * 180 / Math.PI).toFixed(1)}deg)`
+  const key = `${goal.name}|${goal.meta}|${distance.toFixed(1)}`
+  if (key === lastWayfinderKey) return
+  lastWayfinderKey = key
+  wfName.textContent = goal.name
+  wfMeta.textContent = `${goal.meta} · ${distance.toFixed(1)} m`
+  wayfinder.classList.toggle('near', distance <= 3.4)
 }
 
 function animate(): void {
@@ -337,6 +975,11 @@ function animate(): void {
   if (toastTimer > 0) {
     toastTimer -= delta
     if (toastTimer <= 0) toastEl.classList.add('hidden')
+  }
+  wayfinderTimer -= delta
+  if (wayfinderTimer <= 0) {
+    wayfinderTimer = 0.1
+    updateWayfinder()
   }
   renderer.render(scene, camera)
   requestAnimationFrame(animate)
