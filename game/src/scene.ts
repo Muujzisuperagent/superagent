@@ -684,6 +684,7 @@ export class EscapeWorld {
   private readonly seals: THREE.Object3D[] = []
   private readonly wheels: THREE.Object3D[] = []
   private portal: THREE.Mesh | null = null
+  private ninePalaceAsset: THREE.Object3D | null = null
   private elapsed = 0
   private readonly backgroundTarget = new THREE.Color(0x080d0d)
   private readonly fogTarget = new THREE.Color(0x121c1a)
@@ -1907,8 +1908,13 @@ export class EscapeWorld {
     // 步态反馈降饱和：刻字/边缘微光为主，整面不再像着色玻璃
     material.emissive = new THREE.Color(correct ? (solved ? 0x233c31 : 0x1d332a) : 0x160d0b)
     material.emissiveIntensity = correct ? (solved ? 0.5 : 0.4) : 0.24
-    tile.position.y = correct ? 0.02 : 0.13
-    if (!correct) window.setTimeout(() => { tile.position.y = 0.13 }, 420)
+    const usingGlb = this.ninePalaceAsset !== null
+    if (usingGlb) tile.visible = true
+    tile.position.y = usingGlb ? 0.13 : correct ? 0.02 : 0.13
+    if (!correct) window.setTimeout(() => {
+      tile.position.y = 0.13
+      if (usingGlb) tile.visible = false
+    }, 420)
   }
 
   openExit(act: ActId): void {
@@ -2053,13 +2059,19 @@ export class EscapeWorld {
       replaces?: string
     }[] = [
       { file: 'herbal-cabinet.glb', position: [0, 2.42, -7.02], size: [10.9, 4.35, 0.76], rotation: 0, nonUniform: true, replaces: 'medicine-cabinet-fallback' },
-      { file: 'dengzi-scale.glb', position: [1.72, 1.29, -1.48], size: [0.82, 0.5, 0.34], rotation: Math.PI / 2, replaces: 'dengzi-fallback' },
+      { file: 'dengzi-scale.glb', position: [0.4, 1.66, -0.98], size: [1.48, 0.9, 0.61], rotation: 0, replaces: 'dengzi-fallback' },
       { file: 'celadon-bowl.glb', position: [3.25, 1.38, -1.48], size: [0.56, 0.3, 0.56], rotation: 0, replaces: 'celadon-bowl-fallback' },
       // 彩釉 GLB 不覆盖湿青石九宫；加载仍验证，程序石板保留刻字与踩板反馈。
-      { file: 'nine-palace.glb', position: [0, -0.12, -28], size: [7, 0.22, 7], rotation: 0, nonUniform: true, replaces: 'nine-palace-fallback' },
+      { file: 'nine-palace.glb', position: [0, 0.1, -28], size: [7, 0.22, 7], rotation: 0, nonUniform: true, replaces: 'nine-palace-fallback' },
       { file: 'stone-bridge.glb', position: [0, 1.52, -62.4], size: [4.3, 2.6, 20.4], rotation: 0, nonUniform: true, longAxis: 'z', replaces: 'stone-bridge-fallback' },
       { file: 'six-realm-wheel.glb', position: [0, 2.8, -75.6], size: [4.1, 4.1, 0.45], rotation: 0, nonUniform: true, replaces: 'six-realm-wheel-fallback' }
     ]
+    const materialProfiles: Record<string, { metalness: number; roughness: number }> = {
+      'dengzi-scale.glb': { metalness: 0.58, roughness: 0.46 },
+      'nine-palace.glb': { metalness: 0.02, roughness: 0.72 },
+      'herbal-cabinet.glb': { metalness: 0, roughness: 0.82 },
+      'stone-bridge.glb': { metalness: 0.03, roughness: 0.72 }
+    }
     for (const asset of assets) {
       if (proceduralBridge && asset.file === 'stone-bridge.glb') continue
       const place = (gltf: { scene: THREE.Group }) => {
@@ -2089,14 +2101,29 @@ export class EscapeWorld {
           if (child instanceof THREE.Mesh) {
             child.castShadow = true
             child.receiveShadow = true
+            const profile = materialProfiles[asset.file]
+            if (profile) {
+              for (const material of Array.isArray(child.material) ? child.material : [child.material]) {
+                const standard = material as THREE.MeshStandardMaterial
+                standard.metalness = profile.metalness
+                standard.roughness = profile.roughness
+                standard.needsUpdate = true
+              }
+            }
           }
         })
         // 石桥必须保留有真实拱腹的程序几何；GLB 仍加载校验，但不覆盖桥面与拱洞。
         if (!useLuxPrimary && (asset.file === 'stone-bridge.glb' || asset.file === 'nine-palace.glb' || asset.file === 'herbal-cabinet.glb' || asset.file === 'dengzi-scale.glb')) wrapper.visible = false
         this.root.add(wrapper)
         if (asset.replaces && (useLuxPrimary || (asset.file !== 'stone-bridge.glb' && asset.file !== 'nine-palace.glb' && asset.file !== 'herbal-cabinet.glb' && asset.file !== 'dengzi-scale.glb'))) {
-          const fallback = this.root.getObjectByName(asset.replaces)
-          if (fallback) fallback.visible = false
+          if (useLuxPrimary && asset.file === 'nine-palace.glb') {
+            // 只替换九块石板：建筑、布幡、铜盏、匾额与数字刻字必须继续可见。
+            this.ninePalaceAsset = wrapper
+            for (const tile of this.stones.values()) tile.visible = false
+          } else {
+            const fallback = this.root.getObjectByName(asset.replaces)
+            if (fallback) fallback.visible = false
+          }
         }
         if (asset.file === 'six-realm-wheel.glb') this.wheels.push(wrapper)
       }
