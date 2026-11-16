@@ -57,7 +57,9 @@ camera.position.set(...(preview?.position ?? [1.6, 1.65, 52]))
 if (preview) camera.lookAt(...preview.target)
 else camera.lookAt(0, 1.7, 46.8)
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
+// shots=1（截图/自动验证模式）保留绘制缓冲，否则 WebGL canvas 在渲染帧外回读恒为全黑。
+const preserveBuffer = previewMode.has('shots')
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: preserveBuffer })
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.shadowMap.enabled = true
