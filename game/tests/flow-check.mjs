@@ -155,15 +155,23 @@ async function waitToastClear(timeout = 15000) {
   await record('五殿误踩重置', wrongText, wrongText.includes('错了') || wrongText.includes('重来'))
   const walkStone2 = await walkStone(1)
   await record('五殿重置后可续行', walkStone2, walkStone2.includes('石板 1'))
-  // D2 跨格用例：等 toast 真实隐藏后，站到 3×3 阵型之外的空地（约阵外一格半），不得触发任何踩板。
+  // D2 跨格用例：等 toast 真实隐藏后，站到 3×3 阵型之外的空地（约阵外一格半）。
+  // 断言读 toast 元素的可见性而非文案：toast 隐藏后 textContent 仍是残留文案，读文案必误判。
   await waitToastClear()
   await teleport(4.6, -21.2, [0, 0.3, -28])
   await frames(10)
-  const crossText = await toastText()
-  await record('五殿跨格不误触', `toast="${crossText.slice(0, 24)}"`, !crossText.includes('石板'))
-  await waitToastClear()
+  const crossQuiet = await page.evaluate(() => !document.getElementById('toast')?.classList.contains('hidden') ?? false)
+  await record('五殿跨格不误触', `toast可见=${crossQuiet}`, !crossQuiet)
+  // 离阵复位
   await teleport(0, -23, [0, 0.3, -28])
   await frames(6)
+  // 上方误踩/续行用例已把状态推进到「下一步 2」；正式 1→9 走查前先踩一次错步强制归零。
+  const resetText = await walkStone(3)
+  if (resetText.includes('错了') || resetText.includes('重来')) {
+    await waitToastClear()
+  } else {
+    knownIssues.push(`五殿走查前重置未按预期返回错步提示，实际：${resetText.slice(0, 24)}`)
+  }
 }
 for (let value = 1; value <= 9; value += 1) {
   const row = layout.findIndex((line) => line.includes(value))
