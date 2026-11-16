@@ -24,5 +24,26 @@ for (const [view, file] of [['medicine', 'act4-medicine.png'], ['palace', 'act5-
   })
   if (veilVisible) errors.push(`loading veil still visible in ${view}`)
 }
+
+// —— 玩家机位导航组图（审官 v2 复审导航分用），落盘 artifacts/nav/ ——
+const navViews = [
+  ['medicineEntry', 'nav-act4-entry.png'],
+  ['medicineBench', 'nav-act4-bench.png'],
+  ['medicineExit', 'nav-act4-exit.png'],
+  ['palaceEntry', 'nav-act5-entry.png'],
+  ['palaceCenter', 'nav-act5-center.png'],
+  ['palaceExit', 'nav-act5-exit.png'],
+  ['riverBridge', 'nav-act6-bridge.png'],
+  ['riverMid', 'nav-act6-mid.png'],
+  ['riverEnd', 'nav-act6-end.png'],
+  ['riverSide', 'nav-act6-side.png']
+]
+await mkdir('artifacts/nav', { recursive: true })
+for (const [view, file] of navViews) {
+  await page.goto(`${baseUrl}/?view=${view}&clean=1`, { waitUntil: 'networkidle' })
+  await page.waitForFunction(() => document.body.dataset.assets === 'ready', null, { timeout: 12000 })
+  await page.waitForTimeout(500)
+  await page.screenshot({ path: `artifacts/nav/${file}` })
+}
 console.log(JSON.stringify({ title: await page.title(), errors, canvas: await page.locator('canvas').count() }))
 await browser.close()
