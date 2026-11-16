@@ -448,6 +448,9 @@ function createLoadingVeil(): LoadingVeil {
     stopObserver()
     element.classList.remove('veil-indeterminate')
     element.classList.add('veil-out')
+    // 撤除即打可等待信号：body[data-assets="ready"] + assets-veil-hidden 事件，供截图脚本 waitForSelector / waitForFunction。
+    document.body.dataset.assets = 'ready'
+    window.dispatchEvent(new CustomEvent('assets-veil-hidden'))
     window.setTimeout(() => {
       element.style.display = 'none'
       element.style.pointerEvents = 'none'
@@ -472,8 +475,8 @@ function createLoadingVeil(): LoadingVeil {
   }
 
   paint(0, 0)
-  // 兜底一：6.5s 内没收到 ready 也淡出，宁可早退也不卡死。
-  window.setTimeout(dismiss, 6500)
+  // 兜底一：6s 内没收到 ready 也强制淡出（截图脚本等 body[data-assets="ready"]，不能晚于此），宁可早退也不卡死。
+  window.setTimeout(dismiss, 6000)
   // 兜底二：scene.ts 若完全没派发进度事件，2.6s 后早退；但 .glb 还没落地时继续等（最多到 6.5s 硬上限）。
   // 用 PerformanceObserver 数已完成的 .glb 请求，不依赖 scene.ts 内部结构。
   let glbDone = 0
@@ -494,7 +497,7 @@ function createLoadingVeil(): LoadingVeil {
     if (sawProgress || dismissed) return
     const settle = (): void => {
       stopObserver()
-      window.setTimeout(dismiss, 600)
+      window.setTimeout(dismiss, 500)
     }
     if (glbDone > 0 || !observer) {
       settle()
@@ -509,6 +512,12 @@ function createLoadingVeil(): LoadingVeil {
       if (glbDone > 0) {
         window.clearInterval(poll)
         settle()
+        return
+      }
+      // 最晚 5.4s：让 6s 硬兜底接管，截图脚本不必无限等 GLB。
+      if (window.performance.now() > 5400) {
+        window.clearInterval(poll)
+        stopObserver()
       }
     }, 400)
   }, 2600)

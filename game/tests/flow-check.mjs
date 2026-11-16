@@ -81,6 +81,20 @@ const locked = await page.evaluate(() => document.pointerLockElement !== null)
 await record('锁定鼠标', `pointerLockElement=${locked}`, locked)
 if (!locked) throw new Error('pointer lock failed; flow cannot run')
 
+// —— D4：Esc 释放鼠标 → 提示浮现 → 点击重新锁定 ——
+await page.keyboard.press('Escape')
+await frames(4)
+const escState = await page.evaluate(() => ({
+  released: document.pointerLockElement === null,
+  hintShown: !document.getElementById('lock-hint')?.classList.contains('hidden')
+}))
+await record('Esc 释放鼠标', `released=${escState.released} hint=${escState.hintShown}`, escState.released && escState.hintShown)
+await page.locator('canvas').click()
+await frames(4)
+const relocked = await page.evaluate(() => document.pointerLockElement !== null)
+await record('释放后重新锁定', `pointerLockElement=${relocked}`, relocked)
+if (!relocked) throw new Error('relock failed; flow cannot run')
+
 // —— 第四殿：按君臣佐使配药 ——
 for (const id of ['danggui', 'yuanzhi', 'hehuan', 'wangyou']) {
   const point = await interactionWorld('herb', id)
@@ -105,7 +119,35 @@ await teleport(exit4.x, exit4.z + 1.2, [exit4.x, exit4.y, exit4.z])
 await record('四殿出门', await pressE())
 
 // —— 第五殿：洛书 1→9 踩板 ——
-const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
+// D2 误踩用例：先踏 1，再踩一块非 2 的板，谜面必须重置（灯灭）。
+{
+  const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
+  const stoneAt = (value) => {
+    const row = layout.findIndex((line) => line.includes(value))
+    const column = layout[row].indexOf(value)
+    return { x: (column - 1) * 2.05, z: -25.7 - row * 2.05 }
+  }
+  const walkStone = async (value, settle = 6) => {
+    const { x, z } = stoneAt(value)
+    await teleport(x, z, [x, 0.3, z - 2])
+    await frames(settle)
+    return toastText()
+  }
+  await walkStone(1)
+  const wrongText = await walkStone(9)
+  await record('五殿误踩重置', wrongText, wrongText.includes('错了') || wrongText.includes('重来'))
+  const walkStone2 = await walkStone(1)
+  await record('五殿重置后可续行', walkStone2, walkStone2.includes('石板 1'))
+  // D2 跨格用例：先等前一步的 toast（3s 留存）自然消退，再站到两块石板之间的空地上，不得触发任何踩板。
+  await page.waitForTimeout(3300)
+  await teleport(1.03, -24.7, [0, 0.3, -28])
+  await frames(10)
+  const crossText = await toastText()
+  await record('五殿跨格不误触', `toast="${crossText.slice(0, 24)}"`, !crossText.includes('石板'))
+  await page.waitForTimeout(3300)
+  await teleport(0, -23, [0, 0.3, -28])
+  await frames(6)
+}
 for (let value = 1; value <= 9; value += 1) {
   const row = layout.findIndex((line) => line.includes(value))
   const column = layout[row].indexOf(value)
@@ -140,14 +182,100 @@ await shoot('03-combined')
 const unlocked = await page.evaluate(() => window.__journey.unlockedEndings)
 await record('结局解锁列表', JSON.stringify(unlocked), unlocked.length >= 1)
 
-const ending = await interactionWorld('ending', 'return')
-await teleport(ending.x, ending.z + 1.2, [ending.x, ending.y, ending.z])
-await pressE()
-await frames(6)
-const endingTitle = await page.evaluate(() => document.querySelector('#ending h2')?.textContent ?? '')
-const endingVisible = await page.evaluate(() => !document.getElementById('ending')?.classList.contains('hidden'))
-await record('选择结局 · 还阳', endingTitle, endingVisible && endingTitle.length > 0)
-await shoot('04-ending')
+// —— D3：结局解锁矩阵。未解锁的结局必须给明确拒绝反馈且不弹面板；
+//    已解锁的结局在下方「选择结局」块里逐个实际走一遍（点击后页面重载重开，天然覆盖重开用例）。
+const endingMatrix = {}
+for (const id of ['return', 'replace', 'judge']) {
+  if (unlocked.includes(id)) {
+    endingMatrix[id] = '已解锁 · 走下方正式选择块'
+    await record(`结局矩阵 ${id}`, endingMatrix[id], true)
+    continue
+  }
+  const point = await interactionWorld('ending', id)
+  if (!point) { endingMatrix[id] = 'missing interaction'; await record(`结局矩阵 ${id}`, '交互点缺失', false); continue }
+  await teleport(point.x, point.z + 1.2, [point.x, point.y, point.z])
+  const text = await pressE()
+  await frames(4)
+  const visible = await page.evaluate(() => !document.getElementById('ending')?.classList.contains('hidden'))
+  endingMatrix[id] = `未解锁 · 面板=${visible} · 提示="${text.slice(0, 24)}"`
+  await record(`结局矩阵 ${id}`, endingMatrix[id], !visible && text.includes('结局未解锁'))
+}
+
+// —— 正式选择每个已解锁结局：选完点「重开」整页刷新，验证 D4 重开不残留，再推进到下一轮。
+async function playThroughToCombine() {
+  await page.goto(`${baseUrl}/?clean=1`, { waitUntil: 'load' })
+  await frames(30)
+  const fresh = await page.evaluate(() => ({
+    seals: (document.getElementById('inventory')?.textContent ?? '').includes('半印 0/6'),
+    endingHidden: document.getElementById('ending')?.classList.contains('hidden'),
+    lockFree: document.pointerLockElement === null
+  }))
+  await record('重开不残留', `半印清零=${fresh.seals} 结局面板隐藏=${fresh.endingHidden}`, fresh.seals && fresh.endingHidden)
+  await page.locator('canvas').click()
+  await frames(4)
+  for (const id of ['danggui', 'yuanzhi', 'hehuan', 'wangyou']) {
+    const point = await interactionWorld('herb', id)
+    await teleport(point.x, point.z + 1.15, [point.x, point.y, point.z])
+    await pressE()
+  }
+  const evC = await interactionWorld('evidence', 'C')
+  if (evC?.enabled) {
+    await teleport(evC.x, evC.z + 1.0, [evC.x, evC.y, evC.z])
+    await pressE()
+  }
+  const s4 = await interactionWorld('seal', 'seal4')
+  await teleport(s4.x, s4.z + 1.15, [s4.x, s4.y, s4.z])
+  await pressE()
+  const e4 = await interactionWorld('exit', 'exit', 'medicine')
+  await teleport(e4.x, e4.z + 1.2, [e4.x, e4.y, e4.z])
+  await pressE()
+  const grid = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
+  for (let value = 1; value <= 9; value += 1) {
+    const row = grid.findIndex((line) => line.includes(value))
+    const column = grid[row].indexOf(value)
+    const x = (column - 1) * 2.05
+    const z = -25.7 - row * 2.05
+    await teleport(x, z, [x, 0.3, z - 2])
+    await frames(6)
+  }
+  const d = await interactionWorld('evidence', 'D')
+  if (d?.enabled && d.z > -40) {
+    await teleport(d.x, d.z + 1.0, [d.x, d.y, d.z])
+    await pressE()
+  }
+  const s5 = await interactionWorld('seal', 'seal5')
+  await teleport(s5.x, s5.z + 1.15, [s5.x, s5.y, s5.z])
+  await pressE()
+  const cb = await interactionWorld('combine')
+  await teleport(cb.x, cb.z + 1.3, [cb.x, cb.y, cb.z])
+  await pressE()
+}
+
+for (const id of unlocked) {
+  const point = await interactionWorld('ending', id)
+  await teleport(point.x, point.z + 1.2, [point.x, point.y, point.z])
+  await pressE()
+  await frames(6)
+  const title = await page.evaluate(() => document.querySelector('#ending h2')?.textContent ?? '')
+  const visible = await page.evaluate(() => !document.getElementById('ending')?.classList.contains('hidden'))
+  await record(`选择结局 · ${id}`, title, visible && title.length > 0)
+  await shoot(`04-ending-${id}`)
+  if (unlocked.indexOf(id) < unlocked.length - 1) await playThroughToCombine()
+}
+
+// 最后一轮重开后再做一次「未齐印就合符」的拒绝反馈（combine 守卫）。
+await page.evaluate(() => document.getElementById('restart').click())
+await frames(30)
+await page.locator('canvas').click()
+await frames(4)
+const cbEarly = await interactionWorld('combine')
+if (cbEarly) {
+  await teleport(cbEarly.x, cbEarly.z + 1.3, [cbEarly.x, cbEarly.y, cbEarly.z])
+  const earlyText = await pressE()
+  await record('未齐印合符被拒', earlyText.slice(0, 24), earlyText.includes('骑缝未合'))
+} else {
+  await record('未齐印合符被拒', 'combine 交互点不存在', false)
+}
 
 const perf = await page.evaluate(() => ({
   drawCalls: window.__renderer.info.render.calls,
@@ -165,7 +293,7 @@ const report = {
   steps,
   knownIssues,
   unlockedEndings: unlocked,
-  endingTitle,
+  endingMatrix,
   perf,
   ok: failed.length === 0 && pageErrors.length === 0
 }

@@ -13,8 +13,15 @@ if (!(await page.getByText('请用启动器打开密室').isVisible())) throw ne
 const baseUrl = process.env.GAME_URL ?? 'http://127.0.0.1:5173'
 for (const [view, file] of [['medicine', 'act4-medicine.png'], ['palace', 'act5-palace.png'], ['river', 'act6-reincarnation.png']]) {
   await page.goto(`${baseUrl}/?view=${view}&clean=1`, { waitUntil: 'networkidle' })
-  await page.waitForTimeout(4500)
+  // 等遮罩撤除信号（body[data-assets="ready"]），不猜固定毫秒；再留半秒让画面渲染完。
+  await page.waitForFunction(() => document.body.dataset.assets === 'ready', null, { timeout: 12000 })
+  await page.waitForTimeout(500)
   await page.screenshot({ path: `artifacts/${file}` })
+  const veilVisible = await page.evaluate(() => {
+    const veil = document.getElementById('loading-veil')
+    return veil ? getComputedStyle(veil).display !== 'none' : false
+  })
+  if (veilVisible) errors.push(`loading veil still visible in ${view}`)
 }
 console.log(JSON.stringify({ title: await page.title(), errors, canvas: await page.locator('canvas').count() }))
 await browser.close()
