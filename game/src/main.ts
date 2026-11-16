@@ -456,6 +456,8 @@ function updateFocus(): void {
 const nearbyList = document.createElement('ul')
 nearbyList.id = 'nearby-list'
 nearbyList.setAttribute('aria-hidden', 'true')
+// 初始即隐藏：setNearbyList 在 markup 未变化时会提前 return，空列表若不预置 hidden 会一直显示空框。
+nearbyList.classList.add('hidden')
 document.body.appendChild(nearbyList)
 
 const nearbyWorldPosition = new THREE.Vector3()

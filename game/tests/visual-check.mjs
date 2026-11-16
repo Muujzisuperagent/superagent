@@ -64,5 +64,18 @@ for (const [view, file] of navViews) {
   })
   if (darkRatio > 0.95) errors.push(`nav frame near-black (${view}): ${(darkRatio * 100).toFixed(1)}%`)
 }
+
+// B8 断言：预览态（未锁定指针、无交互）#nearby-list 不得显示空框。
+{
+  await page.goto(`${baseUrl}/?view=medicine&clean=1&shots=1`, { waitUntil: 'networkidle' })
+  await page.waitForFunction(() => document.body.dataset.assets === 'ready', null, { timeout: 12000 })
+  await page.waitForTimeout(500)
+  const nearbyVisible = await page.evaluate(() => {
+    const el = document.getElementById('nearby-list')
+    if (!el) return true // 元素不存在也不算空框
+    return el.classList.contains('hidden') || (el.textContent ?? '').trim().length > 0
+  })
+  if (!nearbyVisible) errors.push('nearby-list empty box visible in preview mode')
+}
 console.log(JSON.stringify({ title: await page.title(), errors, canvas: await page.locator('canvas').count() }))
 await browser.close()
