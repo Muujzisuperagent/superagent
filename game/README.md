@@ -31,9 +31,9 @@ npm run start -- --host 127.0.0.1
 
 ## 资产与交付几何
 
-四五六殿的**交付版本是程序几何**：百子柜、九宫石板阵、忘川桥拱都由 `src/scene.ts` 用代码生成，含湿石 / 旧木 / 铜器分族材质、刻字、踩板与半印动画。
+四五六殿的**交付版本以群核 Lux3D GLB 为主资产**（视觉占比 ≥50%）：百子柜（v2 双实例）、九宫石板阵（v2 放倒）、忘川石拱桥（v2）、彼岸花簇（v2）默认启用 `public/assets/generated/lux3d-new/opt/` 的 prune+WebP+meshopt 优化副本（合计约 10.4 MB），加载失败自动回退原件、再回退程序几何，**不留空洞**。程序几何只承担刻字、踩板/半印反馈、灯笼、亡魂、药签架等交互与文字叠加层，以及加载失败兜底。
 
-`public/assets/generated/` 下的 6 件群核 Lux3D GLB 仍在运行期异步加载，作用是道具增强与失败回退：加载成功时只替换物件外观，加载失败或属于被程序版本接管的部件（`herbal-cabinet.glb`、`nine-palace.glb`、`stone-bridge.glb`）时保持 `visible=false`，不覆盖程序几何。因此截图与验收以程序几何呈现的画面为准。
+`public/assets/generated/` 下旧 6 件 Lux3D GLB（戥子、青瓷碗、六道轮盘等）仍异步加载作道具增强；v2 四件不套用标量 metalness/roughness 覆盖（保留 metallicRoughness 贴图调制）。截图与验收以 GLB 主资产呈现的画面为准。
 
 ## 预览机位
 
