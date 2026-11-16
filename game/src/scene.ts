@@ -477,7 +477,8 @@ function addLilyField(parent: THREE.Object3D): void {
     const z = onBank
       ? -47.0 - Math.random() * 28
       : (Math.random() < 0.5 ? -48.4 - Math.random() * 3.2 : -72.8 - Math.random() * 3.4)
-    const ground = onBank ? 0.27 : 0.07
+    // 河岸近侧岩石顶面约 0.275m，花茎须插在土里而不是悬在岩石上方。
+    const ground = onBank ? -0.2 : 0.035
     const stemHeight = (0.36 + Math.random() * 0.4) * clump
     const bloomScale = (0.75 + Math.random() * 0.55) * clump
     const yaw = Math.random() * Math.PI * 2
@@ -745,13 +746,24 @@ export class EscapeWorld {
     if (pavers.instanceColor) pavers.instanceColor.needsUpdate = true
     pavers.receiveShadow = true
     group.add(pavers)
-    box(group, [0.35, 5.2, 16], [-7, 2.6, center], DARK_STONE)
+    if (act === 'medicine') {
+      // 左墙开 2.2m 门洞，保留上下过梁；门后由药局补雾幕与门框。
+      box(group, [0.35, 5.2, 5.7], [-7, 2.6, center - 5.15], DARK_STONE)
+      box(group, [0.35, 5.2, 5.7], [-7, 2.6, center + 5.15], DARK_STONE)
+      box(group, [0.35, 1.9, 4.6], [-7, 4.25, center], DARK_STONE)
+    } else box(group, [0.35, 5.2, 16], [-7, 2.6, center], DARK_STONE)
     box(group, [0.35, 5.2, 16], [7, 2.6, center], DARK_STONE)
     for (const end of [-1, 1]) {
       const z = center + end * 8
-      box(group, [5.7, 5.2, 0.35], [-4.15, 2.6, z], DARK_STONE)
-      box(group, [5.7, 5.2, 0.35], [4.15, 2.6, z], DARK_STONE)
-      box(group, [2.6, 1.9, 0.35], [0, 4.25, z], DARK_STONE)
+      const rearPassage = act === 'palace' && end === -1
+      if (!rearPassage) {
+        box(group, [5.7, 5.2, 0.35], [-4.15, 2.6, z], DARK_STONE)
+        box(group, [5.7, 5.2, 0.35], [4.15, 2.6, z], DARK_STONE)
+        box(group, [2.6, 1.9, 0.35], [0, 4.25, z], DARK_STONE)
+      } else if (rearPassage) {
+        // 五殿通往忘川的北墙保持真实门洞；回望机位不被端墙吞掉。
+        box(group, [2.6, 0.55, 0.35], [0, 4.92, z], DARK_STONE)
+      }
       box(group, [0.28, 3.3, 0.6], [-1.45, 1.65, z], WOOD)
       box(group, [0.28, 3.3, 0.6], [1.45, 1.65, z], WOOD)
       box(group, [3.3, 0.28, 0.6], [0, 3.15, z], WOOD)
@@ -777,7 +789,7 @@ export class EscapeWorld {
       box(group, [0.06, 2.3, 2.1], [x, 2.35, center + 0.4], CLOTH)
       for (let index = 0; index < 5; index += 1) box(group, [0.045, 2.35, 0.035], [x + (x < 0 ? 0.035 : -0.035), 2.35, center - 0.45 + index * 0.42], WOOD)
     }
-    addPaper(group, [-6.72, 2.3, center - 2.8], [0.68, 1.4], [0, Math.PI / 2, -0.04], false)
+    if (act !== 'medicine') addPaper(group, [-6.72, 2.3, center - 2.8], [0.68, 1.4], [0, Math.PI / 2, -0.04], false)
     addPaper(group, [6.72, 2.6, center + 2.7], [0.58, 1.2], [0, -Math.PI / 2, 0.06], false)
     this.addInteraction(group, 'exit', act, 'exit', '穿过暗门，前往下一殿', [0, 1.3, center - 7.65], [1.65, 2.5, 0.25], false)
     return group
@@ -790,6 +802,16 @@ export class EscapeWorld {
       if (mesh.isMesh && mesh.material === WOOD) mesh.material = MEDICINE_WOOD
     })
     // 暖色靠材质反照率与既有点光完成，避免额外逐像素灯开销。
+    const sidePortal = new THREE.Group()
+    group.add(sidePortal)
+    for (const z of [-2.35, 2.35]) box(sidePortal, [0.38, 3.3, 0.2], [-6.79, 1.65, z], WOOD)
+    box(sidePortal, [0.38, 0.26, 4.9], [-6.79, 3.2, 0], WOOD)
+    const sideMist = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 3.3), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xd3ded4, transparent: true, opacity: 0.82, depthWrite: false, side: THREE.DoubleSide }))
+    sideMist.position.set(-7.35, 1.68, 0)
+    sideMist.rotation.y = Math.PI / 2
+    sideMist.userData.mist = true
+    group.add(sideMist)
+    label(group, '药库 · 雾廊', [-6.77, 3.6, 0], 1.8, false, Math.PI / 2)
     const cabinet = new THREE.Group()
     cabinet.name = 'medicine-cabinet-fallback'
     group.add(cabinet)
@@ -979,17 +1001,20 @@ export class EscapeWorld {
     // 戥子程序几何：戥杆、秤盘、砣三件；秤盘朝上，杆沿桌面纵深。
     const dengzi = new THREE.Group()
     dengzi.name = 'dengzi-fallback'
-    dengzi.position.set(1.75, 1.27, -1.48)
+    dengzi.position.set(1.85, 1.38, -0.92)
+    dengzi.rotation.y = -0.55
     bench.add(dengzi)
-    const beam = cylinder(dengzi, 0.012, 0.64, [0, 0.07, 0], BRONZE)
-    beam.rotation.x = Math.PI / 2
-    const pan = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.09, 0.018, 24), BRONZE)
-    pan.position.set(0, 0.016, -0.22)
-    dengzi.add(pan)
-    for (const x of [-0.075, 0.075]) cylinder(dengzi, 0.003, 0.16, [x, 0.085, -0.22], ROPE)
-    roundedBox(dengzi, [0.07, 0.065, 0.08], [0, 0.044, 0.18], BRONZE, 0.012)
-    const pivot = new THREE.Mesh(new THREE.TorusGeometry(0.026, 0.006, 6, 14), BRONZE)
-    pivot.position.set(0, 0.095, -0.05)
+    const scaleMetal = new THREE.MeshStandardMaterial({ color: 0xc09b5b, metalness: 0.58, roughness: 0.44, emissive: 0x50320d, emissiveIntensity: 0.22 })
+    const beam = cylinder(dengzi, 0.023, 0.76, [0, 0.12, 0], scaleMetal)
+    beam.rotation.z = Math.PI / 2
+    const pan = bowl(dengzi, [-0.34, 0.015, 0], 0.14, 0.065, scaleMetal)
+    for (const z of [-0.085, 0.085]) {
+      const chain = cylinder(dengzi, 0.004, 0.23, [-0.34, 0.145, z], scaleMetal)
+      chain.rotation.x = z < 0 ? -0.48 : 0.48
+    }
+    roundedBox(dengzi, [0.11, 0.1, 0.09], [0.23, 0.065, 0], scaleMetal, 0.012)
+    const pivot = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.008, 6, 14), scaleMetal)
+    pivot.position.set(-0.05, 0.14, 0)
     dengzi.add(pivot)
 
     light(group, [0.7, 3.2, -6.1], 0x9bc9b7, 8, 0.05)
@@ -1319,13 +1344,7 @@ export class EscapeWorld {
     box(group, [14, 0.22, 0.36], [0, 4.78, -33.2], WOOD)
     for (const x of [-5.4, 5.4]) box(group, [0.36, 0.22, 10], [x, 4.78, -28], WOOD)
     for (let index = -2; index <= 2; index += 2) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, -28], WOOD)
-    const caisson = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.7, 0.18, 8), new THREE.MeshStandardMaterial({ color: 0x3a443d, emissive: 0x14231e, emissiveIntensity: 0.9, roughness: 0.85 }))
-    caisson.position.set(0, 4.95, -28)
-    group.add(caisson)
-    const caissonRing = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.05, 8, 8), BRONZE)
-    caissonRing.rotation.x = Math.PI / 2
-    caissonRing.position.set(0, 4.86, -28)
-    group.add(caissonRing)
+    // 不再放悬空藻井锥体：它遮住案台规则匾额，且没有结构依托。
     const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
     const stoneMaterials = Array.from({ length: 3 }, () => WET_STONE.clone())
     for (let row = 0; row < 3; row += 1) {
