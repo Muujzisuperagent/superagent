@@ -44,6 +44,25 @@ for (const [view, file] of navViews) {
   await page.waitForFunction(() => document.body.dataset.assets === 'ready', null, { timeout: 12000 })
   await page.waitForTimeout(500)
   await page.screenshot({ path: `artifacts/nav/${file}` })
+  // 近黑判据：canvas 中心区域采样，亮度 < 0.06 的占比 > 95% 判黑帧（HUD 在四角，不采）。
+  const darkRatio = await page.evaluate(() => {
+    const canvas = document.querySelector('canvas')
+    if (!canvas) return 1
+    const sample = document.createElement('canvas')
+    sample.width = 100; sample.height = 100
+    const context = sample.getContext('2d')
+    if (!context) return 1
+    // 截取 canvas 中央 60% 区域（避开四角 HUD/准星），再缩到 100×100。
+    const sw = canvas.width * 0.6; const sh = canvas.height * 0.6
+    context.drawImage(canvas, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh, 0, 0, 100, 100)
+    const data = context.getImageData(0, 0, 100, 100).data
+    let dark = 0
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i] < 15 && data[i + 1] < 15 && data[i + 2] < 15) dark += 1
+    }
+    return dark / (data.length / 4)
+  })
+  if (darkRatio > 0.95) errors.push(`nav frame near-black (${view}): ${(darkRatio * 100).toFixed(1)}%`)
 }
 console.log(JSON.stringify({ title: await page.title(), errors, canvas: await page.locator('canvas').count() }))
 await browser.close()

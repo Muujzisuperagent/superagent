@@ -42,12 +42,12 @@ const previewViews: Record<string, { position: [number, number, number]; target:
   medicineBench: { position: [-0.7, 1.6, 0.6], target: [0.6, 1.25, -1.6] },
   medicineExit: { position: [0, 1.65, -5.2], target: [0, 1.7, -9.4] },
   palace: { position: [0, 5, -21.2], target: [0, 0.2, -29.5] },
-  palaceEntry: { position: [0, 1.65, -18.6], target: [0, 0.6, -28] },
+  palaceEntry: { position: [0, 1.65, -20.6], target: [0, 0.6, -28] },
   palaceCenter: { position: [0, 1.65, -27.75], target: [0, 0.15, -27.75] },
   palaceExit: { position: [1.4, 1.65, -32.8], target: [0.6, 1.5, -36.5] },
   river: { position: [-4.2, 2.5, -44.6], target: [0, 2.6, -68] },
   riverBridge: { position: [0, 1.9, -39.5], target: [0, 1.4, -52] },
-  riverMid: { position: [0, 2.1, -52.5], target: [0, 2.2, -36] },
+  riverMid: { position: [0, 3.4, -46], target: [0, 2.4, -36] },
   riverEnd: { position: [-4.6, 1.7, -50.5], target: [-6.6, 1.9, -51] },
   riverSide: { position: [8.2, 1.9, -54.5], target: [-0.4, 1.6, -64] }
 }
@@ -95,6 +95,12 @@ world.setAtmosphere(currentAct)
 const initialAct = actDefinition(currentAct)
 actEl.textContent = `${initialAct.number} · ${initialAct.title}`
 objectiveEl.textContent = initialAct.objective
+// 预览/导航机位：HUD 殿名按机位所在殿显示（仅显示，不推进剧情、不切氛围），
+// 否则所有 ?view= 机位的 HUD 都写死第四殿，导航评审会误判。
+if (preview) {
+  const previewAct = actDefinition(world.actAt(camera.position.z))
+  actEl.textContent = `${previewAct.number} · ${previewAct.title}`
+}
 
 let lastPrompt: string | null = null
 function setPrompt(text: string | null): void {
