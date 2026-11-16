@@ -1,0 +1,132 @@
+{
+  "version": "2.0",
+  "commit": "38f5ea9",
+  "date": "2026-11-16",
+  "baseline_note": "基线 = 38f5ea9 + 未提交改动：M game/src/scene.ts、M game/artifacts/act4-medicine.png、M game/artifacts/act5-palace.png、M game/artifacts/act6-reincarnation.png、?? HANDOFF.md、?? game/tests/flow-check.mjs、?? game/artifacts/flow/",
+  "flow_reachable": {
+    "value": true,
+    "evidence": "cd game && node.exe tests/flow-check.mjs（5173 dev server）：PASS 锁定鼠标 pointerLockElement=true；PASS 四殿取药 当归/远志/合欢/王不留行 四味；PASS 收证据 C；PASS 半印④落下·北门已开；PASS 五殿踩板 1→9；PASS 六殿合符·三条路已亮；PASS 结局列表 [\"return\",\"judge\"]；PASS 选择结局 还阳；末行 {\"ok\":true,\"failed\":[],\"pageErrors\":[]}。注：五殿收证据 D 被跳过，脚本打印「跳过：坐标 bug，见 knownIssues」。"
+  },
+  "criteria": {
+    "A3": {
+      "max": 4,
+      "score": 2,
+      "evidence": "screens/act4-medicine.png 中央药案：碗体为纯黑半球、无碗沿/釉面层次；screens/act5-palace.png：九宫石板呈青绿/靛蓝自发光色块，非湿青石；screens/act6-reincarnation.png：六道轮盘只剩两层薄环。assets.json：6 件 GLB 均加载、0 error。",
+      "reason": "GLB 全部落地且无穿天大错位，但材质与尺度需手工修，达不到「比例、朝向、材质、接触面均成立」的 4 分档。"
+    },
+    "B1": {
+      "max": 4,
+      "score": 1,
+      "evidence": "screens/act4-medicine.png 中央偏上：一块倾斜深色大平板（约 250×180 px）横挡百子柜立面并遮挡柜体；screens/act6-reincarnation.png 中景：六道轮盘薄环与雾同亮度，抢不过桥面。",
+      "reason": "主目标（药局百子柜）被明显的错误物件挡住，构图焦点失效，属有证据的明显问题。"
+    },
+    "B2": {
+      "max": 4,
+      "score": 2,
+      "evidence": "visual.json palace.near_black_ratio=65.6%、mean_luma=0.048；screens/act5-palace.png 数字 8/1/6/5/3/7 可读、八盏灯有可见发光点；screens/act4-medicine.png 药案台面近黑，碗沿不可辨。",
+      "reason": "灯有可见来源、关键数字可读，但药案与碗等关键道具暗部丢信息；近黑比例是五殿设计意图，不据此扣分。"
+    },
+    "B3": {
+      "max": 4,
+      "score": 2,
+      "evidence": "screens/act4-medicine.png：百子柜木框与铜环可辨、地砖有缝线；碗为纯黑无高光。screens/act5-palace.png：石板为纯色发光面，无湿青石纹理。screens/act6-reincarnation.png：桥面石缝与灯笼金属可辨。",
+      "reason": "木/石/金属能区分，但粗糙度、磨损、釉面层次普遍缺失，部分材质（碗、石板）直接失真。"
+    },
+    "B4": {
+      "max": 4,
+      "score": 2,
+      "evidence": "screens/act4-medicine.png 冷青墙面 + 暖黄柜光，符合药局；screens/act5-palace.png 近黑底 + 幽绿，但 1/6 石板呈青绿、2/4 呈靛蓝染色，非光源可解释；screens/act6-reincarnation.png 灰绿雾 + 朱红彼岸花。",
+      "reason": "主辅色与情绪方向对，但五殿石板出现像 UI 高亮的非叙事染色，强调色逻辑不统一。"
+    },
+    "B5": {
+      "max": 4,
+      "score": 2,
+      "evidence": "screens/act4-medicine.png：百子柜占主立面、药案有台面/桌腿/下层隔板三层；左墙可见由悬浮纸板拼成的锯齿状「楼梯」，与梁柱比例不符；screens/act6-reincarnation.png 亭与桥尺度大致成立。",
+      "reason": "主要家具尺度可信，但悬浮纸板楼梯破坏建筑语汇，空间层次靠贴片堆叠。"
+    },
+    "B6": {
+      "max": 4,
+      "score": 3,
+      "evidence": "screens/act4-medicine.png：百子柜+药案+戥子杆+粉/白/绿三类药材+碗+蒸汽；screens/act5-palace.png：匾额「戴九履一·左三右七」+ 洛书数字；screens/act6-reincarnation.png：孟婆亭+汤锅+灯笼+六道轮盘+彼岸花+亡魂队列。",
+      "reason": "三幕剧情物件齐、无违约现代物件，但呈现精度停留在原型层，够 3 不到 4。"
+    },
+    "B7": {
+      "max": 4,
+      "score": 3,
+      "evidence": "三张 screens 统一冷青主色 + 局部暖光/朱红点缀，均低面数平涂材质；差异保留：药局暖柜光、九宫近黑、忘川灰雾。",
+      "reason": "跨场景材质与时代语汇连贯，差异可辨，符合目标；细节密度一致偏低属 B3/B10 问题，不重复扣。"
+    },
+    "B8": {
+      "max": 4,
+      "score": 2,
+      "evidence": "screens/act5-palace.png：远端案桌与出口无标识，只能靠数字与匾额推断；screens/act4-medicine.png：左墙悬浮纸板易误读为可走楼梯；game/tests/flow-check.mjs 注释「机位传送只改变相机坐标，交互仍走真实射线聚焦」，实测需传送到交互点才命中。",
+      "reason": "路线与出口辨识依赖文字提示，装饰物（悬浮纸板）与可交互物混淆。"
+    },
+    "B9": {
+      "max": 4,
+      "score": 3,
+      "evidence": "三张 screens 左上 HUD 同版式：殿名、目标句、路引·半印 0/6、不忘汤·未配、证据 A、WASD/鼠标/E/Esc 提示均清晰；flow-check 输出显示 E 交互后 toast 逐步变化（「当归·君，已入药碾」→「半印④落下。不忘汤入手。北门已开。」）。",
+      "reason": "HUD 可读、交互反馈逐句成立；但只有单一状态截图，缺错误反馈/命中失败态对照，未到 4。"
+    },
+    "B10": {
+      "max": 4,
+      "score": 1,
+      "evidence": "screens/act4-medicine.png：倾斜大平板穿在百子柜前，左墙/柜前/右侧共 5 片以上纸张悬浮半空；screens/act5-palace.png 下缘纸片贴地悬空；screens/act6-reincarnation.png 彼岸花为交叉细杆星形、右侧布幡为深色竖块。",
+      "reason": "多处穿模、悬浮与错误几何直接进入主视野，完成度不达标。"
+    },
+    "C1": {
+      "max": 5,
+      "score": 4,
+      "evidence": "screens/act4-medicine.png：百子柜(抽屉+铜环)✓、药案(台面+桌腿+下层隔板)✓、药材≥3类(粉/白/绿)✓、碗(右架青瓷碗+案上碗)✓、蒸汽(右侧细缕)✓、灯笼/光源(柜前暖点+冷环境)✓、右柜台(木箱堆叠)✓、戥子仅见桌面细杆△、左门见雾未入镜✗。",
+      "reason": "九项中 7 项明确成立、1 项存疑、1 项缺失，落 7–8 档。"
+    },
+    "C2": {
+      "max": 5,
+      "score": 2,
+      "evidence": "screens/act5-palace.png：洛书 8 1 6 / 3 5 7 / 4 9 2 与踩板一致✓、石面数字✓、脚印/磨痕✓、低机位+前景台阶✓、冷青黑+幽绿✓；石板为青绿/靛蓝发光面✗、布幡为窄条硬板✗、八灯为白色光球(非铜盏青绿火苗)✗。",
+      "reason": "8 项中 5 项成立，落 3–4 档。"
+    },
+    "C3": {
+      "max": 5,
+      "score": 3,
+      "evidence": "screens/act6-reincarnation.png：桥面连续✓、孟婆亭层叠起翘瓦顶✓、六道轮盘薄环可辨✓、光门有微光拱✓、彼岸花成片(交叉杆形态)✓、亡魂队列✓；桥拱侧视未见跨度与厚度✗、右侧布幡为深色竖块✗。",
+      "reason": "8 项中 6 项成立，落 5–6 档；桥拱与布幡是为两条硬伤。"
+    },
+    "D1": {
+      "max": 3,
+      "score": 3,
+      "evidence": "node.exe tests/flow-check.mjs：当归(君)→远志(臣)→合欢(佐)→王不留行(戥子平) 四味依次入药碾，toast 逐句反馈；收证据 C；半印④落下、不忘汤入手、北门已开。",
+      "reason": "取药顺序、反馈、出门闭环完整，带剧情文案。"
+    },
+    "D2": {
+      "max": 3,
+      "score": 2,
+      "evidence": "同一次 flow-check：石板 1→9 全部 PASS，「九块石板同时亮了」。日志中无错步重置与跨格误触用例；「收证据 D」被跳过（坐标 bug）。",
+      "reason": "1→9 可完成，但错步重置/跨格误触未经证实，且殿内一处交互点坐标失效。"
+    },
+    "D3": {
+      "max": 3,
+      "score": 2,
+      "evidence": "flow-check：六殿合符 PASS，结局解锁列表 [\"return\",\"judge\"]，选择还阳 PASS；未见第三个结局被解锁。",
+      "reason": "可到结局，但只验证 2 个，三结局条件与文案未全部成立。"
+    },
+    "D4": {
+      "max": 1,
+      "score": "n/a",
+      "evidence": "flow-check 仅证明「锁定鼠标 pointerLockElement=true」；无 Esc 释放、无重开用例输出。",
+      "reason": "Esc 与重开未验证，证据不足，按规则记 n/a 并从分母剔除，不猜分。"
+    },
+    "F1": {
+      "max": 2,
+      "score": 2,
+      "evidence": "game/启动密室.bat(138 B)、game/start-game.ps1(2441 B)、game/README.md 均存在；game/index.html 含 file:// 启动警告（tests/visual-check.mjs 断言文案「请用启动器打开密室」）；本轮以 npm.cmd run start 起动 5173 成功。",
+      "reason": "启动器与依赖提示齐全，命令可复现；双击动作本轮未人工实测。"
+    },
+    "F2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "评审/四五六殿/2026-11-16-38f5ea9/ 含 auto.json、capture.json、visual.json、assets.json、screens/(3 张 1440×900)、rubric.json、scores.json、report.md；auto.json.meta.commit=38f5ea9，命令与参数完整记录。",
+      "reason": "截图、报告、提交号与复现命令齐全。"
+    }
+  }
+}

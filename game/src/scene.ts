@@ -1597,9 +1597,12 @@ export class EscapeWorld {
   setAtmosphere(act: ActId): void {
     // 性能：前向渲染下每盏灯都参与每像素计算，全场 17 盏点光常开会让填充率爆炸。
     // 灯的衰减距离只有 9m，隔壁殿的灯本来就照不到——按殿启停，视觉不变、计算量大降。
+    // 注意：灯笼内的点光是嵌套子节点，必须按世界坐标分区，不能用局部 position。
+    const worldPosition = new THREE.Vector3()
+    this.scene.updateMatrixWorld(true)
     this.scene.traverse((node) => {
       if (node instanceof THREE.PointLight || node instanceof THREE.SpotLight) {
-        const z = node.position.z
+        const z = node.getWorldPosition(worldPosition).z
         if (z > 8) node.visible = act === 'scale' || act === 'archive'
         else if (z > -16) node.visible = act === 'medicine'
         else if (z > -44) node.visible = act === 'palace'

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-38f5ea9\\screens\\act5-palace.png",
+      "sha256": "5f7fb8d4815f3e1e045df696ce54be4d24bc98fbda57ff1f69fc94d0db30f8b1",
+      "scene": "五殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.04833,
+      "luma_std_srgb": 0.073662,
+      "near_black_pct_luma_lt_0_05": 74.8578,
+      "near_white_pct_luma_gt_0_95": 0.0083,
+      "saturation_hsv_mean": 0.683306,
+      "high_saturation_pct_gt_0_8": 14.9201,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 0.1667,
+        "深木": 29.4644,
+        "烛黄": 0.0,
+        "朱砂": 0.0,
+        "宣纸": 0.1149,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 29.7461,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": [
+        "近黑像素较多；五殿可能符合意图，请在实际玩家机位核对关键线索"
+      ]
+    }
+  ]
+}

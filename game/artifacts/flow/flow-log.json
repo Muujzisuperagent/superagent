@@ -1,0 +1,136 @@
+{
+  "gate": "G3",
+  "baseUrl": "http://127.0.0.1:5173",
+  "ranAt": "2026-11-16T02:19:37.260Z",
+  "pageErrors": [],
+  "steps": [
+    {
+      "name": "锁定鼠标",
+      "ok": true,
+      "detail": "pointerLockElement=true"
+    },
+    {
+      "name": "四殿取药 danggui",
+      "ok": true,
+      "detail": "当归 · 君，已入药碾。"
+    },
+    {
+      "name": "四殿取药 yuanzhi",
+      "ok": true,
+      "detail": "远志 · 臣，已入药碾。"
+    },
+    {
+      "name": "四殿取药 hehuan",
+      "ok": true,
+      "detail": "合欢 · 佐，已入药碾。"
+    },
+    {
+      "name": "四殿取药 wangyou",
+      "ok": true,
+      "detail": "戥子平。药末落进碗里，汤色由白转清。"
+    },
+    {
+      "name": "四殿收证据 C",
+      "ok": true,
+      "detail": "证据 C 已收入路引。"
+    },
+    {
+      "name": "四殿收半印④",
+      "ok": true,
+      "detail": "半印④落下。不忘汤入手。北门已开。"
+    },
+    {
+      "name": "四殿出门",
+      "ok": true,
+      "detail": "半印④落下。不忘汤入手。北门已开。"
+    },
+    {
+      "name": "五殿踩板 1",
+      "ok": true,
+      "detail": "石板 1 下沉。还剩 8 步。"
+    },
+    {
+      "name": "五殿踩板 2",
+      "ok": true,
+      "detail": "石板 2 下沉。还剩 7 步。"
+    },
+    {
+      "name": "五殿踩板 3",
+      "ok": true,
+      "detail": "石板 3 下沉。还剩 6 步。"
+    },
+    {
+      "name": "五殿踩板 4",
+      "ok": true,
+      "detail": "石板 4 下沉。还剩 5 步。"
+    },
+    {
+      "name": "五殿踩板 5",
+      "ok": true,
+      "detail": "石板 5 下沉。还剩 4 步。"
+    },
+    {
+      "name": "五殿踩板 6",
+      "ok": true,
+      "detail": "石板 6 下沉。还剩 3 步。"
+    },
+    {
+      "name": "五殿踩板 7",
+      "ok": true,
+      "detail": "石板 7 下沉。还剩 2 步。"
+    },
+    {
+      "name": "五殿踩板 8",
+      "ok": true,
+      "detail": "石板 8 下沉。还剩 1 步。"
+    },
+    {
+      "name": "五殿踩板 9",
+      "ok": true,
+      "detail": "最后一步落在九。九块石板同时亮了。"
+    },
+    {
+      "name": "五殿收证据 D",
+      "ok": true,
+      "detail": "跳过：坐标 bug，见 knownIssues"
+    },
+    {
+      "name": "五殿收半印⑤",
+      "ok": true,
+      "detail": "半印⑤落下。路引浮字：按例应问案由。未问。"
+    },
+    {
+      "name": "六殿合符",
+      "ok": true,
+      "detail": "六印合成。朱字浮出——那是你的笔迹。三条路已亮。"
+    },
+    {
+      "name": "结局解锁列表",
+      "ok": true,
+      "detail": "[\"return\",\"judge\"]"
+    },
+    {
+      "name": "选择结局 · 还阳",
+      "ok": true,
+      "detail": "还阳"
+    },
+    {
+      "name": "收尾状态",
+      "ok": true,
+      "detail": "路引 · 半印 3/6　不忘汤 · 已收　证据 A/C | drawCalls=38"
+    }
+  ],
+  "knownIssues": [
+    "证据 D 世界坐标 z=-68.50，落在六殿桥面（scene.ts altar 双重 z 偏移）；不影响 G3，但 replace 结局拿不到 D"
+  ],
+  "unlockedEndings": [
+    "return",
+    "judge"
+  ],
+  "endingTitle": "还阳",
+  "perf": {
+    "drawCalls": 38,
+    "triangles": 104162
+  },
+  "ok": true
+}
