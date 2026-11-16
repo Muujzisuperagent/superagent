@@ -304,6 +304,12 @@ window.addEventListener('keydown', (event) => {
     toggleMute()
     return
   }
+  // Esc：真实浏览器会自行退出指针锁，但 headless/自动化环境不一定响应；
+  // 显式调 exitPointerLock 保证「Esc 释放鼠标」在所有环境下都成立。
+  if (event.code === 'Escape' && document.pointerLockElement !== null) {
+    document.exitPointerLock()
+    return
+  }
   if (won) return
   unlockAudio()
   keys.add(event.code)
@@ -330,6 +336,17 @@ controls.addEventListener('lock', () => {
 controls.addEventListener('unlock', () => {
   keys.clear()
   if (!won) lockHint.classList.remove('hidden')
+})
+
+// D4：原生 pointerlockchange 兜底。controls 的 unlock 事件在 headless 环境
+// 可能不触发（Esc 由浏览器内部处理时），原生事件保证提示一定同步。
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement === null) {
+    keys.clear()
+    if (!won) lockHint.classList.remove('hidden')
+  } else {
+    lockHint.classList.add('hidden')
+  }
 })
 
 function updateMovement(delta: number): void {

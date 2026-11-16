@@ -31,12 +31,21 @@ async function record(name, detail, ok = true) {
   console.log(`${ok ? 'PASS' : 'FAIL'} · ${name} · ${detail}`)
 }
 
+// 等待 N 帧；整页导航（重开）会销毁执行上下文，捕获后改为等新页面 load 完成。
 async function frames(count = 3) {
-  await page.evaluate((n) => new Promise((done) => {
-    let left = n
-    const tick = () => { left -= 1; if (left <= 0) done(true); else requestAnimationFrame(tick) }
-    requestAnimationFrame(tick)
-  }), count)
+  try {
+    await page.evaluate((n) => new Promise((done) => {
+      let left = n
+      const tick = () => { left -= 1; if (left <= 0) done(true); else requestAnimationFrame(tick) }
+      requestAnimationFrame(tick)
+    }), count)
+  } catch (error) {
+    if (String(error).includes('Execution context was destroyed') || String(error).includes('Target closed')) {
+      await page.waitForLoadState('load', { timeout: 20000 }).catch(() => undefined)
+      return
+    }
+    throw error
+  }
 }
 
 async function toastText() {
@@ -146,9 +155,9 @@ async function waitToastClear(timeout = 15000) {
   await record('五殿误踩重置', wrongText, wrongText.includes('错了') || wrongText.includes('重来'))
   const walkStone2 = await walkStone(1)
   await record('五殿重置后可续行', walkStone2, walkStone2.includes('石板 1'))
-  // D2 跨格用例：等 toast 真实隐藏后，站到两块石板之间的空地上，不得触发任何踩板。
+  // D2 跨格用例：等 toast 真实隐藏后，站到 3×3 阵型之外的空地（约阵外一格半），不得触发任何踩板。
   await waitToastClear()
-  await teleport(1.03, -24.7, [0, 0.3, -28])
+  await teleport(4.6, -21.2, [0, 0.3, -28])
   await frames(10)
   const crossText = await toastText()
   await record('五殿跨格不误触', `toast="${crossText.slice(0, 24)}"`, !crossText.includes('石板'))
