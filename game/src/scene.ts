@@ -103,6 +103,11 @@ const CLOTH = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: cloth
 const PAPER = new THREE.MeshStandardMaterial({ map: paperTexture, color: 0xe0d7b8, emissive: 0x171408, emissiveIntensity: 0.12, roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
 const CELADON = new THREE.MeshPhysicalMaterial({ color: 0x718f83, roughness: 0.2, clearcoat: 0.9, clearcoatRoughness: 0.12 })
 const RED = new THREE.MeshStandardMaterial({ color: 0x761824, roughness: 0.7, side: THREE.DoubleSide })
+const TILE = new THREE.MeshStandardMaterial({ color: 0x2c3430, roughness: 0.88, metalness: 0.025 })
+const TILE_EDGE = new THREE.MeshStandardMaterial({ color: 0x4b564d, roughness: 0.74, metalness: 0.04 })
+const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.03, color: 0x8d8267, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
+const LILY_RED = new THREE.MeshStandardMaterial({ color: 0x9c2530, emissive: 0x1c0608, emissiveIntensity: 0.45, roughness: 0.62, side: THREE.DoubleSide })
+const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.02, color: 0x6f7164, roughness: 0.96, side: THREE.DoubleSide })
 
 const floatingObjects: THREE.Object3D[] = []
 const animatedSteam: THREE.Object3D[] = []
@@ -230,6 +235,168 @@ function addBanner(parent: THREE.Object3D, position: [number, number, number], s
   return banner
 }
 
+function addRaggedBanner(parent: THREE.Object3D, position: [number, number, number], size: [number, number], rotationY = 0): THREE.Group {
+  const group = new THREE.Group()
+  group.position.set(...position)
+  group.rotation.y = rotationY
+  parent.add(group)
+  const pole = cylinder(group, 0.032, size[0] + 0.55, [0, 0.03, 0], WOOD)
+  pole.rotation.z = Math.PI / 2
+  const rows = 9
+  const columns = 9
+  const ragged = Array.from({ length: columns + 1 }, () => size[1] * (0.8 + Math.random() * 0.26))
+  const positions: number[] = []
+  const uvs: number[] = []
+  const indices: number[] = []
+  for (let row = 0; row <= rows; row += 1) {
+    const t = row / rows
+    for (let column = 0; column <= columns; column += 1) {
+      const x = (column / columns - 0.5) * size[0]
+      const hem = ragged[column] ?? size[1]
+      const y = -t * hem
+      const wave = Math.sin(column * 0.85 + row * 0.42) * t * 0.2 + Math.sin(row * 1.7 + column * 0.3) * 0.035
+      positions.push(x, y, wave + Math.sin(column * 1.3) * 0.045)
+      uvs.push(column / columns, 1 - t)
+      if (row < rows && column < columns) {
+        const a = row * (columns + 1) + column
+        const b = a + columns + 1
+        indices.push(a, b, a + 1, b, b + 1, a + 1)
+      }
+    }
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.setIndex(indices)
+  geometry.computeVertexNormals()
+  const banner = new THREE.Mesh(geometry, HEMP)
+  banner.castShadow = false
+  banner.userData.hang = true
+  floatingObjects.push(banner)
+  group.add(banner)
+  for (const x of [-size[0] / 2 + 0.12, size[0] / 2 - 0.12]) {
+    const rope = cylinder(group, 0.012, 0.5, [x, 0.28, 0], new THREE.MeshStandardMaterial({ color: 0x6c6450, roughness: 1 }))
+    rope.castShadow = false
+  }
+  return group
+}
+
+function addTiledRoof(parent: THREE.Object3D, position: [number, number, number], span: number, height: number): THREE.Group {
+  const roof = new THREE.Group()
+  roof.position.set(...position)
+  parent.add(roof)
+  const layers = 5
+  const eaveRise = 0.26
+  const roofHeightAt = (t: number) => height * (0.4 * t + 0.6 * t * t) + eaveRise * Math.pow(1 - t, 3)
+  for (let index = 0; index < layers; index += 1) {
+    const t0 = index / layers
+    const t1 = (index + 1) / layers
+    const radiusBottom = (span / 2) * (1 - t0 * 0.88)
+    const radiusTop = (span / 2) * (1 - t1 * 0.88)
+    const y0 = roofHeightAt(t0)
+    const y1 = roofHeightAt(t1)
+    const layerHeight = Math.max(y1 - y0, 0.07)
+    const layer = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(radiusTop, 0.06), radiusBottom, layerHeight, 4, 1), TILE)
+    layer.rotation.y = Math.PI / 4
+    layer.position.y = y0 + layerHeight / 2
+    layer.castShadow = true
+    layer.receiveShadow = true
+    roof.add(layer)
+    const lip = new THREE.Mesh(new THREE.CylinderGeometry(radiusBottom * 1.02, radiusBottom * 1.02, 0.05, 4, 1, true), TILE_EDGE)
+    lip.rotation.y = Math.PI / 4
+    lip.position.y = y0 + 0.02
+    roof.add(lip)
+  }
+  const cornerRadius = (span / 2) * 0.97
+  for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]] as const) {
+    const points = [
+      new THREE.Vector3(0, height + 0.02, 0),
+      new THREE.Vector3(sx * cornerRadius * 0.6, roofHeightAt(0.55) + 0.04, sz * cornerRadius * 0.6),
+      new THREE.Vector3(sx * cornerRadius, eaveRise + 0.06, sz * cornerRadius),
+      new THREE.Vector3(sx * cornerRadius * 1.04, eaveRise + 0.2, sz * cornerRadius * 1.04)
+    ]
+    const ridge = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 16, 0.035, 6, false), TILE_EDGE)
+    ridge.castShadow = true
+    roof.add(ridge)
+  }
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), TILE_EDGE)
+  finial.position.y = height + 0.16
+  roof.add(finial)
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.22, 8), TILE_EDGE)
+  tip.position.y = height + 0.34
+  roof.add(tip)
+  return roof
+}
+
+function addLanternBracket(parent: THREE.Object3D, postX: number, postY: number, postZ: number, side: number, scale = 0.62): void {
+  const arm = cylinder(parent, 0.032, 0.62, [postX + side * 0.31, postY + 0.02, postZ], BRONZE)
+  arm.rotation.z = Math.PI / 2
+  arm.castShadow = false
+  const hook = cylinder(parent, 0.016, 0.34, [postX + side * 0.6, postY - 0.17, postZ], BRONZE)
+  hook.castShadow = false
+  addLantern(parent, [postX + side * 0.6, postY - 0.55, postZ], scale)
+}
+
+function addLilyField(parent: THREE.Object3D): void {
+  const clusters = 110
+  const petalGeometry = new THREE.SphereGeometry(0.15, 8, 5)
+  const coreGeometry = new THREE.SphereGeometry(0.032, 6, 5)
+  const stemGeometry = new THREE.CylinderGeometry(0.011, 0.011, 1, 5)
+  const petalCount = clusters * 7
+  const petals = new THREE.InstancedMesh(petalGeometry, LILY_RED, petalCount)
+  const cores = new THREE.InstancedMesh(coreGeometry, new THREE.MeshStandardMaterial({ color: 0x6e2a2c, roughness: 0.8 }), clusters)
+  const stems = new THREE.InstancedMesh(stemGeometry, new THREE.MeshStandardMaterial({ color: 0x2c352a, roughness: 1 }), clusters)
+  const matrix = new THREE.Matrix4()
+  const quaternion = new THREE.Quaternion()
+  const scale = new THREE.Vector3()
+  const point = new THREE.Vector3()
+  const euler = new THREE.Euler()
+  let petalIndex = 0
+  for (let index = 0; index < clusters; index += 1) {
+    const side = index % 2 === 0 ? -1 : 1
+    const onBank = index % 5 !== 0
+    const x = onBank
+      ? side * (10.2 + Math.random() * 3.9)
+      : side * (2.6 + Math.random() * 4.6)
+    const z = onBank
+      ? -48.5 - Math.random() * 28
+      : (Math.random() < 0.5 ? -48.4 - Math.random() * 3.2 : -72.8 - Math.random() * 3.4)
+    const ground = onBank ? 0.27 : 0.07
+    const stemHeight = 0.36 + Math.random() * 0.4
+    const bloomScale = 0.75 + Math.random() * 0.55
+    const yaw = Math.random() * Math.PI * 2
+    point.set(x, ground + stemHeight / 2, z)
+    scale.set(1, stemHeight, 1)
+    quaternion.identity()
+    matrix.compose(point, quaternion, scale)
+    stems.setMatrixAt(index, matrix)
+    for (let petal = 0; petal < 7; petal += 1) {
+      const angle = yaw + petal * Math.PI * 2 / 7
+      const reach = 0.16 * bloomScale
+      point.set(x + Math.cos(angle) * reach, ground + stemHeight + 0.1, z + Math.sin(angle) * reach)
+      euler.set(0.62, angle, 0.12)
+      quaternion.setFromEuler(euler)
+      scale.set(0.17 * bloomScale, 0.2 * bloomScale, 1.6 * bloomScale)
+      matrix.compose(point, quaternion, scale)
+      petals.setMatrixAt(petalIndex, matrix)
+      petalIndex += 1
+    }
+    point.set(x, ground + stemHeight + 0.03, z)
+    scale.set(1, 1, 1)
+    quaternion.identity()
+    matrix.compose(point, quaternion, scale)
+    cores.setMatrixAt(index, matrix)
+  }
+  petals.instanceMatrix.needsUpdate = true
+  cores.instanceMatrix.needsUpdate = true
+  stems.instanceMatrix.needsUpdate = true
+  petals.castShadow = false
+  cores.castShadow = false
+  stems.castShadow = false
+  petals.receiveShadow = false
+  parent.add(petals, cores, stems)
+}
+
 function addSteam(parent: THREE.Object3D, position: [number, number, number]): void {
   const steamMaterial = new THREE.MeshBasicMaterial({ color: 0xb5c9c1, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
   for (let index = 0; index < 4; index += 1) {
@@ -289,14 +456,14 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   soul.position.set(...position)
   soul.scale.setScalar(scale)
   parent.add(soul)
-  const robeMaterial = new THREE.MeshStandardMaterial({ color: 0x171d1d, roughness: 0.98, side: THREE.DoubleSide })
+  const robeMaterial = SOUL_ROBE
   const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.45, 1.35, 10, 1, true), robeMaterial)
   robe.position.y = 0.82
   soul.add(robe)
-  const innerRobe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.4, 10, 1, true), new THREE.MeshStandardMaterial({ color: 0x202726, roughness: 1, side: THREE.DoubleSide }))
+  const innerRobe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.4, 10, 1, true), new THREE.MeshStandardMaterial({ map: clothTexture, color: 0x7b7d6c, roughness: 1, side: THREE.DoubleSide }))
   innerRobe.position.y = 0.83
   soul.add(innerRobe)
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshStandardMaterial({ color: 0x101515, roughness: 1 }))
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshStandardMaterial({ color: 0x565b52, roughness: 1 }))
   head.position.y = 1.68
   soul.add(head)
   const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.43, 0.055, 20), WOOD)
@@ -317,6 +484,11 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   const sash = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.055, 0.025), new THREE.MeshStandardMaterial({ color: 0x5a2524, roughness: 0.85 }))
   sash.position.set(0, 0.75, 0.34)
   soul.add(sash)
+  for (const side of [-1, 1]) {
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.26), new THREE.MeshStandardMaterial({ color: 0x25241f, roughness: 1 }))
+    foot.position.set(side * 0.1, 0.045, 0.05)
+    soul.add(foot)
+  }
   return soul
 }
 
@@ -734,16 +906,16 @@ export class EscapeWorld {
       }
     }
 
-    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0c2221, roughness: 0.22, metalness: 0.26, clearcoat: 0.85, clearcoatRoughness: 0.18 })
-    const water = new THREE.Mesh(new THREE.PlaneGeometry(34, 31, 64, 48), waterMaterial)
+    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0a1d1e, roughness: 0.62, metalness: 0.1, clearcoat: 0.35, clearcoatRoughness: 0.6, reflectivity: 0.08 })
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(46, 34, 64, 48), waterMaterial)
     water.rotation.x = -Math.PI / 2
     water.position.set(0, -0.55, -63)
     water.userData.water = true
     group.add(water)
     for (const x of [-12, 12]) {
-      for (let index = 0; index < 14; index += 1) {
-        const z = -49 - index * 1.9
-        const bankStone = roundedBox(group, [1.1 + (index % 3) * 0.35, 0.5, 1.7], [x + Math.sin(index) * 0.4, -0.05, z], STONE, 0.08)
+      for (let index = 0; index < 18; index += 1) {
+        const z = -48 - index * 1.75
+        const bankStone = roundedBox(group, [1.4 + (index % 3) * 0.45, 0.55, 1.85], [x + Math.sin(index) * 0.4, 0.0, z], STONE, 0.08)
         bankStone.rotation.y = Math.sin(index * 7) * 0.16
       }
     }
@@ -753,14 +925,77 @@ export class EscapeWorld {
     bridgeVisual.name = 'stone-bridge-fallback'
     group.add(bridgeVisual)
     this.createBridge(bridgeVisual, -52.2, -72.6, 4.3, bridgeArchHeight)
+    for (const side of [-1, 1]) {
+      const spandrelShape = new THREE.Shape()
+      spandrelShape.moveTo(-10.2, -0.62)
+      spandrelShape.lineTo(10.2, -0.62)
+      spandrelShape.lineTo(10.2, 0.22)
+      for (let step = 48; step >= 0; step -= 1) {
+        const t = step / 48
+        spandrelShape.lineTo(-10.2 + t * 20.4, 0.22 + Math.sin(t * Math.PI) * bridgeArchHeight)
+      }
+      spandrelShape.lineTo(-10.2, 0.22)
+      const hole = new THREE.Path()
+      hole.moveTo(-7.6, -0.58)
+      for (let step = 0; step <= 32; step += 1) {
+        const t = step / 32
+        hole.lineTo(-7.6 + t * 15.2, -0.55 + Math.sin(t * Math.PI) * 2.55)
+      }
+      hole.lineTo(7.6, -0.58)
+      hole.closePath()
+      spandrelShape.holes.push(hole)
+      const spandrelGeometry = new THREE.ExtrudeGeometry(spandrelShape, { depth: 0.42, bevelEnabled: false })
+      const spandrel = new THREE.Mesh(spandrelGeometry, STONE)
+      spandrel.position.set(side * 2.15, 0, -62.4)
+      spandrel.castShadow = true
+      spandrel.receiveShadow = true
+      bridgeVisual.add(spandrel)
+      for (const z of [-53.0, -71.8]) {
+        const abutment = roundedBox(bridgeVisual, [0.9, 0.72, 1.7], [side * 2.15, 0.24, z], STONE, 0.04)
+        abutment.receiveShadow = true
+      }
+      for (let index = 0; index <= 10; index += 1) {
+        const t = index / 10
+        const z = -52.2 - t * 20.4
+        const y = 0.22 + Math.sin(t * Math.PI) * bridgeArchHeight
+        const course = roundedBox(bridgeVisual, [0.46, 0.14, 1.7], [side * 2.15, y - 0.1, z], WET_STONE, 0.02)
+        course.rotation.x = Math.atan(Math.cos(t * Math.PI) * bridgeArchHeight * Math.PI / 20.4)
+      }
+    }
     roundedBox(group, [5.2, 0.32, 8.2], [0, 0.06, -76.1], WET_STONE, 0.055)
-    for (let index = 0; index < 25; index += 1) {
-      const t = index / 24
-      const z = -52.2 + t * 20.4
+    for (let row = 0; row < 4; row += 1) {
+      for (let column = 0; column < 8; column += 1) {
+        const z = -72.9 - row * 0.92
+        roundedBox(group, [4.3, 0.12, 0.88], [0, 0.22 + 0.06, z], STONE, 0.02)
+      }
+    }
+    const deckPavers = new THREE.InstancedMesh(new RoundedBoxGeometry(1.34, 0.07, 0.62, 1, 0.02), WET_STONE, 3 * 30)
+    const deckTransform = new THREE.Object3D()
+    let deckIndex = 0
+    for (let row = 0; row < 30; row += 1) {
+      const t = row / 29
+      const z = -52.2 - t * 20.4
       const y = 0.22 + Math.sin(t * Math.PI) * bridgeArchHeight
-      const slab = roundedBox(bridgeVisual, [1.0, 0.1, 0.68], [(index % 3 - 1) * 1.04, y + 0.08, z], STONE, 0.025)
-      slab.rotation.y = Math.sin(index * 4) * 0.025
-      if (index % 5 === 1) addFootprint(group, [0.14 * (index % 3), y + 0.15, z], Math.sin(index) * 0.12)
+      const slope = Math.cos(t * Math.PI) * bridgeArchHeight * Math.PI / 20.4
+      for (let column = 0; column < 3; column += 1) {
+        deckTransform.position.set(-1.36 + column * 1.36, y + 0.04, z)
+        deckTransform.rotation.set(Math.atan(slope), 0, 0)
+        deckTransform.scale.set(1, 1, 1)
+        deckTransform.updateMatrix()
+        deckPavers.setMatrixAt(deckIndex, deckTransform.matrix)
+        deckPavers.setColorAt(deckIndex, new THREE.Color().setHSL(0.46, 0.06, 0.72 + Math.random() * 0.18))
+        deckIndex += 1
+      }
+    }
+    deckPavers.instanceMatrix.needsUpdate = true
+    if (deckPavers.instanceColor) deckPavers.instanceColor.needsUpdate = true
+    deckPavers.receiveShadow = true
+    bridgeVisual.add(deckPavers)
+    for (let index = 0; index < 12; index += 1) {
+      const t = index / 12
+      const z = -52.4 - t * 20.4
+      const y = 0.22 + Math.sin(t * Math.PI) * bridgeArchHeight
+      addFootprint(group, [Math.sin(index * 1.7) * 0.22, y + 0.085, z], Math.sin(index) * 0.12)
     }
     for (const side of [-1, 1]) {
       for (let index = 0; index <= 12; index += 1) {
@@ -771,6 +1006,7 @@ export class EscapeWorld {
         const cap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 8), WET_STONE)
         cap.position.set(side * 2.35, y + 0.75, z)
         bridgeVisual.add(cap)
+        if (index % 3 === 0) addLanternBracket(group, side * 2.35, y + 1.05, z, -side, 0.6)
       }
       const railCurvePoints: THREE.Vector3[] = []
       for (let index = 0; index <= 36; index += 1) {
@@ -782,27 +1018,7 @@ export class EscapeWorld {
       bridgeVisual.add(rail)
     }
 
-    for (let index = 0; index < 130; index += 1) {
-      const side = index % 2 === 0 ? -1 : 1
-      const x = side * (3.0 + Math.random() * 6.2)
-      const z = -49 - Math.random() * 26
-      const stem = cylinder(group, 0.018, 0.34 + Math.random() * 0.32, [x, -0.15, z], BRONZE)
-      stem.castShadow = false
-      const bloom = new THREE.Group()
-      bloom.position.set(x, 0.08, z)
-      group.add(bloom)
-      const petals = 5
-      for (let petal = 0; petal < petals; petal += 1) {
-        const flower = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 6), RED)
-        flower.scale.set(0.36, 0.14, 1.2)
-        flower.position.set(Math.cos(petal * Math.PI * 2 / petals) * 0.12, 0.05, Math.sin(petal * Math.PI * 2 / petals) * 0.12)
-        flower.rotation.y = petal * Math.PI * 2 / petals
-        bloom.add(flower)
-      }
-      const center = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc6a982, roughness: 0.7 }))
-      center.position.y = 0.07
-      bloom.add(center)
-    }
+    addLilyField(group)
     for (const [x, y, z, width, height] of [
       [-7.5, 2.4, -71.8, 18, 7],
       [7.0, 3.8, -81, 22, 10],
@@ -815,47 +1031,41 @@ export class EscapeWorld {
       group.add(mist)
     }
 
-    for (const x of [-4.1, 4.1]) {
+    for (const side of [-1, 1]) {
       for (let index = 0; index < 3; index += 1) {
-        const z = -54 - index * 5
-        addBanner(group, [x, 5.1, z], [1.1, 4.0], x < 0 ? 0.22 : -0.22)
+        const z = -55 - index * 6
+        const x = side * 5.1
+        cylinder(group, 0.085, 3.2, [x, 0.95, z], WOOD)
+        addRaggedBanner(group, [x, 2.55, z], [1.75, 2.3], side * -Math.PI / 2 + 0.15)
       }
     }
 
     const pavilion = new THREE.Group()
-    pavilion.position.set(-5.6, 0, -51.6)
+    pavilion.position.set(-6.6, 0, -51.0)
+    pavilion.scale.setScalar(0.95)
     group.add(pavilion)
     for (const x of [-1.35, 1.35]) for (const z of [-1.35, 1.35]) {
       roundedBox(pavilion, [0.22, 3.0, 0.22], [x, 1.5, z], WOOD, 0.035)
       roundedBox(pavilion, [0.4, 0.28, 0.4], [x, 0.18, z], BRONZE, 0.045)
     }
     roundedBox(pavilion, [3.4, 0.22, 3.4], [0, 3.0, 0], WOOD, 0.045)
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(2.55, 1.2, 4), WOOD)
-    roof.rotation.y = Math.PI / 4
-    roof.position.y = 3.55
-    pavilion.add(roof)
+    addTiledRoof(pavilion, [0, 3.12, 0], 5.0, 1.55)
     roundedBox(pavilion, [2.3, 0.18, 0.88], [0, 0.95, 0], WOOD, 0.05)
     const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.42, 0.64, 24), BRONZE)
     pot.position.set(0, 1.4, 0)
     pavilion.add(pot)
     addSteam(pavilion, [0, 1.75, 0])
-    addLantern(pavilion, [1.65, 2.05, 1.45], 0.8)
-
-    for (let z = -50; z >= -70; z -= 4) {
-      const t = (-z - 52.2) / 20.4
-      const y = 0.55 + Math.sin(THREE.MathUtils.clamp(t, 0, 1) * Math.PI) * bridgeArchHeight
-      for (const side of [-1, 1]) {
-        const lampBase = roundedBox(group, [0.38, 0.3, 0.38], [side * 1.9, y + 0.25, z], BRONZE, 0.04)
-        lampBase.castShadow = false
-        addLantern(group, [side * 1.9, y + 1.0, z], 0.65)
-      }
+    addLanternBracket(pavilion, 1.35, 2.55, 1.35, 1, 0.8)
+    for (let index = 0; index < 4; index += 1) {
+      bowl(pavilion, [-0.75 + index * 0.5, 1.04, 0.12], 0.12, 0.1, CELADON)
     }
-    for (let index = 0; index < 10; index += 1) {
-      const z = -58.0 - index * 1.3
-      const t = (z + 52.2) / (-72.6 + 52.2)
+
+    for (let index = 0; index < 12; index += 1) {
+      const z = -53.4 - index * 1.6
+      const t = THREE.MathUtils.clamp((-z - 52.2) / 20.4, 0, 1)
       const y = 0.22 + Math.sin(Math.PI * t) * bridgeArchHeight
-      const x = index % 2 === 0 ? -1.5 : 1.5
-      addSoulSilhouette(group, [x, y + 0.02, z], 0.78 + (index % 3) * 0.025)
+      const soul = addSoulSilhouette(group, [-0.35, y + 0.02, z], 0.74)
+      soul.rotation.y = Math.PI
     }
 
     addBareTree(group, [6.7, -0.48, -61.5])
@@ -1099,6 +1309,8 @@ export class EscapeWorld {
 
   private loadAssets(): void {
     const loader = new GLTFLoader()
+    // 六殿预览走程序几何：石桥 GLB 会遮住新做的拱腹侧影。
+    const proceduralBridge = /river/i.test(new URLSearchParams(window.location.search).get('view') ?? '')
     const assets: {
       file: string
       position: [number, number, number]
@@ -1116,6 +1328,7 @@ export class EscapeWorld {
       { file: 'six-realm-wheel.glb', position: [0, 2.8, -75.6], size: [4.1, 4.1, 0.45], rotation: 0, nonUniform: true, replaces: 'six-realm-wheel-fallback' }
     ]
     for (const asset of assets) {
+      if (proceduralBridge && asset.file === 'stone-bridge.glb') continue
       const place = (gltf: { scene: THREE.Group }) => {
         const model = gltf.scene
         const bounds = new THREE.Box3().setFromObject(model)

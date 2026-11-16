@@ -22,7 +22,8 @@ const previewMode = new URLSearchParams(window.location.search)
 const previewViews: Record<string, { position: [number, number, number]; target: [number, number, number] }> = {
   medicine: { position: [0, 2.4, 4.7], target: [0, 1.35, -1.8] },
   palace: { position: [0, 5, -21.2], target: [0, 0.2, -29.5] },
-  river: { position: [-3, 4.5, -43], target: [0, 1.4, -62] }
+  river: { position: [-4.2, 2.5, -44.6], target: [0, 2.6, -68] },
+  riverSide: { position: [8.2, 1.9, -54.5], target: [-0.4, 1.6, -64] }
 }
 const camera = new THREE.PerspectiveCamera(66, window.innerWidth / window.innerHeight, 0.05, 130)
 const preview = previewViews[previewMode.get('view') ?? '']
@@ -247,6 +248,9 @@ window.addEventListener('resize', () => {
 })
 
 animate()
+
+// 供自动化截图与回归测试读取机位，不参与渲染。
+Object.assign(window, { __camera: camera })
 
 if (!previewMode.has('clean')) {
   if (currentAct === 'medicine') dialogue('孟婆', '本房核汤。今天这碗，你自己配。当归三钱，远志一盏，合欢未开，忘忧在碗底。按君、臣、佐、使。', 12)

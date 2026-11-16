@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\评审\\六殿忘川桥\\v2\\act6-reincarnation.png",
+      "sha256": "cbafd8ed7b8c59467efd728c11c2bb6e64748154e5ce3227a9e361071182fbd6",
+      "scene": "六殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.12266,
+      "luma_std_srgb": 0.073064,
+      "near_black_pct_luma_lt_0_05": 19.681,
+      "near_white_pct_luma_gt_0_95": 0.0,
+      "saturation_hsv_mean": 0.330202,
+      "high_saturation_pct_gt_0_8": 0.6397,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 2.9524,
+        "深木": 88.8669,
+        "烛黄": 0.0,
+        "朱砂": 0.0028,
+        "宣纸": 0.0562,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 91.8782,
+      "red_family_candidate_pct": 0.0028,
+      "review_notes": [
+        "六殿允许大面积彼岸红，不按全图红色比例执行5%限制"
+      ]
+    },
+    {
+      "image": "D:\\群核科技黑客松\\评审\\六殿忘川桥\\v2\\act6-river-side.png",
+      "sha256": "24249f71eea6da73a7b4818114cefe5ceee7825a2f12eeb8fd711c8a88571de6",
+      "scene": "六殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.094613,
+      "luma_std_srgb": 0.075614,
+      "near_black_pct_luma_lt_0_05": 39.184,
+      "near_white_pct_luma_gt_0_95": 0.0,
+      "saturation_hsv_mean": 0.378372,
+      "high_saturation_pct_gt_0_8": 0.0272,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 1.2508,
+        "深木": 74.1205,
+        "烛黄": 0.0,
+        "朱砂": 0.0,
+        "宣纸": 0.0701,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 75.4414,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": [
+        "六殿允许大面积彼岸红，不按全图红色比例执行5%限制"
+      ]
+    }
+  ]
+}

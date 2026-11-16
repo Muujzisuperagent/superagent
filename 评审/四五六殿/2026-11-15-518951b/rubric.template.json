@@ -1,0 +1,77 @@
+{
+  "version": "1.0",
+  "commit": "518951b",
+  "date": "2026-11-15",
+  "flow_reachable": {
+    "value": null,
+    "evidence": ""
+  },
+  "criteria": {
+    "A3": {
+      "max": 5,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B3": {
+      "max": 8,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "C1": {
+      "max": 9,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "C2": {
+      "max": 8,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "C3": {
+      "max": 8,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D1": {
+      "max": 7,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D2": {
+      "max": 7,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D3": {
+      "max": 7,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D4": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "F1": {
+      "max": 2,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "F2": {
+      "max": 3,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    }
+  }
+}

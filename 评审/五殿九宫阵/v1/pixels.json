@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\act5-palace.png",
+      "sha256": "f14a87cf80fc8237c9f7da9800926022909aac7aaee706782dd391bc250f8442",
+      "scene": "五殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.048161,
+      "luma_std_srgb": 0.073972,
+      "near_black_pct_luma_lt_0_05": 75.0841,
+      "near_white_pct_luma_gt_0_95": 0.0083,
+      "saturation_hsv_mean": 0.681173,
+      "high_saturation_pct_gt_0_8": 16.0658,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 0.1798,
+        "深木": 30.4138,
+        "烛黄": 0.0,
+        "朱砂": 0.0,
+        "宣纸": 0.1143,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 30.7079,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": [
+        "近黑像素较多；五殿可能符合意图，请在实际玩家机位核对关键线索"
+      ]
+    }
+  ]
+}

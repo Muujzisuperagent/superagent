@@ -1,0 +1,237 @@
+{
+  "meta": {
+    "generatedAt": "2026-11-15T21:32:09",
+    "repo": "D:\\群核科技黑客松",
+    "game": "D:\\群核科技黑客松\\game",
+    "commit": "80a2f6e",
+    "url": "http://127.0.0.1:5173",
+    "scope": "acts 4-6 only; acts 1-3 excluded by product decision"
+  },
+  "steps": {
+    "capture": {
+      "cmd": [
+        "node",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\capture.mjs",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-18d7359",
+        "--url",
+        "http://127.0.0.1:5173",
+        "--game",
+        "D:\\群核科技黑客松\\game",
+        "--sample-ms",
+        "2200",
+        "--settle-ms",
+        "6000"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 35.07,
+      "stdout_tail": "{\"ok\":true,\"out\":\"D:\\\\群核科技黑客松\\\\评审\\\\四五六殿\\\\2026-11-15-18d7359\\\\capture.json\",\"views\":[\"medicine\",\"palace\",\"river\"]}\n",
+      "stderr_tail": ""
+    },
+    "assets": {
+      "cmd": [
+        "node",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\check_assets.mjs",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-18d7359",
+        "--game",
+        "D:\\群核科技黑客松\\game"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 0.48,
+      "stdout_tail": "{\"ok\":true,\"out\":\"D:\\\\群核科技黑客松\\\\评审\\\\四五六殿\\\\2026-11-15-18d7359\\\\assets.json\",\"fileCount\":6,\"errorFiles\":[],\"totalErrors\":0,\"totalWarnings\":0,\"totalTriangles\":193610}\n",
+      "stderr_tail": ""
+    }
+  },
+  "build": {
+    "cmd": [
+      "C:\\Program Files\\nodejs\\npm.cmd",
+      "run",
+      "build"
+    ],
+    "code": 0,
+    "ok": true,
+    "seconds": 5.63,
+    "stdout_tail": "\n> escape-room-3d@0.1.0 build\n> tsc --noEmit && vite build\n\n\u001b[36mvite v7.3.8 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m✓\u001b[39m 13 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  2.36 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:   1.30 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[35massets/index-DFaDtAlE.css  \u001b[39m\u001b[1m\u001b[2m  2.92 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:   1.16 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/index-DrFRHNwI.js   \u001b[39m\u001b[1m\u001b[33m661.17 kB\u001b[39m\u001b[22m\u001b[2m │ gzip: 179.01 kB\u001b[22m\n\u001b[32m✓ built in 1.31s\u001b[39m\n",
+    "stderr_tail": "\u001b[33m\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m\n",
+    "tests": {
+      "cmd": [
+        "C:\\Program Files\\nodejs\\npm.cmd",
+        "test"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 2.33,
+      "stdout_tail": "\n> escape-room-3d@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.12 \u001b[39m\u001b[90mD:/群核科技黑客松/game\u001b[39m\n\n \u001b[32m✓\u001b[39m tests/story.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/puzzle.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m12 passed\u001b[39m\u001b[22m\u001b[90m (12)\u001b[39m\n\u001b[2m   Start at \u001b[22m 21:32:16\n\u001b[2m   Duration \u001b[22m 450ms\u001b[2m (transform 52ms, setup 0ms, import 89ms, tests 7ms, environment 0ms)\u001b[22m\n\n",
+      "stderr_tail": ""
+    },
+    "tests_ok": true
+  },
+  "server": {
+    "ok": true,
+    "startedByEval": false
+  },
+  "capture": {
+    "baseUrl": "http://127.0.0.1:5173",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "capturedAt": "2026-11-15T13:32:19.291Z",
+    "views": {
+      "medicine": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-18d7359\\screens\\act4-medicine.png",
+        "loadMs": 6700,
+        "frames": 51,
+        "seconds": 2.2093000000044705,
+        "fps": 23.084234825463632,
+        "drawsPerFrame": 1952.0196078431372,
+        "mainDrawsPerFrame": 1784.2549019607843,
+        "jsHeapMB": 130.25663948059082,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ],
+        "failedRequests": []
+      },
+      "palace": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-18d7359\\screens\\act5-palace.png",
+        "loadMs": 6772,
+        "frames": 96,
+        "seconds": 2.20629999999702,
+        "fps": 43.511761773163066,
+        "drawsPerFrame": 1625,
+        "mainDrawsPerFrame": 1459,
+        "jsHeapMB": 256.63247871398926,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "river": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-18d7359\\screens\\act6-reincarnation.png",
+        "loadMs": 6735,
+        "frames": 128,
+        "seconds": 2.21389999999851,
+        "fps": 57.8165228782177,
+        "drawsPerFrame": 1457,
+        "mainDrawsPerFrame": 1291,
+        "jsHeapMB": 53.599727630615234,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      }
+    },
+    "summary": {
+      "canvas": 1,
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "failedRequests": []
+    }
+  },
+  "assets": {
+    "assetDir": "D:\\群核科技黑客松\\game\\public\\assets\\generated",
+    "summary": {
+      "fileCount": 6,
+      "errorFiles": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "totalTriangles": 193610
+    },
+    "files": [
+      {
+        "file": "celadon-bowl.glb",
+        "bytes": 9050216,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 26512,
+        "vertices": 15371,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "dengzi-scale.glb",
+        "bytes": 9016280,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 25766,
+        "vertices": 18979,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "herbal-cabinet.glb",
+        "bytes": 10434932,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 37910,
+        "vertices": 33978,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "nine-palace.glb",
+        "bytes": 13267936,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 23488,
+        "vertices": 28122,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "six-realm-wheel.glb",
+        "bytes": 8674220,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 35620,
+        "vertices": 25124,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "stone-bridge.glb",
+        "bytes": 9496300,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 44314,
+        "vertices": 36258,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      }
+    ]
+  },
+  "visual": {
+    "skipped": true
+  }
+}

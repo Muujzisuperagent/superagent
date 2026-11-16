@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "generatedAt": "2026-11-15T21:56:06",
+    "repo": "D:\\群核科技黑客松",
+    "game": "D:\\群核科技黑客松\\game",
+    "commit": "518951b",
+    "url": "http://127.0.0.1:5173",
+    "scope": "acts 4-6 only; acts 1-3 excluded by product decision"
+  },
+  "steps": {
+    "capture": {
+      "cmd": [
+        "node",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\capture.mjs",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-518951b",
+        "--url",
+        "http://127.0.0.1:5173",
+        "--game",
+        "D:\\群核科技黑客松\\game",
+        "--sample-ms",
+        "2200",
+        "--settle-ms",
+        "6000"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 46.11,
+      "stdout_tail": "{\"ok\":true,\"out\":\"D:\\\\群核科技黑客松\\\\评审\\\\四五六殿\\\\2026-11-15-518951b\\\\capture.json\",\"views\":[\"medicine\",\"palace\",\"river\"]}\n",
+      "stderr_tail": ""
+    },
+    "assets": {
+      "cmd": [
+        "node",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\check_assets.mjs",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-518951b",
+        "--game",
+        "D:\\群核科技黑客松\\game"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 0.39,
+      "stdout_tail": "{\"ok\":true,\"out\":\"D:\\\\群核科技黑客松\\\\评审\\\\四五六殿\\\\2026-11-15-518951b\\\\assets.json\",\"fileCount\":6,\"errorFiles\":[],\"totalErrors\":0,\"totalWarnings\":0,\"totalTriangles\":193610}\n",
+      "stderr_tail": ""
+    }
+  },
+  "build": {
+    "cmd": [
+      "C:\\Program Files\\nodejs\\npm.cmd",
+      "run",
+      "build"
+    ],
+    "code": 0,
+    "ok": true,
+    "seconds": 4.99,
+    "stdout_tail": "\n> escape-room-3d@0.1.0 build\n> tsc --noEmit && vite build\n\n\u001b[36mvite v7.3.8 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m✓\u001b[39m 13 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  2.36 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:   1.30 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[35massets/index-DFaDtAlE.css  \u001b[39m\u001b[1m\u001b[2m  2.92 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:   1.16 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/index-BRG-tt2U.js   \u001b[39m\u001b[1m\u001b[33m661.24 kB\u001b[39m\u001b[22m\u001b[2m │ gzip: 179.03 kB\u001b[22m\n\u001b[32m✓ built in 1.18s\u001b[39m\n",
+    "stderr_tail": "\u001b[33m\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m\n",
+    "tests": {
+      "cmd": [
+        "C:\\Program Files\\nodejs\\npm.cmd",
+        "test"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 2.06,
+      "stdout_tail": "\n> escape-room-3d@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.12 \u001b[39m\u001b[90mD:/群核科技黑客松/game\u001b[39m\n\n \u001b[32m✓\u001b[39m tests/puzzle.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/story.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m12 passed\u001b[39m\u001b[22m\u001b[90m (12)\u001b[39m\n\u001b[2m   Start at \u001b[22m 21:56:13\n\u001b[2m   Duration \u001b[22m 380ms\u001b[2m (transform 56ms, setup 0ms, import 93ms, tests 6ms, environment 0ms)\u001b[22m\n\n",
+      "stderr_tail": ""
+    },
+    "tests_ok": true
+  },
+  "server": {
+    "ok": true,
+    "startedByEval": false
+  },
+  "capture": {
+    "baseUrl": "http://127.0.0.1:5173",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "capturedAt": "2026-11-15T13:56:15.681Z",
+    "views": {
+      "medicine": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-518951b\\screens\\act4-medicine.png",
+        "loadMs": 711,
+        "frames": 98,
+        "seconds": 2.2055,
+        "fps": 44.43436862389481,
+        "drawsPerFrame": 1939,
+        "mainDrawsPerFrame": 1773,
+        "jsHeapMB": 42.84044075012207,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "palace": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-518951b\\screens\\act5-palace.png",
+        "loadMs": 858,
+        "frames": 60,
+        "seconds": 2.21829999999702,
+        "fps": 27.04773925982987,
+        "drawsPerFrame": 1629,
+        "mainDrawsPerFrame": 1463,
+        "jsHeapMB": 90.17535495758057,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "river": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-15-518951b\\screens\\act6-reincarnation.png",
+        "loadMs": 690,
+        "frames": 163,
+        "seconds": 2.2118000000044704,
+        "fps": 73.69563251635344,
+        "drawsPerFrame": 1457,
+        "mainDrawsPerFrame": 1291,
+        "jsHeapMB": 93.17245101928711,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      }
+    },
+    "summary": {
+      "canvas": 1,
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    }
+  },
+  "assets": {
+    "assetDir": "D:\\群核科技黑客松\\game\\public\\assets\\generated",
+    "summary": {
+      "fileCount": 6,
+      "errorFiles": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "totalTriangles": 193610
+    },
+    "files": [
+      {
+        "file": "celadon-bowl.glb",
+        "bytes": 9050216,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 26512,
+        "vertices": 15371,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "dengzi-scale.glb",
+        "bytes": 9016280,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 25766,
+        "vertices": 18979,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "herbal-cabinet.glb",
+        "bytes": 10434932,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 37910,
+        "vertices": 33978,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "nine-palace.glb",
+        "bytes": 13267936,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 23488,
+        "vertices": 28122,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "six-realm-wheel.glb",
+        "bytes": 8674220,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 35620,
+        "vertices": 25124,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "stone-bridge.glb",
+        "bytes": 9496300,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 44314,
+        "vertices": 36258,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      }
+    ]
+  },
+  "visual": {
+    "skipped": true
+  }
+}
