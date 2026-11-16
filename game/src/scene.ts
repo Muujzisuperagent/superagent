@@ -97,10 +97,11 @@ const clothTexture = surfaceTexture('cloth')
 const paperTexture = surfaceTexture('paper')
 const mistMap = mistTexture()
 const STONE = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.04, color: 0x87908b, roughness: 0.78, metalness: 0.015 })
-const WET_STONE = new THREE.MeshPhysicalMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.065, color: 0x9aa7a1, roughness: 0.48, metalness: 0.035, clearcoat: 0.38, clearcoatRoughness: 0.32 })
+const WET_STONE = new THREE.MeshPhysicalMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.065, color: 0x9aa7a1, roughness: 0.59, metalness: 0.015, clearcoat: 0.22, clearcoatRoughness: 0.44 })
 const DARK_STONE = new THREE.MeshStandardMaterial({ map: plasterTexture, bumpMap: plasterTexture, bumpScale: 0.035, color: 0x8a9188, roughness: 0.9 })
 const WOOD = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.025, color: 0x95876c, roughness: 0.62 })
-const BRONZE = new THREE.MeshStandardMaterial({ color: 0x58635a, roughness: 0.43, metalness: 0.72 })
+const BRONZE = new THREE.MeshStandardMaterial({ color: 0x827357, roughness: 0.4, metalness: 0.65 })
+const MEDICINE_WOOD = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.04, color: 0xb29268, roughness: 0.74 })
 const CLOTH = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.025, color: 0xc6c5b3, roughness: 0.92, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
 const PAPER = new THREE.MeshStandardMaterial({ map: paperTexture, color: 0xe0d7b8, emissive: 0x171408, emissiveIntensity: 0.12, roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
 const CELADON = new THREE.MeshPhysicalMaterial({ color: 0x718f83, roughness: 0.2, clearcoat: 0.9, clearcoatRoughness: 0.12 })
@@ -108,8 +109,8 @@ const RED = new THREE.MeshStandardMaterial({ color: 0x761824, roughness: 0.7, si
 const TILE = new THREE.MeshStandardMaterial({ color: 0x2c3430, roughness: 0.88, metalness: 0.025 })
 const TILE_EDGE = new THREE.MeshStandardMaterial({ color: 0x4b564d, roughness: 0.74, metalness: 0.04 })
 const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.03, color: 0x8d8267, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
-const LILY_RED = new THREE.MeshStandardMaterial({ color: 0x9c2530, emissive: 0x1c0608, emissiveIntensity: 0.45, roughness: 0.62, side: THREE.DoubleSide })
-const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.02, color: 0x6f7164, roughness: 0.96, side: THREE.DoubleSide })
+const LILY_RED = new THREE.MeshStandardMaterial({ color: 0xe21c35, emissive: 0x8b0715, emissiveIntensity: 0.48, roughness: 0.65, side: THREE.DoubleSide })
+const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.085, color: 0x878879, roughness: 1, side: THREE.DoubleSide, flatShading: true })
 const SOUL_INNER = new THREE.MeshStandardMaterial({ map: clothTexture, color: 0x7b7d6c, roughness: 1, side: THREE.DoubleSide })
 const SOUL_HEAD = new THREE.MeshStandardMaterial({ color: 0x565b52, roughness: 1 })
 const SOUL_SASH = new THREE.MeshStandardMaterial({ color: 0x5a2524, roughness: 0.85 })
@@ -261,9 +262,9 @@ function light(parent: THREE.Object3D, position: [number, number, number], color
     bulbMaterial = new THREE.MeshBasicMaterial({ color })
     bulbMaterials.set(color, bulbMaterial)
   }
-  const lamp = new THREE.Mesh(new THREE.SphereGeometry(radius, 16, 10), bulbMaterial)
-  lamp.position.set(...position)
-  parent.add(lamp)
+  // 无灯罩的光源不画悬浮球；灯笼与铜盏已各自有可见发光体。
+  void bulbMaterial
+  void radius
   const source = new THREE.PointLight(color, intensity, 9, 1.7)
   source.position.set(...position)
   parent.add(source)
@@ -308,7 +309,8 @@ function addBanner(parent: THREE.Object3D, position: [number, number, number], s
       const x = (column / columns - 0.5) * size[0]
       const y = -t * size[1] + edge
       const wave = Math.sin(column * 0.9 + row * 0.36) * t * 0.34 + Math.sin(row * 1.9 + column * 0.5) * t * 0.06
-      positions.push(x, y, wave)
+      const folds = Math.cos(column * Math.PI * 0.75) * (0.045 + t * 0.095)
+      positions.push(x, y, wave + folds)
       uvs.push(column / columns, 1 - t)
       if (row < rows && column < columns) {
         const a = row * (columns + 1) + column
@@ -444,7 +446,7 @@ function addLanternBracket(parent: THREE.Object3D, postX: number, postY: number,
 }
 
 function addLilyField(parent: THREE.Object3D): void {
-  const clusters = 110
+  const clusters = 240
   // 细长反卷瓣：窄长球壳沿瓣轴渐卷，尖端下垂；另加外伸蕊丝，去掉星芒感。
   const petalShape = new THREE.Shape()
   petalShape.moveTo(0, 0)
@@ -470,10 +472,10 @@ function addLilyField(parent: THREE.Object3D): void {
     const onBank = index % 5 !== 0
     const clump = Math.random() < 0.3 ? 0.45 : 1
     const x = onBank
-      ? side * (10.2 + Math.random() * 3.9)
-      : side * (2.6 + Math.random() * 4.6)
+      ? side * (9.2 + Math.random() * 4.9)
+      : side * (2.65 + Math.random() * 4.6)
     const z = onBank
-      ? -48.5 - Math.random() * 28
+      ? -47.0 - Math.random() * 28
       : (Math.random() < 0.5 ? -48.4 - Math.random() * 3.2 : -72.8 - Math.random() * 3.4)
     const ground = onBank ? 0.27 : 0.07
     const stemHeight = (0.36 + Math.random() * 0.4) * clump
@@ -582,7 +584,16 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   soul.scale.setScalar(scale)
   parent.add(soul)
   const robeMaterial = SOUL_ROBE
-  const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.45, 1.35, 10, 1, true), robeMaterial)
+  const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.45, 1.35, 10, 6, true), robeMaterial)
+  const folds = robe.geometry.attributes.position
+  for (let index = 0; index < folds.count; index += 1) {
+    const y = folds.getY(index)
+    const angle = Math.atan2(folds.getZ(index), folds.getX(index))
+    const ridge = 1 + Math.sin(angle * 10 + y * 1.5) * 0.055
+    folds.setX(index, folds.getX(index) * ridge)
+    folds.setZ(index, folds.getZ(index) * ridge)
+  }
+  robe.geometry.computeVertexNormals()
   robe.position.y = 0.82
   soul.add(robe)
   const innerRobe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.4, 10, 1, true), SOUL_INNER)
@@ -774,6 +785,11 @@ export class EscapeWorld {
 
   private buildMedicine(): void {
     const group = this.room('medicine', 0, '第四殿 · 药局')
+    group.traverse((node) => {
+      const mesh = node as THREE.Mesh
+      if (mesh.isMesh && mesh.material === WOOD) mesh.material = MEDICINE_WOOD
+    })
+    // 暖色靠材质反照率与既有点光完成，避免额外逐像素灯开销。
     const cabinet = new THREE.Group()
     cabinet.name = 'medicine-cabinet-fallback'
     group.add(cabinet)
@@ -959,7 +975,23 @@ export class EscapeWorld {
     addLantern(group, [-5.8, 2.8, -2.4], 0.72)
     light(group, [-4.5, 2.4, -5.8], 0xb4e7d5, 8, 0.055)
     light(group, [0.2, 3.55, -5.7], 0xa9d6c5, 13, 0.05)
-    light(group, [0.2, 3.4, -1.5], 0xb3d4c5, 17, 0.065)
+    light(group, [0.2, 3.4, -1.5], 0xe4c493, 27, 0.065)
+    // 戥子程序几何：戥杆、秤盘、砣三件；秤盘朝上，杆沿桌面纵深。
+    const dengzi = new THREE.Group()
+    dengzi.name = 'dengzi-fallback'
+    dengzi.position.set(1.75, 1.27, -1.48)
+    bench.add(dengzi)
+    const beam = cylinder(dengzi, 0.012, 0.64, [0, 0.07, 0], BRONZE)
+    beam.rotation.x = Math.PI / 2
+    const pan = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.09, 0.018, 24), BRONZE)
+    pan.position.set(0, 0.016, -0.22)
+    dengzi.add(pan)
+    for (const x of [-0.075, 0.075]) cylinder(dengzi, 0.003, 0.16, [x, 0.085, -0.22], ROPE)
+    roundedBox(dengzi, [0.07, 0.065, 0.08], [0, 0.044, 0.18], BRONZE, 0.012)
+    const pivot = new THREE.Mesh(new THREE.TorusGeometry(0.026, 0.006, 6, 14), BRONZE)
+    pivot.position.set(0, 0.095, -0.05)
+    dengzi.add(pivot)
+
     light(group, [0.7, 3.2, -6.1], 0x9bc9b7, 8, 0.05)
     // 纸钱成串贴墙 + 落地散张：不再随机 confetti（随机 z 曾落到相机脸上变成悬空大板）
     addPaperString(group, [-6.7, 3.4, -3.6], 6, Math.PI / 2)
@@ -1283,7 +1315,8 @@ export class EscapeWorld {
       const mesh = node as THREE.Mesh
       if (mesh.isMesh && mesh.material === DARK_STONE) mesh.material = palaceStone
     })
-    for (const z of [-33.2, -22.8]) box(group, [14, 0.22, 0.36], [0, 4.78, z], WOOD)
+    // 入口上方梁会挡住俯视机位上部 1/4，仅保留远端梁与两侧纵梁。
+    box(group, [14, 0.22, 0.36], [0, 4.78, -33.2], WOOD)
     for (const x of [-5.4, 5.4]) box(group, [0.36, 0.22, 10], [x, 4.78, -28], WOOD)
     for (let index = -2; index <= 2; index += 2) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, -28], WOOD)
     const caisson = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.7, 0.18, 8), new THREE.MeshStandardMaterial({ color: 0x3a443d, emissive: 0x14231e, emissiveIntensity: 0.9, roughness: 0.85 }))
@@ -1347,7 +1380,11 @@ export class EscapeWorld {
         const char = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 8), new THREE.MeshStandardMaterial({ color: 0x1a1d1a, roughness: 1 }))
         char.position.y = 0.08
         lamp.add(char)
-        addSteam(lamp, [0, 0.12, 0], 0.45)
+        addSteam(lamp, [0, 0.12, 0], 0.9)
+        const snuffMark = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.012, 6, 16), DARK_STONE)
+        snuffMark.rotation.x = Math.PI / 2
+        snuffMark.position.y = 0.16
+        lamp.add(snuffMark)
       } else {
         const flame = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.12, 8), GHOST_FLAME)
         flame.position.y = 0.12
@@ -1357,7 +1394,8 @@ export class EscapeWorld {
     }
     for (const x of [-5.6, 5.6]) {
       for (const z of [-23.5, -27.5, -31.5]) {
-        const banner = addBanner(group, [x, 4.35, z], [1.7, 3.25], x < 0 ? 0.16 : Math.PI - 0.16)
+        const banner = addBanner(group, [x, 4.15, z], [1.7, 4.05], x < 0 ? 0.8 : Math.PI - 0.8)
+        banner.userData.inward = true
         for (let row = 0; row < 3; row += 1) {
           const broken = row === 1
           const mark = new THREE.Mesh(new THREE.BoxGeometry(broken ? 0.28 : 0.46, 0.055, 0.025), BANNER_MARK)
@@ -1379,7 +1417,14 @@ export class EscapeWorld {
     light(group, [-4.7, 3.0, -24.8], 0xc3d4ca, 18, 0.035)
     light(group, [4.7, 3.0, -30], 0xadcfc0, 18, 0.035)
     light(group, [0, 4.5, -28], 0xb8d5c8, 28, 0.04)
-    light(group, [0, 2.9, -34.7], 0xcbd2b8, 9, 0.035)
+    light(group, [0, 2.9, -34.7], 0xcbd2b8, 14, 0.035)
+
+    const omenSeal = new THREE.Group()
+    omenSeal.position.set(0, 2.72, -35.2)
+    group.add(omenSeal)
+    box(omenSeal, [0.42, 0.18, 0.3], [-0.12, 0, 0], BRONZE)
+    box(omenSeal, [0.13, 0.33, 0.18], [-0.23, 0.24, 0], BRONZE)
+    light(omenSeal, [-0.15, 0.05, 0.1], 0xc6a66b, 2.2, 0.035)
     label(group, '问案台 · 取簿', [0, 1.95, -34.08], 2.6)
     label(group, '忘川桥 →', [0, 1.7, -35.72], 2.1)
     const threshold = new THREE.Mesh(new THREE.PlaneGeometry(2.45, 3.0), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xb2c8bd, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }))
@@ -1421,7 +1466,7 @@ export class EscapeWorld {
       }
     }
 
-    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0a1d1e, roughness: 0.62, metalness: 0.1, clearcoat: 0.35, clearcoatRoughness: 0.6, reflectivity: 0.08 })
+    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x020606, roughness: 0.8, metalness: 0, clearcoat: 0.05, clearcoatRoughness: 0.85, reflectivity: 0.01 })
     const water = new THREE.Mesh(new THREE.PlaneGeometry(46, 34, 64, 48), waterMaterial)
     water.rotation.x = -Math.PI / 2
     water.position.set(0, -0.55, -63)
@@ -1461,7 +1506,7 @@ export class EscapeWorld {
       spandrelShape.holes.push(hole)
       const spandrelGeometry = new THREE.ExtrudeGeometry(spandrelShape, { depth: 0.42, bevelEnabled: false })
       const spandrel = new THREE.Mesh(spandrelGeometry, STONE)
-      spandrel.position.set(side * 2.15, 0, -62.4)
+      spandrel.position.set(side * 2.42, 0, -62.4)
       spandrel.castShadow = true
       spandrel.receiveShadow = true
       bridgeVisual.add(spandrel)
@@ -1521,7 +1566,7 @@ export class EscapeWorld {
         const cap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 8), WET_STONE)
         cap.position.set(side * 2.35, y + 0.75, z)
         bridgeVisual.add(cap)
-        if (index % 3 === 0) addLanternBracket(group, side * 2.35, y + 1.05, z, -side, 0.6)
+        if (index === 0 || index === 9) addLanternBracket(group, side * 2.35, y + 1.05, z, -side, 0.6)
       }
       const railCurvePoints: THREE.Vector3[] = []
       for (let index = 0; index <= 36; index += 1) {
@@ -1581,11 +1626,16 @@ export class EscapeWorld {
     }
 
     for (let index = 0; index < 12; index += 1) {
-      const z = -53.4 - index * 1.6
+      const z = -53.4 - index * 1.52 - (index % 3) * 0.22
       const t = THREE.MathUtils.clamp((-z - 52.2) / 20.4, 0, 1)
       const y = 0.22 + Math.sin(Math.PI * t) * bridgeArchHeight
-      const soul = addSoulSilhouette(group, [-0.35, y + 0.02, z], 0.74)
-      soul.rotation.y = Math.PI
+      const soul = addSoulSilhouette(group, [-0.35 + Math.sin(index * 2.2) * 0.16, y + 0.02, z], 0.71 + (index % 4) * 0.025)
+      soul.rotation.y = Math.PI + Math.sin(index * 1.9) * 0.12
+      soul.rotation.z = index % 3 === 1 ? 0.075 : 0
+      if (index % 3 === 2) {
+        const bundle = roundedBox(soul, [0.32, 0.4, 0.24], [0, 1.03, -0.26], PAPER, 0.04)
+        bundle.rotation.z = -0.12
+      }
     }
 
     addBareTree(group, [6.7, -0.48, -61.5])
@@ -1595,13 +1645,17 @@ export class EscapeWorld {
 
     const wheelCenter = new THREE.Group()
     wheelCenter.name = 'six-realm-wheel-fallback'
-    wheelCenter.position.set(0, 2.8, -75.6)
-    wheelCenter.scale.setScalar(1.95)
+    wheelCenter.position.set(0, 2.5, -73.8)
+    wheelCenter.scale.setScalar(1.18)
     group.add(wheelCenter)
     const wheelRing = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.16, 12, 64), BRONZE)
     wheelCenter.add(wheelRing)
-    const innerRing = new THREE.Mesh(new THREE.TorusGeometry(1.48, 0.07, 10, 48), WOOD)
+    const innerRing = new THREE.Mesh(new THREE.TorusGeometry(1.48, 0.11, 10, 48), BRONZE)
     wheelCenter.add(innerRing)
+    const outerRim = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.055, 8, 64), new THREE.MeshStandardMaterial({ color: 0xb39864, emissive: 0x5a4224, emissiveIntensity: 0.35, roughness: 0.38, metalness: 0.65 }))
+    outerRim.position.z = 0.17
+    wheelCenter.add(outerRim)
+    this.wheels.push(outerRim)
     for (let index = 0; index < 6; index += 1) {
       const spoke = roundedBox(wheelCenter, [0.16, 3.65, 0.18], [0, 0, 0], WOOD, 0.045)
       spoke.rotation.z = index * Math.PI / 3
@@ -1634,7 +1688,10 @@ export class EscapeWorld {
       for (let index = 0; index < 4; index += 1) roundedBox(doorFrame, [0.68, 0.14, 0.72], [x, 0.7 + index * 1.1, 0], BRONZE, 0.03)
     }
     roundedBox(doorFrame, [4.55, 0.58, 0.7], [0, 5.05, 0], WET_STONE, 0.06)
-    const portalMaterial = new THREE.MeshBasicMaterial({ color: 0xbadaca, transparent: true, opacity: 0.38, side: THREE.DoubleSide })
+    const portalBorder = new THREE.MeshBasicMaterial({ color: 0xd9cfaa, transparent: true, opacity: 0.86 })
+    for (const x of [-1.82, 1.82]) box(doorFrame, [0.075, 4.35, 0.05], [x, 2.66, 0.38], portalBorder)
+    box(doorFrame, [3.72, 0.08, 0.05], [0, 4.82, 0.38], portalBorder)
+    const portalMaterial = new THREE.MeshBasicMaterial({ color: 0xd9dfc3, transparent: true, opacity: 0.48, side: THREE.DoubleSide })
     this.portal = new THREE.Mesh(new THREE.PlaneGeometry(3.8, 4.8), portalMaterial)
     this.portal.position.set(0, 2.7, -80.3)
     group.add(this.portal)
@@ -1942,7 +1999,7 @@ export class EscapeWorld {
       replaces?: string
     }[] = [
       { file: 'herbal-cabinet.glb', position: [0, 2.42, -7.02], size: [10.9, 4.35, 0.76], rotation: 0, nonUniform: true, replaces: 'medicine-cabinet-fallback' },
-      { file: 'dengzi-scale.glb', position: [1.72, 1.48, -1.48], size: [0.95, 0.68, 0.7], rotation: 0 },
+      { file: 'dengzi-scale.glb', position: [1.72, 1.29, -1.48], size: [0.82, 0.5, 0.34], rotation: Math.PI / 2 },
       { file: 'celadon-bowl.glb', position: [3.25, 1.38, -1.48], size: [0.56, 0.3, 0.56], rotation: 0, replaces: 'celadon-bowl-fallback' },
       // 彩釉 GLB 不覆盖湿青石九宫；加载仍验证，程序石板保留刻字与踩板反馈。
       { file: 'nine-palace.glb', position: [0, -0.12, -28], size: [7, 0.22, 7], rotation: 0, nonUniform: true, replaces: 'nine-palace-fallback' },
@@ -1981,7 +2038,7 @@ export class EscapeWorld {
           }
         })
         // 石桥必须保留有真实拱腹的程序几何；GLB 仍加载校验，但不覆盖桥面与拱洞。
-        if (asset.file === 'stone-bridge.glb' || asset.file === 'nine-palace.glb' || asset.file === 'herbal-cabinet.glb') wrapper.visible = false
+        if (asset.file === 'stone-bridge.glb' || asset.file === 'nine-palace.glb' || asset.file === 'herbal-cabinet.glb' || asset.file === 'dengzi-scale.glb') wrapper.visible = false
         this.root.add(wrapper)
         if (asset.replaces && asset.file !== 'stone-bridge.glb' && asset.file !== 'nine-palace.glb' && asset.file !== 'herbal-cabinet.glb') {
           const fallback = this.root.getObjectByName(asset.replaces)
