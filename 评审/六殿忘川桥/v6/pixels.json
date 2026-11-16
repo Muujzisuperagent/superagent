@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-92223b1\\screens\\act6-reincarnation.png",
+      "sha256": "68f5daab81e334b32458cac8eb2d14891249c08e66490cbd11c664908bcc0fd2",
+      "scene": "六殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.132444,
+      "luma_std_srgb": 0.086058,
+      "near_black_pct_luma_lt_0_05": 11.6471,
+      "near_white_pct_luma_gt_0_95": 0.0,
+      "saturation_hsv_mean": 0.351982,
+      "high_saturation_pct_gt_0_8": 2.5293,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 2.3473,
+        "深木": 89.0872,
+        "烛黄": 0.0122,
+        "朱砂": 1.2954,
+        "宣纸": 0.1999,
+        "彼岸红": 1.8725
+      },
+      "palette_coverage_pct": 94.8144,
+      "red_family_candidate_pct": 3.1679,
+      "review_notes": [
+        "六殿允许大面积彼岸红，不按全图红色比例执行5%限制"
+      ]
+    }
+  ]
+}
