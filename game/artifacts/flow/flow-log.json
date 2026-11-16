@@ -1,7 +1,7 @@
 {
   "gate": "G3",
-  "baseUrl": "http://localhost:5173",
-  "ranAt": "2026-11-16T09:47:05.678Z",
+  "baseUrl": "http://127.0.0.1:5175",
+  "ranAt": "2026-11-16T11:37:09.828Z",
   "pageErrors": [],
   "steps": [
     {
@@ -187,7 +187,7 @@
   },
   "perf": {
     "drawCalls": 36,
-    "triangles": 369330
+    "triangles": 231464
   },
   "ok": true
 }

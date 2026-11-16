@@ -41,7 +41,7 @@ const previewViews: Record<string, { position: [number, number, number]; target:
   medicineEntry: { position: [0, 1.65, 6.2], target: [0, 1.4, -4] },
   medicineBench: { position: [-0.7, 1.6, 0.6], target: [0.6, 1.25, -1.6] },
   medicineExit: { position: [0, 1.65, -5.2], target: [0, 1.7, -9.4] },
-  palace: { position: [0, 4.5, -21.2], target: [0, 0.2, -29.5] },
+  palace: { position: [0, 1.7, -21.6], target: [0, 1.3, -30.4] },
   palaceEntry: { position: [0, 1.65, -20.6], target: [0, 0.6, -28] },
   palaceCenter: { position: [0, 1.65, -27.75], target: [0, 0.15, -27.75] },
   palaceExit: { position: [1.4, 1.65, -32.8], target: [0.6, 1.5, -36.5] },
@@ -53,6 +53,7 @@ const previewViews: Record<string, { position: [number, number, number]; target:
 }
 const camera = new THREE.PerspectiveCamera(66, window.innerWidth / window.innerHeight, 0.05, 130)
 const preview = previewViews[previewMode.get('view') ?? '']
+const previewFocusEnabled = previewMode.has('shots') && Boolean(preview)
 camera.position.set(...(preview?.position ?? [1.6, 1.65, 52]))
 if (preview) camera.lookAt(...preview.target)
 else camera.lookAt(0, 1.7, 46.8)
@@ -353,7 +354,7 @@ window.addEventListener('keydown', (event) => {
   if (won) return
   unlockAudio()
   keys.add(event.code)
-  if (event.code === 'KeyE') {
+  if (event.code === 'KeyE' && controls.isLocked) {
     if (focused) rig?.cue(interact(focused))
     else rig?.cue('fail')
   }
@@ -434,20 +435,48 @@ function updateMovement(delta: number): void {
   }
 }
 
+const previewFocusPosition = new THREE.Vector3()
+let previewFocusCandidate: WorldInteraction | null | undefined
+
+function findPreviewFocus(enabled: WorldInteraction[]): WorldInteraction | null {
+  // clean 预览机位固定，候选只算一次；BoxHelper 仍由 focusOutlineTarget 缓存。
+  if (previewFocusCandidate !== undefined) return previewFocusCandidate
+  let bestScore = Number.POSITIVE_INFINITY
+  previewFocusCandidate = null
+  for (const item of enabled) {
+    item.object.getWorldPosition(previewFocusPosition)
+    previewFocusPosition.project(camera)
+    if (
+      previewFocusPosition.z < -1 || previewFocusPosition.z > 1 ||
+      Math.abs(previewFocusPosition.x) > 0.92 ||
+      Math.abs(previewFocusPosition.y) > 0.92
+    ) continue
+    const score = previewFocusPosition.x ** 2 + previewFocusPosition.y ** 2
+    if (score < bestScore) {
+      bestScore = score
+      previewFocusCandidate = item
+    }
+  }
+  return previewFocusCandidate
+}
+
 function updateFocus(): void {
   focused = null
-  if (!controls.isLocked || won) {
+  if ((!controls.isLocked && !previewFocusEnabled) || won) {
     setPrompt(null)
     setNearbyList([])
     return
   }
 
   raycaster.setFromCamera(center, camera)
-  const enabled = world.interactions.filter((item) => item.enabled)
+  raycaster.far = controls.isLocked ? 3.4 : Number.POSITIVE_INFINITY
+  const enabled = world.interactions.filter((item) =>
+    item.enabled && (controls.isLocked || item.act === currentAct))
   const hits = raycaster.intersectObjects(enabled.map((item) => item.object), false)
-  const hit = hits.find((item) => item.distance <= 3.4)
+  const hit = hits.find((item) => item.distance <= raycaster.far)
   focused = hit ? enabled.find((item) => item.object === hit.object) ?? null : null
-  setPrompt(focused ? promptFor(focused) : null)
+  if (!focused && !controls.isLocked) focused = findPreviewFocus(enabled)
+  setPrompt(controls.isLocked && focused ? promptFor(focused) : null)
   setNearbyList(enabled)
 }
 
@@ -471,9 +500,9 @@ function setNearbyList(enabled: WorldInteraction[]): void {
     if (distance <= 3.4) entries.push(`${item.label} · ${distance.toFixed(1)}m`)
   }
   const markup = entries.map((entry) => `<li>${entry}</li>`).join('')
+  nearbyList.classList.toggle('hidden', entries.length === 0)
   if (nearbyList.innerHTML === markup) return
   nearbyList.innerHTML = markup
-  nearbyList.classList.toggle('hidden', entries.length === 0)
 }
 
 // B8：把「E · 标签」补成带去向/条件的可读提示，出口与结局不再只写一句泛泛的动词。

@@ -23,6 +23,14 @@ for (const [view, file] of [['medicine', 'act4-medicine.png'], ['palace', 'act5-
     return veil ? getComputedStyle(veil).display !== 'none' : false
   })
   if (veilVisible) errors.push(`loading veil still visible in ${view}`)
+  // B8：三幕预览均不得显示无物名的空框；直接查计算样式，不只信 class。
+  const nearbyEmptyBoxVisible = await page.evaluate(() => {
+    const el = document.getElementById('nearby-list')
+    if (!el) return false
+    const empty = (el.textContent ?? '').trim().length === 0
+    return empty && getComputedStyle(el).display !== 'none'
+  })
+  if (nearbyEmptyBoxVisible) errors.push(`nearby-list empty box visible in ${view}`)
 }
 
 // —— 玩家机位导航组图（审官 v2 复审导航分用），落盘 artifacts/nav/ ——
@@ -70,17 +78,5 @@ for (const [view, file] of navViews) {
   if (ratios.center > 0.4) errors.push(`nav frame center occluded (${view}): ${(ratios.center * 100).toFixed(1)}%`)
 }
 
-// B8 断言：预览态（未锁定指针、无交互）#nearby-list 不得显示空框。
-{
-  await page.goto(`${baseUrl}/?view=medicine&clean=1&shots=1`, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.body.dataset.assets === 'ready', null, { timeout: 12000 })
-  await page.waitForTimeout(500)
-  const nearbyVisible = await page.evaluate(() => {
-    const el = document.getElementById('nearby-list')
-    if (!el) return true // 元素不存在也不算空框
-    return el.classList.contains('hidden') || (el.textContent ?? '').trim().length > 0
-  })
-  if (!nearbyVisible) errors.push('nearby-list empty box visible in preview mode')
-}
 console.log(JSON.stringify({ title: await page.title(), errors, canvas: await page.locator('canvas').count() }))
 await browser.close()
