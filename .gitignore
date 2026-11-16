@@ -38,3 +38,6 @@ desktop.ini
 # node / vite
 node_modules/
 dist/
+
+# 本地日志
+game/*.log
