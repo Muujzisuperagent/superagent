@@ -62,7 +62,8 @@ for (const [view, file] of navViews) {
     }
     return dark / (data.length / 4)
   })
-  if (darkRatio > 0.95) errors.push(`nav frame near-black (${view}): ${(darkRatio * 100).toFixed(1)}%`)
+  // B9/导航判据：暗像素 > 85% 记错误（90% 级黑帧必须拦下；五殿 13.1%、六殿 8.2% 交付帧远低于此，不误伤）。
+  if (darkRatio > 0.85) errors.push(`nav frame near-black (${view}): ${(darkRatio * 100).toFixed(1)}%`)
 }
 
 // B8 断言：预览态（未锁定指针、无交互）#nearby-list 不得显示空框。
