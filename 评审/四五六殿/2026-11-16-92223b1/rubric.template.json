@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "commit": "92223b1",
+  "date": "2026-11-16",
+  "flow_reachable": {
+    "value": null,
+    "evidence": ""
+  },
+  "criteria": {
+    "A3": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B1": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B2": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B3": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B4": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B5": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B6": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B7": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B8": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B9": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "B10": {
+      "max": 4,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "C1": {
+      "max": 5,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "C2": {
+      "max": 5,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "C3": {
+      "max": 5,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D1": {
+      "max": 3,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D2": {
+      "max": 3,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D3": {
+      "max": 3,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "D4": {
+      "max": 1,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "F1": {
+      "max": 2,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    },
+    "F2": {
+      "max": 3,
+      "score": null,
+      "evidence": "",
+      "reason": ""
+    }
+  }
+}
