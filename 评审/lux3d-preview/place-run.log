@@ -1,0 +1,65 @@
+19:12:00 | INFO: Data are loaded, start creating Blender stuff
+19:12:00 | INFO: Blender create Mesh node geometry_0
+19:12:01 | INFO: glTF import finished in 0.18s
+Blender 4.5.9 LTS (hash 8bf95cbd38d1 built 2026-04-21 01:33:45)
+Fra:1 Mem:119.39M (Peak 144.81M) | Time:00:01.23 | Rendering 1 / 64 samples
+Fra:1 Mem:119.39M (Peak 144.81M) | Time:00:01.29 | Rendering 25 / 64 samples
+Fra:1 Mem:119.39M (Peak 144.81M) | Time:00:01.35 | Rendering 50 / 64 samples
+Fra:1 Mem:119.39M (Peak 144.81M) | Time:00:01.38 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\placement-nine-palace.png'
+Time: 00:01.52 (Saving: 00:00.11)
+
+[shot] placement-nine-palace.png
+19:12:02 | INFO: Data are loaded, start creating Blender stuff
+19:12:02 | INFO: Blender create Mesh node geometry_0
+19:12:02 | INFO: glTF import finished in 0.24s
+Fra:1 Mem:153.54M (Peak 182.26M) | Time:00:00.19 | Rendering 1 / 64 samples
+Fra:1 Mem:153.54M (Peak 182.26M) | Time:00:00.25 | Rendering 25 / 64 samples
+Fra:1 Mem:153.54M (Peak 182.26M) | Time:00:00.32 | Rendering 50 / 64 samples
+Fra:1 Mem:153.54M (Peak 182.26M) | Time:00:00.35 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\placement-bridge.png'
+Time: 00:00.43 (Saving: 00:00.05)
+
+[shot] placement-bridge.png
+Fra:1 Mem:153.61M (Peak 175.91M) | Time:00:00.07 | Rendering 1 / 64 samples
+Fra:1 Mem:153.61M (Peak 175.91M) | Time:00:00.14 | Rendering 25 / 64 samples
+Fra:1 Mem:153.61M (Peak 175.91M) | Time:00:00.21 | Rendering 50 / 64 samples
+Fra:1 Mem:153.61M (Peak 175.91M) | Time:00:00.25 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\placement-bridge-side.png'
+Time: 00:00.32 (Saving: 00:00.04)
+
+[shot] placement-bridge-side.png
+19:12:03 | INFO: Data are loaded, start creating Blender stuff
+19:12:03 | INFO: Blender create Mesh node geometry_0
+19:12:03 | INFO: glTF import finished in 0.17s
+19:12:03 | INFO: Data are loaded, start creating Blender stuff
+19:12:03 | INFO: Blender create Mesh node geometry_0
+19:12:04 | INFO: glTF import finished in 0.15s
+Fra:1 Mem:211.72M (Peak 244.70M) | Time:00:00.23 | Rendering 1 / 64 samples
+Fra:1 Mem:211.72M (Peak 244.70M) | Time:00:00.30 | Rendering 25 / 64 samples
+Fra:1 Mem:211.72M (Peak 244.70M) | Time:00:00.38 | Rendering 50 / 64 samples
+Fra:1 Mem:211.72M (Peak 244.70M) | Time:00:00.42 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\placement-cabinet.png'
+Time: 00:00.50 (Saving: 00:00.05)
+
+[shot] placement-cabinet.png
+19:12:04 | INFO: Data are loaded, start creating Blender stuff
+19:12:04 | INFO: Blender create Mesh node geometry_0
+19:12:04 | INFO: glTF import finished in 0.19s
+19:12:04 | INFO: Data are loaded, start creating Blender stuff
+19:12:04 | INFO: Blender create Mesh node geometry_0
+19:12:04 | INFO: glTF import finished in 0.18s
+19:12:04 | INFO: Data are loaded, start creating Blender stuff
+19:12:04 | INFO: Blender create Mesh node geometry_0
+19:12:05 | INFO: glTF import finished in 0.18s
+Fra:1 Mem:320.40M (Peak 365.24M) | Time:00:00.32 | Rendering 1 / 64 samples
+Fra:1 Mem:320.40M (Peak 365.24M) | Time:00:00.41 | Rendering 25 / 64 samples
+Fra:1 Mem:320.40M (Peak 365.24M) | Time:00:00.50 | Rendering 50 / 64 samples
+Fra:1 Mem:320.40M (Peak 365.24M) | Time:00:00.55 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\placement-lily.png'
+Time: 00:00.62 (Saving: 00:00.05)
+
+[shot] placement-lily.png
+[all-done]
+
+Blender quit

@@ -1,0 +1,128 @@
+[import] D:/群核科技黑客松/game/public/assets/generated/lux3d-new\herbal-cabinet-v2.glb
+18:59:02 | INFO: Data are loaded, start creating Blender stuff
+18:59:02 | INFO: Blender create Mesh node geometry_0
+18:59:02 | INFO: glTF import finished in 0.17s
+Blender 4.5.9 LTS (hash 8bf95cbd38d1 built 2026-04-21 01:33:45)
+Fra:1 Mem:126.26M (Peak 152.97M) | Time:00:14.84 | Rendering 1 / 64 samples
+Fra:1 Mem:126.26M (Peak 152.97M) | Time:00:15.03 | Rendering 25 / 64 samples
+Fra:1 Mem:126.26M (Peak 152.97M) | Time:00:15.12 | Rendering 50 / 64 samples
+Fra:1 Mem:126.26M (Peak 152.97M) | Time:00:15.16 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\herbal-cabinet-v2-front.png'
+Time: 00:15.30 (Saving: 00:00.11)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\herbal-cabinet-v2-front.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.11 | Rendering 1 / 64 samples
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.23 | Rendering 25 / 64 samples
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.32 | Rendering 50 / 64 samples
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.37 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\herbal-cabinet-v2-back.png'
+Time: 00:00.44 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\herbal-cabinet-v2-back.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.05 | Rendering 1 / 64 samples
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.14 | Rendering 25 / 64 samples
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.23 | Rendering 50 / 64 samples
+Fra:1 Mem:134.77M (Peak 149.63M) | Time:00:00.28 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\herbal-cabinet-v2-side.png'
+Time: 00:00.35 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\herbal-cabinet-v2-side.png engine=BLENDER_EEVEE_NEXT
+[done] herbal-cabinet-v2: dims=[1.30042, 1.3, -0.56078] tris=186028 parts=3935
+[import] D:/群核科技黑客松/game/public/assets/generated/lux3d-new\nine-palace-v2.glb
+18:59:25 | INFO: Data are loaded, start creating Blender stuff
+18:59:25 | INFO: Blender create Mesh node geometry_0
+18:59:25 | INFO: glTF import finished in 0.15s
+Fra:1 Mem:130.62M (Peak 154.22M) | Time:00:00.27 | Rendering 1 / 64 samples
+Fra:1 Mem:130.62M (Peak 154.22M) | Time:00:00.39 | Rendering 25 / 64 samples
+Fra:1 Mem:130.62M (Peak 154.22M) | Time:00:00.48 | Rendering 50 / 64 samples
+Fra:1 Mem:130.62M (Peak 154.22M) | Time:00:00.53 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\nine-palace-v2-top.png'
+Time: 00:00.61 (Saving: 00:00.04)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\nine-palace-v2-top.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.05 | Rendering 1 / 64 samples
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.13 | Rendering 25 / 64 samples
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.21 | Rendering 50 / 64 samples
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.25 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\nine-palace-v2-front.png'
+Time: 00:00.32 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\nine-palace-v2-front.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.05 | Rendering 1 / 64 samples
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.14 | Rendering 25 / 64 samples
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.23 | Rendering 50 / 64 samples
+Fra:1 Mem:130.62M (Peak 143.96M) | Time:00:00.28 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\nine-palace-v2-persp.png'
+Time: 00:00.36 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\nine-palace-v2-persp.png engine=BLENDER_EEVEE_NEXT
+[done] nine-palace-v2: dims=[0.15, 0.15003, -0.02986] tris=167138 parts=1364
+[import] D:/群核科技黑客松/game/public/assets/generated/lux3d-new\stone-bridge-v2.glb
+18:59:28 | INFO: Data are loaded, start creating Blender stuff
+18:59:28 | INFO: Blender create Mesh node geometry_0
+18:59:28 | INFO: glTF import finished in 0.24s
+Fra:1 Mem:158.44M (Peak 187.17M) | Time:00:00.13 | Rendering 1 / 64 samples
+Fra:1 Mem:158.44M (Peak 187.17M) | Time:00:00.23 | Rendering 25 / 64 samples
+Fra:1 Mem:158.44M (Peak 187.17M) | Time:00:00.32 | Rendering 50 / 64 samples
+Fra:1 Mem:158.44M (Peak 187.17M) | Time:00:00.37 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\stone-bridge-v2-front.png'
+Time: 00:00.46 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\stone-bridge-v2-front.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.07 | Rendering 1 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.16 | Rendering 25 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.26 | Rendering 50 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.31 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\stone-bridge-v2-side.png'
+Time: 00:00.38 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\stone-bridge-v2-side.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.07 | Rendering 1 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.17 | Rendering 25 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.27 | Rendering 50 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.33 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\stone-bridge-v2-persp.png'
+Time: 00:00.41 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\stone-bridge-v2-persp.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.07 | Rendering 1 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.17 | Rendering 25 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.27 | Rendering 50 / 64 samples
+Fra:1 Mem:158.44M (Peak 180.75M) | Time:00:00.33 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\stone-bridge-v2-top.png'
+Time: 00:00.41 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\stone-bridge-v2-top.png engine=BLENDER_EEVEE_NEXT
+[done] stone-bridge-v2: dims=[3.0, 1.23144, -1.13271] tris=279036 parts=6589
+[import] D:/群核科技黑客松/game/public/assets/generated/lux3d-new\spider-lily-v2.glb
+18:59:56 | INFO: Data are loaded, start creating Blender stuff
+18:59:56 | INFO: Blender create Mesh node geometry_0
+18:59:56 | INFO: glTF import finished in 0.23s
+Fra:1 Mem:149.27M (Peak 174.85M) | Time:00:00.31 | Rendering 1 / 64 samples
+Fra:1 Mem:149.27M (Peak 174.85M) | Time:00:00.39 | Rendering 25 / 64 samples
+Fra:1 Mem:149.27M (Peak 174.85M) | Time:00:00.48 | Rendering 50 / 64 samples
+Fra:1 Mem:149.27M (Peak 174.85M) | Time:00:00.53 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\spider-lily-v2-front.png'
+Time: 00:00.64 (Saving: 00:00.06)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\spider-lily-v2-front.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.08 | Rendering 1 / 64 samples
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.20 | Rendering 25 / 64 samples
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.31 | Rendering 50 / 64 samples
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.37 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\spider-lily-v2-persp.png'
+Time: 00:00.46 (Saving: 00:00.06)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\spider-lily-v2-persp.png engine=BLENDER_EEVEE_NEXT
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.07 | Rendering 1 / 64 samples
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.17 | Rendering 25 / 64 samples
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.27 | Rendering 50 / 64 samples
+Fra:1 Mem:149.27M (Peak 166.07M) | Time:00:00.33 | Rendering 64 / 64 samples
+Saved: 'D:\群核科技黑客松\评审\lux3d-preview\spider-lily-v2-top.png'
+Time: 00:00.41 (Saving: 00:00.05)
+
+[render] D:/群核科技黑客松/评审/lux3d-preview\spider-lily-v2-top.png engine=BLENDER_EEVEE_NEXT
+[done] spider-lily-v2: dims=[0.55027, 0.52, -0.5275] tris=210412 parts=15515
+[all-done]
+
+Blender quit

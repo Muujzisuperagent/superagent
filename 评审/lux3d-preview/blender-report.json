@@ -1,0 +1,1111 @@
+{
+  "herbal-cabinet-v2": {
+    "file": "herbal-cabinet-v2.glb",
+    "bytes": 14714492,
+    "bbox_min_gltf": [
+      -0.65021,
+      -0.65,
+      0.28039
+    ],
+    "bbox_max_gltf": [
+      0.65021,
+      0.65,
+      -0.28039
+    ],
+    "dimensions_gltf_xyz": [
+      1.30042,
+      1.3,
+      -0.56078
+    ],
+    "objects_mesh": 1,
+    "triangles": 186028,
+    "vertices": 133922,
+    "materials": [
+      {
+        "name": "Designer_Logic_PBR",
+        "textures": [
+          {
+            "name": "Image_0",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "sRGB"
+          },
+          {
+            "name": "Image_2",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "Non-Color"
+          }
+        ],
+        "baseColorFactor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ],
+        "baseColorLinked": true,
+        "metallic": 0.0,
+        "metallicLinked": true,
+        "roughness": 0.5,
+        "roughnessLinked": true,
+        "normalLinked": false
+      }
+    ],
+    "renders": [
+      "herbal-cabinet-v2-front.png",
+      "herbal-cabinet-v2-back.png",
+      "herbal-cabinet-v2-side.png"
+    ],
+    "loose_parts": 3935,
+    "loose_parts_top15": [
+      {
+        "size_gltf": [
+          1.29661,
+          1.29295,
+          -0.04036
+        ],
+        "center_gltf": [
+          0.0007,
+          -0.00232,
+          0.26021
+        ],
+        "volume": 0.06765412,
+        "tris": 4650
+      },
+      {
+        "size_gltf": [
+          1.25402,
+          1.23957,
+          -0.0142
+        ],
+        "center_gltf": [
+          -0.00057,
+          -0.02399,
+          -0.24916
+        ],
+        "volume": 0.0220744,
+        "tris": 3855
+      },
+      {
+        "size_gltf": [
+          1.14285,
+          1.14394,
+          -0.01073
+        ],
+        "center_gltf": [
+          -0.00114,
+          -0.02525,
+          -0.24646
+        ],
+        "volume": 0.01403416,
+        "tris": 11312
+      },
+      {
+        "size_gltf": [
+          0.82156,
+          1.13899,
+          -0.01231
+        ],
+        "center_gltf": [
+          0.16614,
+          -0.02356,
+          0.2458
+        ],
+        "volume": 0.01152165,
+        "tris": 9176
+      },
+      {
+        "size_gltf": [
+          0.01588,
+          1.25604,
+          -0.50602
+        ],
+        "center_gltf": [
+          -0.62407,
+          -0.02035,
+          -0.00091
+        ],
+        "volume": 0.01009546,
+        "tris": 4353
+      },
+      {
+        "size_gltf": [
+          0.7151,
+          1.14116,
+          -0.01236
+        ],
+        "center_gltf": [
+          -0.2165,
+          -0.02358,
+          0.24579
+        ],
+        "volume": 0.01008546,
+        "tris": 6046
+      },
+      {
+        "size_gltf": [
+          0.01571,
+          1.25482,
+          -0.5041
+        ],
+        "center_gltf": [
+          0.62356,
+          -0.02137,
+          -0.00235
+        ],
+        "volume": 0.00993865,
+        "tris": 7996
+      },
+      {
+        "size_gltf": [
+          0.49576,
+          1.11902,
+          -0.01105
+        ],
+        "center_gltf": [
+          0.32425,
+          -0.01308,
+          -0.2459
+        ],
+        "volume": 0.00612962,
+        "tris": 6233
+      },
+      {
+        "size_gltf": [
+          1.2999,
+          0.00702,
+          -0.55793
+        ],
+        "center_gltf": [
+          0.0001,
+          0.64649,
+          -0.00118
+        ],
+        "volume": 0.00509068,
+        "tris": 15727
+      },
+      {
+        "size_gltf": [
+          1.24963,
+          0.0074,
+          -0.4955
+        ],
+        "center_gltf": [
+          -0.00105,
+          -0.59342,
+          0.0003
+        ],
+        "volume": 0.00458495,
+        "tris": 10054
+      },
+      {
+        "size_gltf": [
+          1.29798,
+          0.05891,
+          -0.03677
+        ],
+        "center_gltf": [
+          0.00047,
+          0.61784,
+          -0.262
+        ],
+        "volume": 0.00281173,
+        "tris": 2155
+      },
+      {
+        "size_gltf": [
+          0.01207,
+          1.18905,
+          -0.16869
+        ],
+        "center_gltf": [
+          -0.62313,
+          -0.04776,
+          0.10301
+        ],
+        "volume": 0.0024219,
+        "tris": 2619
+      },
+      {
+        "size_gltf": [
+          0.00979,
+          1.10852,
+          -0.14953
+        ],
+        "center_gltf": [
+          0.62154,
+          -0.00897,
+          -0.11461
+        ],
+        "volume": 0.00162344,
+        "tris": 3176
+      },
+      {
+        "size_gltf": [
+          0.009,
+          1.10283,
+          -0.14527
+        ],
+        "center_gltf": [
+          -0.62183,
+          -0.00626,
+          -0.11584
+        ],
+        "volume": 0.0014412,
+        "tris": 2709
+      },
+      {
+        "size_gltf": [
+          0.04209,
+          0.06213,
+          -0.54834
+        ],
+        "center_gltf": [
+          -0.62553,
+          0.61857,
+          -0.00071
+        ],
+        "volume": 0.00143379,
+        "tris": 901
+      }
+    ]
+  },
+  "nine-palace-v2": {
+    "file": "nine-palace-v2.glb",
+    "bytes": 11636060,
+    "bbox_min_gltf": [
+      -0.075,
+      -0.07501,
+      0.01493
+    ],
+    "bbox_max_gltf": [
+      0.075,
+      0.07501,
+      -0.01493
+    ],
+    "dimensions_gltf_xyz": [
+      0.15,
+      0.15003,
+      -0.02986
+    ],
+    "objects_mesh": 1,
+    "triangles": 167138,
+    "vertices": 98579,
+    "materials": [
+      {
+        "name": "Designer_Logic_PBR",
+        "textures": [
+          {
+            "name": "Image_0",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "sRGB"
+          },
+          {
+            "name": "Image_2",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "Non-Color"
+          }
+        ],
+        "baseColorFactor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ],
+        "baseColorLinked": true,
+        "metallic": 0.0,
+        "metallicLinked": true,
+        "roughness": 0.5,
+        "roughnessLinked": true,
+        "normalLinked": false
+      }
+    ],
+    "renders": [
+      "nine-palace-v2-top.png",
+      "nine-palace-v2-front.png",
+      "nine-palace-v2-persp.png"
+    ],
+    "loose_parts": 1364,
+    "loose_parts_top15": [
+      {
+        "size_gltf": [
+          0.04904,
+          0.00492,
+          -0.02921
+        ],
+        "center_gltf": [
+          0.00013,
+          0.07255,
+          -0.00015
+        ],
+        "volume": 7.05e-06,
+        "tris": 2301
+      },
+      {
+        "size_gltf": [
+          0.04788,
+          0.05004,
+          -0.00211
+        ],
+        "center_gltf": [
+          0.05094,
+          1e-05,
+          0.01365
+        ],
+        "volume": 5.06e-06,
+        "tris": 4024
+      },
+      {
+        "size_gltf": [
+          0.0502,
+          0.04759,
+          -0.00209
+        ],
+        "center_gltf": [
+          0.00021,
+          0.05111,
+          0.0135
+        ],
+        "volume": 4.98e-06,
+        "tris": 3977
+      },
+      {
+        "size_gltf": [
+          0.00327,
+          0.05001,
+          -0.02923
+        ],
+        "center_gltf": [
+          -0.07337,
+          -0.00032,
+          -0.00016
+        ],
+        "volume": 4.78e-06,
+        "tris": 2285
+      },
+      {
+        "size_gltf": [
+          0.04788,
+          0.04766,
+          -0.00193
+        ],
+        "center_gltf": [
+          0.05091,
+          0.05076,
+          0.01357
+        ],
+        "volume": 4.41e-06,
+        "tris": 4019
+      },
+      {
+        "size_gltf": [
+          0.04768,
+          0.0474,
+          -0.00195
+        ],
+        "center_gltf": [
+          -0.05107,
+          -0.05093,
+          -0.01391
+        ],
+        "volume": 4.4e-06,
+        "tris": 3935
+      },
+      {
+        "size_gltf": [
+          0.04691,
+          0.04849,
+          -0.00188
+        ],
+        "center_gltf": [
+          -0.05144,
+          0.00044,
+          0.01364
+        ],
+        "volume": 4.28e-06,
+        "tris": 3369
+      },
+      {
+        "size_gltf": [
+          0.04711,
+          0.04729,
+          -0.00191
+        ],
+        "center_gltf": [
+          -0.05054,
+          0.05128,
+          0.01365
+        ],
+        "volume": 4.27e-06,
+        "tris": 3122
+      },
+      {
+        "size_gltf": [
+          0.05069,
+          0.05065,
+          -0.00163
+        ],
+        "center_gltf": [
+          0.00024,
+          -4e-05,
+          -0.01406
+        ],
+        "volume": 4.19e-06,
+        "tris": 5397
+      },
+      {
+        "size_gltf": [
+          0.00314,
+          0.04649,
+          -0.02852
+        ],
+        "center_gltf": [
+          0.02839,
+          -0.05133,
+          0.00018
+        ],
+        "volume": 4.17e-06,
+        "tris": 2271
+      },
+      {
+        "size_gltf": [
+          0.04994,
+          0.00282,
+          -0.02905
+        ],
+        "center_gltf": [
+          -0.00028,
+          0.02402,
+          -7e-05
+        ],
+        "volume": 4.08e-06,
+        "tris": 2438
+      },
+      {
+        "size_gltf": [
+          0.04738,
+          0.05042,
+          -0.00167
+        ],
+        "center_gltf": [
+          0.05071,
+          -0.00015,
+          -0.01406
+        ],
+        "volume": 3.99e-06,
+        "tris": 4297
+      },
+      {
+        "size_gltf": [
+          0.04967,
+          0.04692,
+          -0.00169
+        ],
+        "center_gltf": [
+          -0.00046,
+          -0.0514,
+          -0.01409
+        ],
+        "volume": 3.94e-06,
+        "tris": 3657
+      },
+      {
+        "size_gltf": [
+          0.04709,
+          0.04758,
+          -0.00173
+        ],
+        "center_gltf": [
+          0.05052,
+          0.0508,
+          -0.01406
+        ],
+        "volume": 3.87e-06,
+        "tris": 3412
+      },
+      {
+        "size_gltf": [
+          0.04766,
+          0.04739,
+          -0.0017
+        ],
+        "center_gltf": [
+          0.05084,
+          -0.0513,
+          0.01375
+        ],
+        "volume": 3.83e-06,
+        "tris": 3668
+      }
+    ]
+  },
+  "stone-bridge-v2": {
+    "file": "stone-bridge-v2.glb",
+    "bytes": 18689704,
+    "bbox_min_gltf": [
+      -1.5,
+      -0.61572,
+      0.56636
+    ],
+    "bbox_max_gltf": [
+      1.5,
+      0.61572,
+      -0.56636
+    ],
+    "dimensions_gltf_xyz": [
+      3.0,
+      1.23144,
+      -1.13271
+    ],
+    "objects_mesh": 1,
+    "triangles": 279036,
+    "vertices": 209603,
+    "materials": [
+      {
+        "name": "Designer_Logic_PBR",
+        "textures": [
+          {
+            "name": "Image_0",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "sRGB"
+          },
+          {
+            "name": "Image_2",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "Non-Color"
+          }
+        ],
+        "baseColorFactor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ],
+        "baseColorLinked": true,
+        "metallic": 0.0,
+        "metallicLinked": true,
+        "roughness": 0.5,
+        "roughnessLinked": true,
+        "normalLinked": false
+      }
+    ],
+    "renders": [
+      "stone-bridge-v2-front.png",
+      "stone-bridge-v2-side.png",
+      "stone-bridge-v2-persp.png",
+      "stone-bridge-v2-top.png"
+    ],
+    "loose_parts": 6589,
+    "loose_parts_top15": [
+      {
+        "size_gltf": [
+          0.86512,
+          0.5887,
+          -0.84896
+        ],
+        "center_gltf": [
+          0.72925,
+          -0.02166,
+          0.01857
+        ],
+        "volume": 0.43236772,
+        "tris": 1094
+      },
+      {
+        "size_gltf": [
+          0.90668,
+          0.53592,
+          -0.83609
+        ],
+        "center_gltf": [
+          -0.59964,
+          -0.01016,
+          -0.10014
+        ],
+        "volume": 0.40626035,
+        "tris": 1874
+      },
+      {
+        "size_gltf": [
+          0.56827,
+          0.63364,
+          -0.97083
+        ],
+        "center_gltf": [
+          0.40917,
+          -0.2145,
+          0.00209
+        ],
+        "volume": 0.34957733,
+        "tris": 6083
+      },
+      {
+        "size_gltf": [
+          0.71174,
+          0.40806,
+          -0.9725
+        ],
+        "center_gltf": [
+          -0.20171,
+          -0.09928,
+          0.00223
+        ],
+        "volume": 0.2824418,
+        "tris": 5924
+      },
+      {
+        "size_gltf": [
+          0.61007,
+          0.31416,
+          -0.82305
+        ],
+        "center_gltf": [
+          -0.44237,
+          0.11619,
+          0.00024
+        ],
+        "volume": 0.15774537,
+        "tris": 4545
+      },
+      {
+        "size_gltf": [
+          0.51921,
+          0.31131,
+          -0.81608
+        ],
+        "center_gltf": [
+          0.49991,
+          0.11436,
+          -0.00016
+        ],
+        "volume": 0.13190915,
+        "tris": 4755
+      },
+      {
+        "size_gltf": [
+          0.54153,
+          0.29786,
+          -0.80307
+        ],
+        "center_gltf": [
+          0.47035,
+          0.11006,
+          -0.08557
+        ],
+        "volume": 0.12953611,
+        "tris": 1908
+      },
+      {
+        "size_gltf": [
+          0.85948,
+          0.52352,
+          -0.28242
+        ],
+        "center_gltf": [
+          -0.64305,
+          0.00811,
+          -0.30241
+        ],
+        "volume": 0.1270779,
+        "tris": 579
+      },
+      {
+        "size_gltf": [
+          0.56473,
+          0.19554,
+          -0.95391
+        ],
+        "center_gltf": [
+          0.23425,
+          0.01646,
+          0.00155
+        ],
+        "volume": 0.10533907,
+        "tris": 4051
+      },
+      {
+        "size_gltf": [
+          2.80968,
+          0.91241,
+          -0.03955
+        ],
+        "center_gltf": [
+          0.09301,
+          -0.15611,
+          -0.54658
+        ],
+        "volume": 0.1013821,
+        "tris": 1702
+      },
+      {
+        "size_gltf": [
+          0.54344,
+          0.29855,
+          -0.59275
+        ],
+        "center_gltf": [
+          0.471,
+          0.10755,
+          0.18182
+        ],
+        "volume": 0.09617085,
+        "tris": 976
+      },
+      {
+        "size_gltf": [
+          0.19689,
+          0.4558,
+          -0.94956
+        ],
+        "center_gltf": [
+          -0.52064,
+          -0.31054,
+          0.00219
+        ],
+        "volume": 0.08521593,
+        "tris": 2404
+      },
+      {
+        "size_gltf": [
+          1.06906,
+          0.71764,
+          -0.1094
+        ],
+        "center_gltf": [
+          -0.77831,
+          -0.11333,
+          0.46272
+        ],
+        "volume": 0.0839325,
+        "tris": 952
+      },
+      {
+        "size_gltf": [
+          0.54683,
+          0.29095,
+          -0.52651
+        ],
+        "center_gltf": [
+          -0.46294,
+          0.10071,
+          0.14856
+        ],
+        "volume": 0.08376709,
+        "tris": 769
+      },
+      {
+        "size_gltf": [
+          0.39599,
+          0.18328,
+          -0.95287
+        ],
+        "center_gltf": [
+          -0.25474,
+          0.01337,
+          0.00098
+        ],
+        "volume": 0.06915711,
+        "tris": 2854
+      }
+    ]
+  },
+  "spider-lily-v2": {
+    "file": "spider-lily-v2.glb",
+    "bytes": 21916724,
+    "bbox_min_gltf": [
+      -0.27513,
+      -0.26,
+      0.26375
+    ],
+    "bbox_max_gltf": [
+      0.27513,
+      0.26,
+      -0.26375
+    ],
+    "dimensions_gltf_xyz": [
+      0.55027,
+      0.52,
+      -0.5275
+    ],
+    "objects_mesh": 1,
+    "triangles": 210412,
+    "vertices": 213058,
+    "materials": [
+      {
+        "name": "Designer_Logic_PBR",
+        "textures": [
+          {
+            "name": "Image_0",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "sRGB"
+          },
+          {
+            "name": "Image_2",
+            "size": [
+              2048,
+              2048
+            ],
+            "embedded": true,
+            "colorspace": "Non-Color"
+          }
+        ],
+        "baseColorFactor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ],
+        "baseColorLinked": true,
+        "metallic": 0.0,
+        "metallicLinked": true,
+        "roughness": 0.5,
+        "roughnessLinked": true,
+        "normalLinked": false
+      }
+    ],
+    "renders": [
+      "spider-lily-v2-front.png",
+      "spider-lily-v2-persp.png",
+      "spider-lily-v2-top.png"
+    ],
+    "loose_parts": 15515,
+    "loose_parts_top15": [
+      {
+        "size_gltf": [
+          0.1201,
+          0.35178,
+          -0.05782
+        ],
+        "center_gltf": [
+          0.06972,
+          -0.04276,
+          0.03706
+        ],
+        "volume": 0.00244283,
+        "tris": 295
+      },
+      {
+        "size_gltf": [
+          0.1165,
+          0.35934,
+          -0.05209
+        ],
+        "center_gltf": [
+          -0.0684,
+          -0.02612,
+          0.03679
+        ],
+        "volume": 0.00218049,
+        "tris": 245
+      },
+      {
+        "size_gltf": [
+          0.11827,
+          0.33846,
+          -0.05128
+        ],
+        "center_gltf": [
+          0.06441,
+          -0.03743,
+          0.03573
+        ],
+        "volume": 0.00205255,
+        "tris": 280
+      },
+      {
+        "size_gltf": [
+          0.11811,
+          0.34719,
+          -0.03928
+        ],
+        "center_gltf": [
+          0.06529,
+          -0.047,
+          0.04296
+        ],
+        "volume": 0.00161077,
+        "tris": 118
+      },
+      {
+        "size_gltf": [
+          0.11599,
+          0.34504,
+          -0.03981
+        ],
+        "center_gltf": [
+          -0.06506,
+          -0.0407,
+          0.0436
+        ],
+        "volume": 0.00159306,
+        "tris": 190
+      },
+      {
+        "size_gltf": [
+          0.05969,
+          0.25289,
+          -0.09527
+        ],
+        "center_gltf": [
+          0.02461,
+          -0.09204,
+          -0.05248
+        ],
+        "volume": 0.00143821,
+        "tris": 314
+      },
+      {
+        "size_gltf": [
+          0.10911,
+          0.32355,
+          -0.03781
+        ],
+        "center_gltf": [
+          -0.05834,
+          -0.05951,
+          0.04327
+        ],
+        "volume": 0.00133491,
+        "tris": 186
+      },
+      {
+        "size_gltf": [
+          0.05599,
+          0.25019,
+          -0.09185
+        ],
+        "center_gltf": [
+          -0.03173,
+          -0.09014,
+          -0.05677
+        ],
+        "volume": 0.00128667,
+        "tris": 287
+      },
+      {
+        "size_gltf": [
+          0.04424,
+          0.24687,
+          -0.09301
+        ],
+        "center_gltf": [
+          -0.03865,
+          -0.08423,
+          -0.05106
+        ],
+        "volume": 0.00101577,
+        "tris": 146
+      },
+      {
+        "size_gltf": [
+          0.04563,
+          0.23561,
+          -0.09202
+        ],
+        "center_gltf": [
+          -0.02786,
+          -0.08246,
+          -0.05114
+        ],
+        "volume": 0.00098921,
+        "tris": 158
+      },
+      {
+        "size_gltf": [
+          0.04069,
+          0.25625,
+          -0.09319
+        ],
+        "center_gltf": [
+          -0.03742,
+          -0.09384,
+          -0.04705
+        ],
+        "volume": 0.00097171,
+        "tris": 187
+      },
+      {
+        "size_gltf": [
+          0.10697,
+          0.29932,
+          -0.03021
+        ],
+        "center_gltf": [
+          0.07317,
+          -0.01896,
+          0.04803
+        ],
+        "volume": 0.00096708,
+        "tris": 150
+      },
+      {
+        "size_gltf": [
+          0.04178,
+          0.23827,
+          -0.0909
+        ],
+        "center_gltf": [
+          -0.02458,
+          -0.08535,
+          -0.05259
+        ],
+        "volume": 0.00090488,
+        "tris": 170
+      },
+      {
+        "size_gltf": [
+          0.07983,
+          0.23807,
+          -0.04664
+        ],
+        "center_gltf": [
+          -0.05088,
+          -0.10494,
+          0.03564
+        ],
+        "volume": 0.00088625,
+        "tris": 341
+      },
+      {
+        "size_gltf": [
+          0.03486,
+          0.25293,
+          -0.09725
+        ],
+        "center_gltf": [
+          0.03703,
+          -0.09403,
+          -0.05106
+        ],
+        "volume": 0.00085756,
+        "tris": 184
+      }
+    ]
+  }
+}
