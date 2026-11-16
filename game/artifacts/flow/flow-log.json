@@ -1,7 +1,7 @@
 {
   "gate": "G3",
-  "baseUrl": "http://127.0.0.1:5173",
-  "ranAt": "2026-11-16T11:57:24.664Z",
+  "baseUrl": "http://127.0.0.1:5175",
+  "ranAt": "2026-11-16T12:28:56.444Z",
   "pageErrors": [],
   "steps": [
     {
@@ -172,7 +172,7 @@
     {
       "name": "收尾状态",
       "ok": true,
-      "detail": "路引 · 半印 0/6　不忘汤 · 未配　证据 A | drawCalls=31"
+      "detail": "路引 · 半印 0/6　不忘汤 · 未配　证据 A | drawCalls=30"
     }
   ],
   "knownIssues": [],
@@ -186,8 +186,8 @@
     "judge": "已解锁 · 走下方正式选择块"
   },
   "perf": {
-    "drawCalls": 31,
-    "triangles": 694016
+    "drawCalls": 30,
+    "triangles": 694014
   },
   "ok": true
 }

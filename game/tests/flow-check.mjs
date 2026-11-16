@@ -207,6 +207,27 @@ await shoot('03-combined')
 const unlocked = await page.evaluate(() => window.__journey.unlockedEndings)
 await record('结局解锁列表', JSON.stringify(unlocked), unlocked.length >= 1)
 
+// B9/D4：合符后、选择前的三路径面板帧。三项交互必须已亮，结局面板仍未弹出。
+const endingPanelReady = await page.evaluate(() => {
+  const endings = window.__world.interactions.filter((item) => item.kind === 'ending')
+  return endings.length === 3 && endings.every((item) => item.enabled) &&
+    document.getElementById('ending')?.classList.contains('hidden')
+})
+if (!endingPanelReady) throw new Error('ending panel is not in combined, unselected three-choice state')
+// 轮盘与三路径同轴；站到轮盘后方，用临时广角同帧收纳三个按钮，拍后立刻恢复 66°。
+await teleport(0, -75.9, [0, 2.0, -77.6])
+await page.evaluate(() => {
+  window.__camera.fov = 110
+  window.__camera.updateProjectionMatrix()
+})
+await frames(4)
+await shoot('05-ending-panel')
+await page.evaluate(() => {
+  window.__camera.fov = 66
+  window.__camera.updateProjectionMatrix()
+})
+await frames(2)
+
 // —— D3：结局解锁矩阵。未解锁的结局必须给明确拒绝反馈且不弹面板；
 //    已解锁的结局在下方「选择结局」块里逐个实际走一遍（点击后页面重载重开，天然覆盖重开用例）。
 const endingMatrix = {}

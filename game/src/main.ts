@@ -43,11 +43,11 @@ const previewViews: Record<string, { position: [number, number, number]; target:
   medicineExit: { position: [0, 1.65, -5.2], target: [0, 1.7, -9.4] },
   palace: { position: [0, 1.7, -21.6], target: [0, 1.3, -30.4] },
   palaceEntry: { position: [0, 1.65, -20.6], target: [0, 0.6, -28] },
-  palaceCenter: { position: [0, 1.65, -27.75], target: [0, 0.15, -27.75] },
+  palaceCenter: { position: [0, 2.3, -24.6], target: [0, 0.5, -28.2] },
   palaceExit: { position: [1.4, 1.65, -32.8], target: [0.6, 1.5, -36.5] },
   river: { position: [-4.2, 2.5, -44.6], target: [0, 2.6, -68] },
   riverBridge: { position: [0, 2.0, -46], target: [0, 1.6, -58] },
-  riverMid: { position: [-1.6, 2.4, -57], target: [-0.4, 2.2, -38] },
+  riverMid: { position: [-1.6, 2.4, -57], target: [0, 2.2, -78.5] },
   riverEnd: { position: [-4.6, 1.7, -50.5], target: [-6.6, 1.9, -51] },
   riverSide: { position: [8.2, 1.9, -54.5], target: [-0.4, 1.6, -64] }
 }
