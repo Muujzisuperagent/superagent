@@ -1,0 +1,9 @@
+{
+  "name": "huihun-eval-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Runtime deps for the huihun-eval skill (playwright is reused from game/node_modules)",
+  "dependencies": {
+    "gltf-validator": "^2.0.0-dev.3.10"
+  }
+}

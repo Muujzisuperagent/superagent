@@ -1,0 +1,13 @@
+{
+  "_comment": "Merge of the old 3D art rubric (0-4) and the engineering gates. Technical fallback thresholds calibrated 2026-11-15 on the three current act screenshots. pyiqa thresholds are optional and only used when pyiqa is installed.",
+  "sharpness": { "type": "higher", "bad": 0.0008, "good": 0.008 },
+  "contrast": { "type": "higher", "bad": 0.04, "good": 0.16 },
+  "entropy": { "type": "higher", "bad": 2.5, "good": 5.0 },
+  "colorfulness": { "type": "higher", "bad": 0.02, "good": 0.10 },
+  "musiq": { "type": "higher", "bad": 35.0, "good": 65.0 },
+  "clipiqa+": { "type": "higher", "bad": 0.30, "good": 0.60 },
+  "niqe": { "type": "lower", "good": 4.0, "bad": 9.0 },
+  "topiq_nr": { "type": "higher", "bad": 0.30, "good": 0.60 },
+  "brisque": { "type": "lower", "good": 20.0, "bad": 60.0 },
+  "lpips": { "type": "lower", "good": 0.15, "bad": 0.50 }
+}
