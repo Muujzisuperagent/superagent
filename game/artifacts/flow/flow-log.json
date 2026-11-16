@@ -1,11 +1,21 @@
 {
   "gate": "G3",
-  "baseUrl": "http://127.0.0.1:5173",
-  "ranAt": "2026-11-16T03:43:39.118Z",
+  "baseUrl": "http://localhost:5173",
+  "ranAt": "2026-11-16T07:04:14.481Z",
   "pageErrors": [],
   "steps": [
     {
       "name": "锁定鼠标",
+      "ok": true,
+      "detail": "pointerLockElement=true"
+    },
+    {
+      "name": "Esc 释放鼠标",
+      "ok": true,
+      "detail": "released=true hint=true"
+    },
+    {
+      "name": "释放后重新锁定",
       "ok": true,
       "detail": "pointerLockElement=true"
     },
@@ -43,6 +53,21 @@
       "name": "四殿出门",
       "ok": true,
       "detail": "半印④落下。不忘汤入手。北门已开。"
+    },
+    {
+      "name": "五殿误踩重置",
+      "ok": true,
+      "detail": "错了。一盏幽冥灯灭了。重来。"
+    },
+    {
+      "name": "五殿重置后可续行",
+      "ok": true,
+      "detail": "石板 1 下沉。还剩 8 步。"
+    },
+    {
+      "name": "五殿跨格不误触",
+      "ok": true,
+      "detail": "toast可见=false"
     },
     {
       "name": "五殿踩板 1",
@@ -110,14 +135,44 @@
       "detail": "[\"return\",\"judge\"]"
     },
     {
-      "name": "选择结局 · 还阳",
+      "name": "结局矩阵 return",
+      "ok": true,
+      "detail": "已解锁 · 走下方正式选择块"
+    },
+    {
+      "name": "结局矩阵 replace",
+      "ok": true,
+      "detail": "未解锁 · 面板=false · 提示=\"结局未解锁：不忘汤 + 证据 A / B / D\""
+    },
+    {
+      "name": "结局矩阵 judge",
+      "ok": true,
+      "detail": "已解锁 · 走下方正式选择块"
+    },
+    {
+      "name": "选择结局 · return",
       "ok": true,
       "detail": "还阳"
     },
     {
+      "name": "重开不残留",
+      "ok": true,
+      "detail": "半印清零=true 结局面板隐藏=true"
+    },
+    {
+      "name": "选择结局 · judge",
+      "ok": true,
+      "detail": "留司"
+    },
+    {
+      "name": "未齐印合符被拒",
+      "ok": true,
+      "detail": "骑缝未合。先取得第四、第五殿的半印。"
+    },
+    {
       "name": "收尾状态",
       "ok": true,
-      "detail": "路引 · 半印 3/6　不忘汤 · 已收　证据 A/C/D | drawCalls=39"
+      "detail": "路引 · 半印 0/6　不忘汤 · 未配　证据 A | drawCalls=34"
     }
   ],
   "knownIssues": [],
@@ -125,10 +180,14 @@
     "return",
     "judge"
   ],
-  "endingTitle": "还阳",
+  "endingMatrix": {
+    "return": "已解锁 · 走下方正式选择块",
+    "replace": "未解锁 · 面板=false · 提示=\"结局未解锁：不忘汤 + 证据 A / B / D\"",
+    "judge": "已解锁 · 走下方正式选择块"
+  },
   "perf": {
-    "drawCalls": 39,
-    "triangles": 102402
+    "drawCalls": 34,
+    "triangles": 230160
   },
   "ok": true
 }
