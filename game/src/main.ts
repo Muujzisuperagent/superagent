@@ -199,7 +199,6 @@ function finishAct(act: ActId): void {
   completed.add(act)
   journey.completeAct(act)
   world.openExit(act)
-  updateInventory()
   if (act === 'medicine') {
     toast('半印④落下。不忘汤入手。北门已开。', 6)
     dialogue('孟婆', '别人求忘，你求记。稀奇。')
@@ -215,6 +214,7 @@ function finishAct(act: ActId): void {
     toast('半印③落下。证据 C：簿页残片。刮改的笔迹，是你的。南门已开。', 7)
     dialogue('籍房司吏', '落户要三样。你现在齐了。去吧。')
   }
+  updateInventory()
 }
 
 function showEnding(id: EndingId): void {
@@ -305,12 +305,17 @@ function interact(target: WorldInteraction): CueKind {
     const result = archive.compare()
     toast(result.message, 7)
     if (result.solved) {
+      target.enabled = false
+      target.object.visible = false
       world.setActSolved('archive')
       updateArchiveObjective()
     }
     return result.solved ? 'seal' : result.ok ? 'ok' : 'fail'
   } else if (target.kind === 'exit') {
-    camera.position.z -= 1.1
+    // 二殿出口距 actAt 分界仅差 0.45m，一格推进切不了殿——二三殿出口直接传送到下一殿入口
+    if (target.act === 'scale') camera.position.set(0, 1.65, 30)
+    else if (target.act === 'archive') camera.position.set(0, 1.65, 6)
+    else camera.position.z -= 1.1
     updateAct()
     return 'ok'
   } else if (target.kind === 'combine') {

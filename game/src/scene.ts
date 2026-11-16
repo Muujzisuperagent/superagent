@@ -1032,9 +1032,9 @@ export class EscapeWorld {
       box(group, [0.36, 0.22, 10], [5.4, 4.78, center], WOOD)
       // 四殿中央细木条自下方暖光读作天花亮竖缝（x≈718），去掉 index 0；前三殿保持原样
       for (const index of act === 'medicine' ? [-2, 2] : [-2, 0, 2]) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, center], WOOD)
-      if (act === 'medicine') {
-        // 封顶天花：消灭梁间黑洞，梁影落在暖灰褐顶面上成结构
-        const ceiling = box(group, [14, 0.12, 16], [0, 5.26, center], MEDICINE_PLASTER)
+      if (act === 'medicine' || act === 'scale' || act === 'archive') {
+        // 封顶天花：消灭梁间黑洞，梁影落在顶面上成结构（medicine 暖灰褐，二三殿深木）
+        const ceiling = box(group, [14, 0.12, 16], [0, 5.26, center], act === 'medicine' ? MEDICINE_PLASTER : WOOD)
         ceiling.receiveShadow = true
       }
     }
@@ -1497,7 +1497,7 @@ export class EscapeWorld {
     const ghostFlame = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.15, 8), GHOST_FLAME)
     ghostFlame.position.set(2.35, 0.24, 47)
     group.add(ghostFlame)
-    light(group, [2.35, 0.55, 47], 0x3fae7a, 2.4, 0.05)
+    light(group, [2.35, 0.55, 47], 0x3fae7a, 1.6, 0.05)
 
     // 冷白光柱斜落秤盘
     const shaft = new THREE.SpotLight(0xdfeee6, 90, 15, 0.3, 0.55, 1.2)
@@ -1571,6 +1571,10 @@ export class EscapeWorld {
     light(group, [0, 3.9, 47.5], 0xcfe8dc, 10, 0.06)
     light(group, [-4.6, 2.9, 50.5], 0x9fcdb9, 4, 0.05)
     light(group, [0.5, 2.4, 44], 0xa9d6c5, 3.4, 0.05)
+    // 补光：两侧墙可读 + 南门门洞内引导光（通关后知道往哪走）
+    light(group, [-5.2, 3.6, 52], 0xcfe8dc, 4.5, 0.05)
+    light(group, [5.2, 3.6, 44], 0xcfe8dc, 4.5, 0.05)
+    light(group, [0, 3.1, 39.6], 0xd8c9a0, 3.5, 0.05)
   }
 
   /** 第三殿 · 簿库：六层簿架三面围合，中央长案侧光斜照，架尽黑暗里悬空一册自翻 */
@@ -1728,6 +1732,11 @@ export class EscapeWorld {
     light(group, [4.2, 3.1, 27.8], 0xcbb98f, 6.5, 0.055)
     light(group, [-4.8, 2.7, 19.5], 0xbfae87, 3.5, 0.05)
     light(group, [4.6, 2.2, 18.6], 0x86c9a8, 2.6, 0.045)
+    // 补光：北墙书架洗墙 + 东西架补 + 长案吊光 + 南门门洞内引导光
+    light(group, [0, 3.6, 30.2], 0xd8c9a0, 5, 0.055)
+    light(group, [-5.4, 3.2, 23.6], 0xcbb98f, 4, 0.05)
+    light(group, [5.4, 3.2, 23.6], 0xcbb98f, 4, 0.05)
+    light(group, [0, 3.1, 15.6], 0xd8c9a0, 3.5, 0.05)
   }
 
   private buildCorridor(center: number): void {
@@ -2429,13 +2438,13 @@ export class EscapeWorld {
       }
     })
     if (act === 'scale') {
-      this.backgroundTarget.setHex(0x0a1211)
-      this.fogTarget.setHex(0x151e1c)
-      this.fog.density = 0.02
+      this.backgroundTarget.setHex(0x0f1a18)
+      this.fogTarget.setHex(0x1d2a26)
+      this.fog.density = 0.017
     } else if (act === 'archive') {
-      this.backgroundTarget.setHex(0x14100a)
-      this.fogTarget.setHex(0x241d12)
-      this.fog.density = 0.024
+      this.backgroundTarget.setHex(0x1b150d)
+      this.fogTarget.setHex(0x2d2415)
+      this.fog.density = 0.02
     } else if (act === 'reincarnation') {
       // 乳白雾幕：暖白低饱和天空 + 分层 sprite 浓度；冷青只留远景光门/轮盘自发光
       this.backgroundTarget.setHex(0xa9ada3)
