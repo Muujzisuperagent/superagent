@@ -100,7 +100,7 @@ const STONE = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stone
 const WET_STONE = new THREE.MeshPhysicalMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.065, color: 0x9aa7a1, roughness: 0.59, metalness: 0.015, clearcoat: 0.22, clearcoatRoughness: 0.44 })
 const DARK_STONE = new THREE.MeshStandardMaterial({ map: plasterTexture, bumpMap: plasterTexture, bumpScale: 0.035, color: 0x8a9188, roughness: 0.9 })
 const WOOD = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.025, color: 0x95876c, roughness: 0.62 })
-const BRONZE = new THREE.MeshStandardMaterial({ color: 0x827357, roughness: 0.4, metalness: 0.65 })
+const BRONZE = new THREE.MeshStandardMaterial({ color: 0x827357, roughness: 0.52, metalness: 0.66 })
 const MEDICINE_WOOD = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.04, color: 0xb29268, roughness: 0.74 })
 const CLOTH = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.025, color: 0xc6c5b3, roughness: 0.92, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
 const PAPER = new THREE.MeshStandardMaterial({ map: paperTexture, color: 0xe0d7b8, emissive: 0x171408, emissiveIntensity: 0.12, roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
@@ -1479,7 +1479,7 @@ export class EscapeWorld {
     box(omenSeal, [0.13, 0.33, 0.18], [-0.23, 0.24, 0], BRONZE)
     light(omenSeal, [-0.15, 0.05, 0.1], 0xc6a66b, 2.2, 0.035)
     label(group, '问案台 · 取簿', [0, 1.95, -34.08], 2.6)
-    label(group, '忘川桥 →', [0, 1.7, -35.72], 2.1)
+    label(group, '忘川桥 →', [0.85, 1.35, -35.48], 1.25)
     const threshold = new THREE.Mesh(new THREE.PlaneGeometry(2.45, 3.0), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xb2c8bd, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }))
     threshold.position.set(0, 1.65, -36.5)
     threshold.userData.mist = true
