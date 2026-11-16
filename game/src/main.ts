@@ -41,7 +41,7 @@ const previewViews: Record<string, { position: [number, number, number]; target:
   medicineEntry: { position: [0, 1.65, 6.2], target: [0, 1.4, -4] },
   medicineBench: { position: [-0.7, 1.6, 0.6], target: [0.6, 1.25, -1.6] },
   medicineExit: { position: [0, 1.65, -5.2], target: [0, 1.7, -9.4] },
-  palace: { position: [0, 5, -21.2], target: [0, 0.2, -29.5] },
+  palace: { position: [0, 4.5, -21.2], target: [0, 0.2, -29.5] },
   palaceEntry: { position: [0, 1.65, -20.6], target: [0, 0.6, -28] },
   palaceCenter: { position: [0, 1.65, -27.75], target: [0, 0.15, -27.75] },
   palaceExit: { position: [1.4, 1.65, -32.8], target: [0.6, 1.5, -36.5] },
