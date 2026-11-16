@@ -1,0 +1,65 @@
+{
+  "assetDir": "D:/群核科技黑客松/game/public/assets/generated/lux3d-new/opt",
+  "files": [
+    {
+      "file": "herbal-cabinet-v2.glb",
+      "bytes": 2090248,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 186028,
+      "vertices": 133922,
+      "extensionsUsed": [
+        "EXT_meshopt_compression",
+        "EXT_texture_webp",
+        "KHR_materials_specular",
+        "KHR_mesh_quantization"
+      ],
+      "topIssues": []
+    },
+    {
+      "file": "nine-palace-v2.glb",
+      "bytes": 1490692,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 167138,
+      "vertices": 98579,
+      "extensionsUsed": [
+        "EXT_meshopt_compression",
+        "EXT_texture_webp",
+        "KHR_materials_specular",
+        "KHR_mesh_quantization"
+      ],
+      "topIssues": []
+    },
+    {
+      "file": "spider-lily-v2.glb",
+      "bytes": 3583424,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 210412,
+      "vertices": 213058,
+      "extensionsUsed": [
+        "EXT_meshopt_compression",
+        "EXT_texture_webp",
+        "KHR_materials_specular",
+        "KHR_mesh_quantization"
+      ],
+      "topIssues": []
+    },
+    {
+      "file": "stone-bridge-v2.glb",
+      "bytes": 3239984,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 279036,
+      "vertices": 209603,
+      "extensionsUsed": [
+        "EXT_meshopt_compression",
+        "EXT_texture_webp",
+        "KHR_materials_specular",
+        "KHR_mesh_quantization"
+      ],
+      "topIssues": []
+    }
+  ]
+}

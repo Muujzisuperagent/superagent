@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "commit": "f33b1dd",
+  "date": "2026-11-16",
+  "flow_reachable": {
+    "value": true,
+    "evidence": "game/artifacts/flow/flow-log.json：ranAt=2026-11-16T11:57:24.664Z（本地 19:57:24，晚于 HEAD f33b1dd 提交 19:52:18）；34/34 步 ok=true，failed=[]，pageErrors=[]；链路含四殿取药 danggui/yuanzhi/hehuan/wangyou→证据 C→半印④→出门、五殿误踩重置+跨格不误触+踩板 1→9→证据 D→半印⑤、六殿合符→结局解锁 [return,judge]→选择 return/judge→重开不残留→未齐印合符被拒；过程截图 game/artifacts/flow/01-medicine-solved.png、02-palace-solved.png、03-combined.png、04-ending-return.png、04-ending-judge.png（mtime 19:57）。命令：GAME_URL=http://127.0.0.1:5173 node.exe tests/flow-check.mjs，输出 {\"ok\":true,\"failed\":[],\"pageErrors\":[]}"
+  },
+  "criteria": {
+    "A3": {
+      "max": 4,
+      "score": 2,
+      "evidence": "scene.ts:2253-2286 GLB 主资产落位；assets-v2.json 4 件 v2 0 error 0 warning；nav-act4-bench.png 戥子杆/盘/砣贴桌面、柜体接地；但 nav-act5-center.png 整帧为拉伸大理石纹（nine-palace layFlat 后 in-plane 缩放）、crops/act6_flowers_right.png 花瓣簇茎悬空、flow/03-combined.png 桥顶视熔融塑料感+合符台无贴图绿盒",
+      "reason": "比例朝向与接触面大体成立，但石板贴图拉伸、浮瓣、桥/合符台材质仍需手工修，够不到 4"
+    },
+    "B1": {
+      "max": 4,
+      "score": 3,
+      "evidence": "screens/act4-medicine.png 主焦点药案+戥子居中、前中后景（案/柜/门）成立；act5-palace.png 低机位九宫入画、匾额为主焦点；act6-reincarnation.png 亭左桥右对角线；缺陷 crops/act4_ceiling_seam.png 天花亮竖缝 x≈718 与 crops/act4_yaoqian.png 灯笼遮药签字",
+      "reason": "三幕主目标均未被装饰抢走，符合目标；竖缝与遮字属完成度问题计入 B10，不在此重复扣"
+    },
+    "B2": {
+      "max": 4,
+      "score": 2,
+      "evidence": "act4 暖棕主光+柜面冷光、nav-act4-exit.png 门内雾光有来源；act5 八盏铜盏幽绿、中央 1/3 暗 27.7%（RGB<15 实测）黑位有层次；但 nav-act6-mid.png 光门外矩形雾块硬边、nav-act6-side.png 左侧约 28% 画面死黑遮桥拱",
+      "reason": "四/五殿灯光可读，六殿雾矩形边与死黑吞掉桥体信息，基本可用但需修改"
+    },
+    "B3": {
+      "max": 4,
+      "score": 2,
+      "evidence": "crops/act4_cabinet_left.png 老榆木磨损+铜环拉手、crops/act4_dengzi.png 青铜杆盘砣、crops/act4_yaoqian.png 宣纸药签可区分；但 crops/act5_slab_texture.png 石板呈蓝灰大理石纹塑料感、flow/03-combined.png 合符台为无贴图橄榄绿盒、桥顶视熔融块",
+      "reason": "木/铜/纸可信，石与合符台材质失真，需手工修"
+    },
+    "B4": {
+      "max": 4,
+      "score": 2,
+      "evidence": "act4 暖像素(R>B+8) 62.3% vs 冷 0.1%（中央带实测）符合暖棕药草绿；act5 冷青黑+幽绿+彼岸红点缀、near_black 28.76%∈[25,35]、luma 0.0851∈[0.08,0.11]；但 act6 冷像素 54.6%，雾为青灰而非来源要求的乳白（rubric.md §10 六殿乳白雾）",
+      "reason": "四/五殿配色达标，六殿雾色违约把释放情绪压成阴森，基本可用但需修改"
+    },
+    "B5": {
+      "max": 4,
+      "score": 3,
+      "evidence": "scene.ts:2254 柜 size 4.0×4.35×0.76 与nav-act4-entry.png 人体尺度参照可信；nav-act6-side.png 桥拱跨度与厚度可读；act5 九宫 6.05m 见方与玩家 1.65m 眼高比例成立；nav-act6-end.png 孟婆汤锅与碗比例可信",
+      "reason": "建筑家具道具比例与遮挡层次成立；palaceCenter 贴脸属机位问题计入 B8"
+    },
+    "B6": {
+      "max": 4,
+      "score": 3,
+      "evidence": "crops/act4_yaoqian.png 当归/黄芪/陈皮/桂枝等药签、crops/act4_dengzi.png 戥子君臣佐使、flow/01-medicine-solved.png 孟婆对白「别人求忘，你求记。稀奇。」、flow/03-combined.png 崔珏结案对白；半印/路引/证据链齐全，无违约物件",
+      "reason": "关键道具与建筑语汇服务剧情；合符台绿盒削弱质感但叙事功能完整"
+    },
+    "B7": {
+      "max": 4,
+      "score": 3,
+      "evidence": "三幕共用青铜/老榆木/青石/宣纸语汇（act4 柜与戥子、act5 铜盏与石板的铜件、act6 亭柱铜箍与桥石）；HUD 三幕同版式同色；四殿暖棕与五六殿冷青为分幕设计意图（rubric.md §10）",
+      "reason": "材质与时代语汇连贯且保留分幕差异；六殿亡魂低模密度略低于四殿道具密度"
+    },
+    "B8": {
+      "max": 4,
+      "score": 2,
+      "evidence": "nav 十张本轮干净重拍（mtime 19:56，visual-check errors=[]）；nav-act4-bench.png 右下 nearby-list「取药·当归（君）·2.2m」等 3 条、flow/03-combined.png 合符台暖金 BoxHelper 线框可指认；但 main.ts:46 palaceCenter target 与 position 同 x/z 只低 1.5m → nav-act5-center.png 贴脸石板看不出路线；main.ts:50 riverMid 朝 +z 回看；nav-act6-side.png 左 28% 死黑；nav-act5-exit.png 问案台牌遮匾额",
+      "reason": "入口/交互/出口大多可辨，但五殿中心与六殿 mid/side 机位失效，基本可用但需修改"
+    },
+    "B9": {
+      "max": 4,
+      "score": 3,
+      "evidence": "操作前 screens/act4-medicine.png HUD「半印 0/6 不忘汤·未配 证据 A」vs 操作后 flow/01-medicine-solved.png「半印 1/6 不忘汤·已收 证据 A/C」+toast「半印④落下。不忘汤入手。北门已开。」+nearby 3 条+prompt「E·收取半印④」；flow/03-combined.png「半印 3/6 证据 A/C/D」+toast「六印合成…」；style.css:337-344 lock-hint bottom 9% 不压九宫刻字",
+      "reason": "前后状态对照、toast、对白、nearby 齐全且可读，符合目标"
+    },
+    "B10": {
+      "max": 4,
+      "score": 1,
+      "evidence": "crops/act4_ceiling_seam.png 天花上沿亮竖缝 x≈718 仍在；crops/act4_cabinet_left.png 与 _right.png 双柜 7×7 同款抽屉、抽屉面药签空白；crops/act5_slab_texture.png 贴图拉伸；crops/act6_flowers_right.png 浮瓣；nav-act6-mid.png 矩形雾边；nav-act6-side.png 死黑块；flow/03-combined.png 合符台绿盒；nav-act5-center.png 贴脸",
+      "reason": "八处可见缺陷且多项为上轮遗留未修，明显问题档"
+    },
+    "C1": {
+      "max": 5,
+      "score": 4,
+      "evidence": "8/9 达标：百子柜主立面 7×7 分格+铜环（act4 中央）、药案台面+腿层次（nav-act4-bench）、戥子杆盘砣贴桌（crops/act4_dengzi）、药材≥3 类绿/粉/黄堆+纸包（同 crop）、蒸汽局部碗上（act4 右碗白烟）、灯笼左壁暖光+柜冷光（nav-act4-entry）、左门雾+纵深（nav-act4-bench/exit）、右柜台木台+罐（act4 右）；缺：青瓷碗旧药渍不可辨（nav-act4-bench 碗内仅浅绿残汤）",
+      "reason": "7–8 项档=4；碗渍缺一项够不到 5"
+    },
+    "C2": {
+      "max": 5,
+      "score": 5,
+      "evidence": "8/8：洛书 8 1 6/3 5 7/4 9 2 刻字与 flow 踩板 1→9 一致（crops/act5_slab_texture 见 8/1/6）、石板非发光色块、刻字近看可辨、脚印暗椭圆磨痕（同 crop）、布幡宽大垂坠带破洞（act5 两侧）、八盏铜盏 7 亮 1 熄冒青烟（scene.ts:1588-1612 lampSpots 8 项、前景中盏熄）、低机位前景石栏入下角（nav-act5-entry）、冷青黑+幽绿黑位有层次（centerDark 27.7%）",
+      "reason": "7–8 项档=5；材质观感问题在 B3 扣，不重复"
+    },
+    "C3": {
+      "max": 5,
+      "score": 3,
+      "evidence": "6/8：桥拱侧视跨度厚度（nav-act6-side）、孟婆亭瓦垄起翘（crops/act6_pavilion）、六道轮盘位置尺度可读（act6 中后）、光门有光区轮廓（nav-act6-mid）、彼岸花成片（act6 两岸）、亡魂队列戴帽黑袍有层次（nav-act6-bridge/side）；缺：桥面为 uphill 台阶而非连续石桥面（nav-act6-bridge 明显踏步）、河面布幡误置深色竖块（nav-act6-side 左黑块+水中竖幡）",
+      "reason": "5–6 项档=3"
+    },
+    "D1": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log 步骤 4-10：四味君臣佐使顺序取药、戥子平反馈「药末落进碗里，汤色由白转清」、证据 C、半印④、北门已开；flow/01-medicine-solved.png 孟婆剧情对白",
+      "reason": "完整闭环且有剧情反馈"
+    },
+    "D2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log 步骤 11-24：误踩重置「错了。一盏幽冥灯灭了。重来。」、重置后可续行、跨格不误触 toast可见=false、踩板 1→9 每步「石板 N 下沉。还剩 X 步」、九板同亮",
+      "reason": "跨格不误触且反馈清晰"
+    },
+    "D3": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log 步骤 25-33：合符「六印合成。朱字浮出——那是你的笔迹。三条路已亮。」、结局矩阵 return/judge 已解锁、replace 未解锁带提示「结局未解锁：不忘汤 + 证据 A / B / D」、选择 return=还阳 / judge=留司；flow/04-ending-return.png、04-ending-judge.png",
+      "reason": "三结局条件与文案均成立"
+    },
+    "D4": {
+      "max": 1,
+      "score": 1,
+      "evidence": "flow-log 步骤 1-3 锁定/Esc 释放/重新锁定 pointerLockElement=true、hint=true；步骤 31 重开不残留 半印清零=true 结局面板隐藏=true；步骤 34 收尾 半印 0/6",
+      "reason": "提示、库存、Esc、重开均正常"
+    },
+    "F1": {
+      "max": 2,
+      "score": 2,
+      "evidence": "game/启动密室.bat:4 调 start-game.ps1；ps1:26-40 缺 Node/缺依赖均有中文提示并 pause；本轮 npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort 启动成功（curl 200）",
+      "reason": "一键启动与依赖缺失提示均成立"
+    },
+    "F2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "本目录 auto.json/capture.json/assets.json/assets-v2.json/visual.json/screens 三张/crops/nav 重拍十张（game/artifacts/nav mtime 19:56）/flow-log+5 张过程图；commit f33b1dd 写入 auto.json.meta；命令 run_auto.py、visual-check.mjs、flow-check.mjs、score.py 均可复现",
+      "reason": "截图、报告、提交号、可复现命令齐全"
+    }
+  }
+}
