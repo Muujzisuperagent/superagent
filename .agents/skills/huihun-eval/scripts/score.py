@@ -18,6 +18,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
+# 通过线（口径 v2.1）。2026-11-16 用户指令：由 80 上调至 95。
+# 旧版完整保留在 references/archive/score.v2.0.py（PASS_LINE=80，且有“有条件通过”档）。
+PASS_LINE = 95.0
+EXCELLENT_LINE = 98.0
+
 MAX = {
     "A1": 4,
     "A2": 2,
@@ -316,13 +321,12 @@ def main() -> int:
 
     if hard_fail:
         verdict = "打回重改（硬门槛）"
-    elif total >= 90:
+    elif total >= EXCELLENT_LINE:
         verdict = "优秀"
-    elif total >= 80:
+    elif total >= PASS_LINE:
         verdict = "通过"
-    elif total >= 70:
-        verdict = "有条件通过"
     else:
+        # v2.1 起取消“有条件通过”档：低于通过线一律打回重改，不设灰色结论。
         verdict = "打回重改"
 
     # Dimension rollups
@@ -389,7 +393,7 @@ def main() -> int:
         f"- 版本：`{meta.get('commit')}`",
         f"- 时间：{result['scoredAt']}",
         f"- 范围：{meta.get('scope')}",
-        f"- 结论：**{verdict}**（{total}/100，通过线 80）",
+        f"- 结论：**{verdict}**（{total}/100，通过线 {PASS_LINE:g}）",
         "",
         "## 维度得分",
         "",
@@ -458,7 +462,7 @@ def main() -> int:
         "",
         "## 规则",
         "",
-        "- 通过线 80 分；任一硬门槛失败直接打回。",
+        f"- 通过线 {PASS_LINE:g} 分（口径 v2.1）；任一硬门槛失败直接打回。",
         "- 只评四五六殿；前三殿由队友负责，不计分。",
         "- 每项分数必须有证据；无证据的分数按无效处理。",
     ]

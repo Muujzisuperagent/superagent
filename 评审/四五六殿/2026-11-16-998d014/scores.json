@@ -8,7 +8,7 @@
     "url": "http://127.0.0.1:5173",
     "scope": "acts 4-6 only; acts 1-3 excluded by product decision"
   },
-  "verdict": "有条件通过",
+  "verdict": "打回重改",
   "passed": false,
   "total": 72.7,
   "denominator": 100,
@@ -523,5 +523,5 @@
       "fix": "game/src/scene.ts（四殿药局道具与灯位）"
     }
   ],
-  "scoredAt": "2026-11-16T15:21:00"
+  "scoredAt": "2026-11-16T15:35:22"
 }
