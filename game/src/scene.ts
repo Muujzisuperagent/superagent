@@ -243,10 +243,17 @@ function label(parent: THREE.Object3D, text: string, position: [number, number, 
   context.lineWidth = 5
   context.strokeRect(8, 8, canvas.width - 16, canvas.height - 16)
   context.fillStyle = '#c9b78c'
-  context.font = '56px "Noto Serif SC", serif'
+  const maxTextWidth = canvas.width - 72
+  let fontSize = 56
+  context.font = `${fontSize}px "Noto Serif SC", serif`
+  const measuredWidth = context.measureText(text).width
+  if (measuredWidth > maxTextWidth) {
+    fontSize = Math.max(28, Math.floor(fontSize * maxTextWidth / measuredWidth))
+    context.font = `${fontSize}px "Noto Serif SC", serif`
+  }
   context.textAlign = 'center'
   context.textBaseline = 'middle'
-  context.fillText(text, canvas.width / 2, canvas.height / 2)
+  context.fillText(text, canvas.width / 2, canvas.height / 2, maxTextWidth)
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width / 4.8), new THREE.MeshStandardMaterial({ map: texture, roughness: 0.9, side: THREE.DoubleSide }))
@@ -1383,7 +1390,7 @@ export class EscapeWorld {
     light(group, [0, 1.75, -34.25], 0x8de1bc, 2.4, 0.04)
 
     const lampSpots: [number, number, number][] = [
-      [-4.6, 0.34, -23.6], [0, 0.34, -23.6], [4.6, 0.34, -23.6],
+      [-4.6, 0.34, -23.6], [0, 0.34, -24.65], [4.6, 0.34, -23.6],
       [-4.6, 0.34, -28], [4.6, 0.34, -28],
       [-4.6, 0.34, -32.5], [0, 0.34, -32.5], [4.6, 0.34, -32.5]
     ]
@@ -1396,7 +1403,7 @@ export class EscapeWorld {
       const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.18, 0.12, 18), BRONZE)
       cup.position.y = -0.07
       lamp.add(cup)
-      if (x === 0 && z === -23.6) {
+      if (x === 0 && z === -24.65) {
         const char = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 8), new THREE.MeshStandardMaterial({ color: 0x1a1d1a, roughness: 1 }))
         char.position.y = 0.08
         lamp.add(char)
@@ -1440,7 +1447,8 @@ export class EscapeWorld {
     light(group, [0, 2.9, -34.7], 0xcbd2b8, 14, 0.035)
 
     const omenSeal = new THREE.Group()
-    omenSeal.position.set(0, 2.72, -35.2)
+    // 半印置于匾额左上，避免与规则文字同高遮挡「一 ·」。
+    omenSeal.position.set(-1.45, 3.08, -35.2)
     group.add(omenSeal)
     box(omenSeal, [0.42, 0.18, 0.3], [-0.12, 0, 0], BRONZE)
     box(omenSeal, [0.13, 0.33, 0.18], [-0.23, 0.24, 0], BRONZE)
