@@ -10,7 +10,8 @@ page.on('pageerror', (error) => errors.push(error.message))
 await mkdir('artifacts', { recursive: true })
 await page.goto(pathToFileURL(resolve('index.html')).href)
 if (!(await page.getByText('请用启动器打开密室').isVisible())) throw new Error('file:// launch warning did not appear')
-const baseUrl = process.env.GAME_URL ?? 'http://127.0.0.1:5173'
+// 默认走 localhost：本机 Vite 只绑 IPv6 ::1，127.0.0.1 必然拒连。
+const baseUrl = process.env.GAME_URL ?? 'http://localhost:5173'
 for (const [view, file] of [['medicine', 'act4-medicine.png'], ['palace', 'act5-palace.png'], ['river', 'act6-reincarnation.png']]) {
   await page.goto(`${baseUrl}/?view=${view}&clean=1`, { waitUntil: 'networkidle' })
   // 等遮罩撤除信号（body[data-assets="ready"]），不猜固定毫秒；再留半秒让画面渲染完。

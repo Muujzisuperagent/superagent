@@ -5,7 +5,7 @@ import { chromium } from 'playwright'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const baseUrl = process.env.GAME_URL ?? 'http://127.0.0.1:5173'
+const baseUrl = process.env.GAME_URL ?? 'http://localhost:5173'
 const outDir = resolve('artifacts/flow')
 await mkdir(outDir, { recursive: true })
 
@@ -82,7 +82,11 @@ await record('锁定鼠标', `pointerLockElement=${locked}`, locked)
 if (!locked) throw new Error('pointer lock failed; flow cannot run')
 
 // —— D4：Esc 释放鼠标 → 提示浮现 → 点击重新锁定 ——
-await page.keyboard.press('Escape')
+// Playwright 的 press 会同时 down/up；浏览器里 Esc 由浏览器自身处理退出 pointer lock，
+// down 之后指针锁退出是异步的，因此 down 后逐帧等锁真的退出再松开。
+await page.keyboard.down('Escape')
+await page.waitForFunction(() => document.pointerLockElement === null, null, { timeout: 5000 })
+await page.keyboard.up('Escape')
 await frames(4)
 const escState = await page.evaluate(() => ({
   released: document.pointerLockElement === null,
@@ -119,32 +123,36 @@ await teleport(exit4.x, exit4.z + 1.2, [exit4.x, exit4.y, exit4.z])
 await record('四殿出门', await pressE())
 
 // —— 第五殿：洛书 1→9 踩板 ——
+const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
+const stoneAt = (value) => {
+  const row = layout.findIndex((line) => line.includes(value))
+  const column = layout[row].indexOf(value)
+  return { x: (column - 1) * 2.05, z: -25.7 - row * 2.05 }
+}
+const walkStone = async (value, settle = 6) => {
+  const { x, z } = stoneAt(value)
+  await teleport(x, z, [x, 0.3, z - 2])
+  await frames(settle)
+  return toastText()
+}
+// toast 的 toastTimer 按被钳制的 delta 累计，headless 下实际留存时长可能远超 3 s；不猜时长，等它真的隐藏。
+async function waitToastClear(timeout = 15000) {
+  await page.waitForFunction(() => document.getElementById('toast')?.classList.contains('hidden') ?? true, null, { timeout })
+}
 // D2 误踩用例：先踏 1，再踩一块非 2 的板，谜面必须重置（灯灭）。
 {
-  const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
-  const stoneAt = (value) => {
-    const row = layout.findIndex((line) => line.includes(value))
-    const column = layout[row].indexOf(value)
-    return { x: (column - 1) * 2.05, z: -25.7 - row * 2.05 }
-  }
-  const walkStone = async (value, settle = 6) => {
-    const { x, z } = stoneAt(value)
-    await teleport(x, z, [x, 0.3, z - 2])
-    await frames(settle)
-    return toastText()
-  }
   await walkStone(1)
   const wrongText = await walkStone(9)
   await record('五殿误踩重置', wrongText, wrongText.includes('错了') || wrongText.includes('重来'))
   const walkStone2 = await walkStone(1)
   await record('五殿重置后可续行', walkStone2, walkStone2.includes('石板 1'))
-  // D2 跨格用例：先等前一步的 toast（3s 留存）自然消退，再站到两块石板之间的空地上，不得触发任何踩板。
-  await page.waitForTimeout(3300)
+  // D2 跨格用例：等 toast 真实隐藏后，站到两块石板之间的空地上，不得触发任何踩板。
+  await waitToastClear()
   await teleport(1.03, -24.7, [0, 0.3, -28])
   await frames(10)
   const crossText = await toastText()
   await record('五殿跨格不误触', `toast="${crossText.slice(0, 24)}"`, !crossText.includes('石板'))
-  await page.waitForTimeout(3300)
+  await waitToastClear()
   await teleport(0, -23, [0, 0.3, -28])
   await frames(6)
 }
