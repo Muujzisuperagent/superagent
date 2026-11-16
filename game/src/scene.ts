@@ -1370,6 +1370,31 @@ export class EscapeWorld {
         if ((row + column) % 2 === 0) addFootprint(group, [x + 0.28, 0.26, z + 0.48], row * 0.35)
       }
     }
+    // 前景两侧低伏碎石补足空地细节；实例化绘制，避开铜盏且不侵占九宫路线。
+    const rubbleCount = 72
+    const rubble = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(0.22, 0), STONE, rubbleCount)
+    const rubbleTransform = new THREE.Object3D()
+    const scatter = (seed: number): number => {
+      const value = Math.sin(seed * 78.233) * 43758.5453
+      return value - Math.floor(value)
+    }
+    for (let index = 0; index < rubbleCount; index += 1) {
+      const side = index % 2 === 0 ? -1 : 1
+      const a = scatter(index + 3)
+      const b = scatter(index + 47)
+      const c = scatter(index + 91)
+      rubbleTransform.position.set(side * (3.7 + a * 2.35), 0.19, -22.7 - b * 2.8)
+      rubbleTransform.rotation.set(c * 0.35, a * Math.PI * 2, b * 0.3)
+      rubbleTransform.scale.set(0.35 + a * 0.9, 0.3 + c * 0.35, 0.45 + b * 1.05)
+      rubbleTransform.updateMatrix()
+      rubble.setMatrixAt(index, rubbleTransform.matrix)
+      rubble.setColorAt(index, new THREE.Color().setHSL(0.1, 0.055, 0.5 + c * 0.22))
+    }
+    rubble.instanceMatrix.needsUpdate = true
+    if (rubble.instanceColor) rubble.instanceColor.needsUpdate = true
+    rubble.receiveShadow = true
+    group.add(rubble)
+
     const altar = new THREE.Group()
     altar.position.set(0, 0, -34.25)
     group.add(altar)
