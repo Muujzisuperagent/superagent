@@ -3,6 +3,58 @@
   "generatedAt": "2026-11-14",
   "webpGeneratedAt": "2026-11-15",
   "webpNote": "webp/ 为 gltf-transform 转码副本：仅将 2048 PNG 贴图转 WebP，不压几何、不减面；原件保留在同目录。",
+  "v2GeneratedAt": "2026-11-16",
+  "v2Note": "lux3d-new/ 为 v2 原件；lux3d-new/opt/ 为 prune(删未用法线)+webp+meshopt(medium) 转码副本，scene.ts 默认优先加载 opt、原件兜底。validate 0 error 0 warning。",
+  "v2Assets": [
+    {
+      "id": "herbal-cabinet-v2",
+      "taskId": 8100487,
+      "file": "lux3d-new/herbal-cabinet-v2.glb",
+      "bytes": 14714492,
+      "sha256": "E22BDC5F90A3672627B9A1142AB0CB9263AC7D99C2F6AC0228AADF88BA69DCAF",
+      "opt": {
+        "file": "lux3d-new/opt/herbal-cabinet-v2.glb",
+        "bytes": 2090248,
+        "sha256": "161E99DA741BB77B44252680A3977E8920431C81CA14E4E1F82BB3D5B8D3430F"
+      }
+    },
+    {
+      "id": "nine-palace-v2",
+      "taskId": 8100912,
+      "file": "lux3d-new/nine-palace-v2.glb",
+      "bytes": 11636060,
+      "sha256": "EC3668F6C46BDF69CC0699A741B80DB68AA2CC1050F915824A633DD2BC0162A4",
+      "opt": {
+        "file": "lux3d-new/opt/nine-palace-v2.glb",
+        "bytes": 1490692,
+        "sha256": "BF2F144F8D0D4AD2EC94168096902B889FDDBFAA9118DFE4B00E379BDA373B65"
+      }
+    },
+    {
+      "id": "stone-bridge-v2",
+      "taskId": 8100935,
+      "file": "lux3d-new/stone-bridge-v2.glb",
+      "bytes": 18689704,
+      "sha256": "E3C10C30858829FB12EAEBD88857A97036DBBF725AFA94BA6D1E1B10D9DD47FF",
+      "opt": {
+        "file": "lux3d-new/opt/stone-bridge-v2.glb",
+        "bytes": 3239984,
+        "sha256": "A6A85351D3969E4A2C12B0BF9A34F53CECF2D4096F9563CDA48790DDAC976CB8"
+      }
+    },
+    {
+      "id": "spider-lily-v2",
+      "taskId": 8100943,
+      "file": "lux3d-new/spider-lily-v2.glb",
+      "bytes": 21916724,
+      "sha256": "9D874F1A76BFC4BD9381B1792CFBE7AE75FCD5B94CA7C853DCCA36CC9D97D210",
+      "opt": {
+        "file": "lux3d-new/opt/spider-lily-v2.glb",
+        "bytes": 3583424,
+        "sha256": "CB9330913BB3087931AA22CA762BF7AF0BC1FBB380DAF4CFB803EBAAC4C52559"
+      }
+    }
+  ],
   "assets": [
     {
       "id": "celadon-bowl",

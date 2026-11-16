@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { ACTS, type ActId } from './story'
 import { SCALE_WEIGHTS } from './puzzles_act23'
@@ -40,7 +41,9 @@ function surfaceTexture(kind: 'wood' | 'stone' | 'plaster' | 'cloth' | 'paper'):
       const y = Math.random() * 512
       context.fillRect(0, y, 512, 1 + Math.random() * 8)
     } else if (kind === 'cloth') {
+      // 经纬双向织纹：竖经 + 横纬，布幡读得出织物而非纸片
       context.fillRect(Math.random() * 512, 0, 1, 512)
+      context.fillRect(0, Math.random() * 512, 512, 1)
     } else {
       context.beginPath()
       context.ellipse(Math.random() * 512, Math.random() * 512, 3 + Math.random() * 35, 2 + Math.random() * 18, Math.random(), 0, Math.PI * 2)
@@ -96,19 +99,47 @@ const plasterTexture = surfaceTexture('plaster')
 const clothTexture = surfaceTexture('cloth')
 const paperTexture = surfaceTexture('paper')
 const mistMap = mistTexture()
+
+/** 铜器锈色贴图：旧铜底 + 青绿锈斑 + 暗褐氧化块，配合高 metalness 出金属高光。 */
+function bronzeTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 256
+  const context = canvas.getContext('2d')!
+  context.fillStyle = '#6f6046'
+  context.fillRect(0, 0, 256, 256)
+  for (let index = 0; index < 260; index += 1) {
+    const rust = index % 3 === 0 ? '#3f6b52' : index % 3 === 1 ? '#4a3a26' : '#8a7a55'
+    context.globalAlpha = 0.08 + Math.random() * 0.22
+    context.fillStyle = rust
+    context.beginPath()
+    context.ellipse(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 16, 2 + Math.random() * 10, Math.random(), 0, Math.PI * 2)
+    context.fill()
+  }
+  context.globalAlpha = 1
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+const bronzeMap = bronzeTexture()
 const STONE = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.04, color: 0x87908b, roughness: 0.78, metalness: 0.015 })
 const WET_STONE = new THREE.MeshPhysicalMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.065, color: 0x9aa7a1, roughness: 0.59, metalness: 0.015, clearcoat: 0.22, clearcoatRoughness: 0.44 })
 const DARK_STONE = new THREE.MeshStandardMaterial({ map: plasterTexture, bumpMap: plasterTexture, bumpScale: 0.035, color: 0x8a9188, roughness: 0.9 })
 const WOOD = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.025, color: 0x95876c, roughness: 0.62 })
-const BRONZE = new THREE.MeshStandardMaterial({ color: 0x827357, roughness: 0.52, metalness: 0.66 })
+const BRONZE = new THREE.MeshStandardMaterial({ map: bronzeMap, color: 0xffffff, roughness: 0.38, metalness: 0.82 })
 const MEDICINE_WOOD = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.04, color: 0xb29268, roughness: 0.74 })
-const CLOTH = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.025, color: 0xc6c5b3, roughness: 0.92, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
+// 四殿暖灰褐地基 / 暖棕墙：冷青只留给柜体与雾门
+const MEDICINE_STONE = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.04, color: 0x94826c, roughness: 0.8 })
+const MEDICINE_PLASTER = new THREE.MeshStandardMaterial({ map: plasterTexture, bumpMap: plasterTexture, bumpScale: 0.035, color: 0x8a7458, roughness: 0.9 })
+const CLOTH = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.025, color: 0x3f4f42, roughness: 0.92, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
 const PAPER = new THREE.MeshStandardMaterial({ map: paperTexture, color: 0xe0d7b8, emissive: 0x171408, emissiveIntensity: 0.12, roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
 const CELADON = new THREE.MeshPhysicalMaterial({ color: 0x718f83, roughness: 0.2, clearcoat: 0.9, clearcoatRoughness: 0.12 })
 const RED = new THREE.MeshStandardMaterial({ color: 0x761824, roughness: 0.7, side: THREE.DoubleSide })
 const TILE = new THREE.MeshStandardMaterial({ color: 0x2c3430, roughness: 0.88, metalness: 0.025 })
 const TILE_EDGE = new THREE.MeshStandardMaterial({ color: 0x4b564d, roughness: 0.74, metalness: 0.04 })
-const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.03, color: 0x8d8267, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
+const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.06, color: 0x3a4a3c, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
 const LILY_RED = new THREE.MeshStandardMaterial({ color: 0xe21c35, emissive: 0x8b0715, emissiveIntensity: 0.48, roughness: 0.65, side: THREE.DoubleSide })
 const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.085, color: 0x878879, roughness: 1, side: THREE.DoubleSide, flatShading: true })
 const SOUL_INNER = new THREE.MeshStandardMaterial({ map: clothTexture, color: 0x7b7d6c, roughness: 1, side: THREE.DoubleSide })
@@ -123,7 +154,7 @@ const WHEEL_SECTOR = [
 const bulbMaterials = new Map<number, THREE.MeshBasicMaterial>()
 const FOOTPRINT = new THREE.MeshBasicMaterial({ color: 0x182723, transparent: true, opacity: 0.46, depthWrite: false })
 const GHOST_FLAME = new THREE.MeshBasicMaterial({ color: 0x69e6a8 })
-const BANNER_MARK = new THREE.MeshStandardMaterial({ color: 0x34423c, roughness: 1, transparent: true, opacity: 0.72 })
+const BANNER_MARK = new THREE.MeshStandardMaterial({ color: 0x9aa08c, roughness: 1, transparent: true, opacity: 0.8 })
 const ROPE = new THREE.MeshStandardMaterial({ color: 0x6c6450, roughness: 1 })
 const BROTH = new THREE.MeshPhysicalMaterial({ color: 0x66776b, roughness: 0.2 })
 const STAR = new THREE.MeshStandardMaterial({ color: 0x93a493, metalness: 0.85, roughness: 0.3 })
@@ -440,6 +471,35 @@ function addTiledRoof(parent: THREE.Object3D, position: [number, number, number]
   const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.22, 8), TILE_EDGE)
   tip.position.y = height + 0.34
   roof.add(tip)
+  // 瓦脊：8 条沿四坡面剖面起伏的脊（每面 2 条），实例化单 draw call；直线脊会浮离坡面
+  const ridgeAngles = [0.16, -0.16, Math.PI / 2 + 0.16, Math.PI / 2 - 0.16, Math.PI + 0.16, Math.PI - 0.16, Math.PI * 1.5 + 0.16, Math.PI * 1.5 - 0.16]
+  const segmentsPerRidge = 5
+  const ridges = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.024, 0.03, 1, 5), TILE_EDGE, ridgeAngles.length * segmentsPerRidge)
+  const ridgeTransform = new THREE.Object3D()
+  const up = new THREE.Vector3(0, 1, 0)
+  const ridgePoint = (angle: number, t: number): THREE.Vector3 => {
+    const radius = (span / 2) * (1 - t * 0.88) * Math.cos(Math.PI / 4) / Math.cos(angle % (Math.PI / 2) > Math.PI / 4 ? Math.PI / 2 - (angle % (Math.PI / 2)) : angle % (Math.PI / 2))
+    return new THREE.Vector3(Math.cos(angle) * radius, roofHeightAt(t) + 0.035, Math.sin(angle) * radius)
+  }
+  let ridgeIndex = 0
+  for (const angle of ridgeAngles) {
+    for (let segment = 0; segment < segmentsPerRidge; segment += 1) {
+      const t0 = 0.04 + (segment / segmentsPerRidge) * 0.92
+      const t1 = 0.04 + ((segment + 1) / segmentsPerRidge) * 0.92
+      const p0 = ridgePoint(angle, t0)
+      const p1 = ridgePoint(angle, t1)
+      const direction = p1.clone().sub(p0)
+      ridgeTransform.position.copy(p0).add(p1).multiplyScalar(0.5)
+      ridgeTransform.quaternion.setFromUnitVectors(up, direction.clone().normalize())
+      ridgeTransform.scale.set(1, direction.length() * 1.12, 1)
+      ridgeTransform.updateMatrix()
+      ridges.setMatrixAt(ridgeIndex, ridgeTransform.matrix)
+      ridgeIndex += 1
+    }
+  }
+  ridges.instanceMatrix.needsUpdate = true
+  ridges.castShadow = true
+  roof.add(ridges)
   return roof
 }
 
@@ -453,7 +513,8 @@ function addLanternBracket(parent: THREE.Object3D, postX: number, postY: number,
 }
 
 function addLilyField(parent: THREE.Object3D): void {
-  const clusters = 240
+  // GLB v2 主簇承担前景，程序花海减量补中远景，避免重复抢戏与顶点浪费
+  const clusters = 120
   // 细长反卷瓣：窄长球壳沿瓣轴渐卷，尖端下垂；另加外伸蕊丝，去掉星芒感。
   const petalShape = new THREE.Shape()
   petalShape.moveTo(0, 0)
@@ -476,7 +537,8 @@ function addLilyField(parent: THREE.Object3D): void {
   let stamenIndex = 0
   for (let index = 0; index < clusters; index += 1) {
     const side = index % 2 === 0 ? -1 : 1
-    const onBank = index % 5 !== 0
+    // 桥头近景交给 GLB v2 主簇（土盘接地），程序花海只铺两岸中远景
+    const onBank = true
     const clump = Math.random() < 0.3 ? 0.45 : 1
     const x = onBank
       ? side * (9.2 + Math.random() * 4.9)
@@ -586,7 +648,7 @@ function addFootprint(parent: THREE.Object3D, position: [number, number, number]
   group.add(toes)
 }
 
-function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, number], scale = 1): THREE.Group {
+function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, number], scale = 1, variant = 0): THREE.Group {
   const soul = new THREE.Group()
   soul.position.set(...position)
   soul.scale.setScalar(scale)
@@ -608,17 +670,38 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   innerRobe.position.y = 0.83
   soul.add(innerRobe)
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), SOUL_HEAD)
-  head.position.y = 1.68
+  head.position.y = variant === 2 ? 1.56 : 1.68
   soul.add(head)
-  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.43, 0.055, 20), WOOD)
-  brim.position.y = 1.77
-  soul.add(brim)
-  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.2, 16), WOOD)
-  hat.position.y = 1.88
-  soul.add(hat)
-  const veil = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.48), CLOTH)
-  veil.position.set(0, 1.49, -0.12)
-  soul.add(veil)
+  if (variant === 0) {
+    // 套一：斗笠 + 垂面纱
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.43, 0.055, 20), WOOD)
+    brim.position.y = 1.77
+    soul.add(brim)
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.2, 16), WOOD)
+    hat.position.y = 1.88
+    soul.add(hat)
+    const veil = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.48), CLOTH)
+    veil.position.set(0, 1.49, -0.12)
+    soul.add(veil)
+  } else if (variant === 1) {
+    // 套二：兜帽裹头，无笠无纱
+    const hood = new THREE.Mesh(new THREE.ConeGeometry(0.27, 0.44, 12), robeMaterial)
+    hood.position.y = 1.8
+    soul.add(hood)
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.05, 6, 14), SOUL_INNER)
+    collar.rotation.x = Math.PI / 2
+    collar.position.y = 1.52
+    soul.add(collar)
+  } else {
+    // 套三：披巾伛偻小影，头低半寸
+    const shawl = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.5, 12, 1, true), SOUL_INNER)
+    shawl.position.y = 1.36
+    soul.add(shawl)
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.21, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), SOUL_ROBE)
+    cap.position.y = 1.6
+    soul.add(cap)
+    soul.rotation.x = 0.09
+  }
   for (const side of [-1, 1]) {
     const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.62, 8), robeMaterial)
     sleeve.position.set(side * 0.32, 1.02, 0.03)
@@ -725,6 +808,16 @@ export class EscapeWorld {
       ...(this.scaleRightPan ? [this.scaleRightPan] : []),
       ...(this.hourWeight ? [this.hourWeight] : [])
     ])
+    // 可替换 fallback 组先在组内合批，再整体加入 keep：
+    // 否则组内 mesh 会被殿级合批搬走，GLB 成功后 visible=false 只 hide 到空组（穿帮根因）。
+    const fallbackNames = ['medicine-cabinet-fallback', 'dengzi-fallback', 'celadon-bowl-fallback', 'stone-bridge-fallback', 'six-realm-wheel-fallback']
+    for (const name of fallbackNames) {
+      const group = this.root.getObjectByName(name)
+      if (group) {
+        bakeStatic(group, keep)
+        keep.add(group)
+      }
+    }
     for (const child of this.root.children) {
       if (child.userData.act || child.userData.corridor !== undefined) bakeStatic(child, keep)
     }
@@ -809,6 +902,13 @@ export class EscapeWorld {
       const mesh = node as THREE.Mesh
       if (mesh.isMesh && mesh.material === WOOD) mesh.material = MEDICINE_WOOD
     })
+    // B4：墙/地基改暖灰褐、暖棕主调；冷青只留柜体与雾门（后加构件不在此遍历内）
+    group.traverse((node) => {
+      const mesh = node as THREE.Mesh
+      if (!mesh.isMesh) return
+      if (mesh.material === STONE) mesh.material = MEDICINE_STONE
+      else if (mesh.material === DARK_STONE) mesh.material = MEDICINE_PLASTER
+    })
     // 暖色靠材质反照率与既有点光完成，避免额外逐像素灯开销。
     const sidePortal = new THREE.Group()
     group.add(sidePortal)
@@ -819,6 +919,22 @@ export class EscapeWorld {
     sideMist.rotation.y = Math.PI / 2
     sideMist.userData.mist = true
     group.add(sideMist)
+    // C1：门后 1.5m 昏暗廊道体量 + 双层乳白雾幕，门洞读作纵深而非纯黑
+    const sideCorridor = new THREE.Group()
+    group.add(sideCorridor)
+    box(sideCorridor, [1.6, 0.18, 4.9], [-7.9, -0.09, 0], DARK_STONE)
+    box(sideCorridor, [1.6, 3.3, 0.2], [-7.9, 1.65, -2.45], DARK_STONE)
+    box(sideCorridor, [1.6, 3.3, 0.2], [-7.9, 1.65, 2.45], DARK_STONE)
+    box(sideCorridor, [0.2, 3.3, 4.9], [-8.7, 1.65, 0], DARK_STONE)
+    box(sideCorridor, [1.6, 0.15, 4.9], [-7.9, 3.35, 0], DARK_STONE)
+    light(sideCorridor, [-8.0, 2.2, 0], 0x9fb8ac, 3.5, 0.04)
+    for (const [x, y, z, opacity] of [[-7.6, 1.6, 0, 0.75], [-8.2, 1.5, 0.6, 0.6]] as const) {
+      const corridorMist = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 3.1), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xd3ded4, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide }))
+      corridorMist.position.set(x, y, z)
+      corridorMist.rotation.y = Math.PI / 2
+      corridorMist.userData.mist = true
+      sideCorridor.add(corridorMist)
+    }
     label(group, '药库 · 雾廊', [-6.77, 3.6, 0], 1.8, false, Math.PI / 2)
     const cabinet = new THREE.Group()
     cabinet.name = 'medicine-cabinet-fallback'
@@ -1003,32 +1119,75 @@ export class EscapeWorld {
     addSteam(group, [4.4, 1.08, -5.5])
     addLantern(group, [5.35, 2.55, -4.0], 1.22)
     addLantern(group, [-5.8, 2.8, -2.4], 0.72)
-    light(group, [-4.5, 2.4, -5.8], 0xb4e7d5, 8, 0.055)
-    light(group, [0.2, 3.55, -5.7], 0xa9d6c5, 13, 0.05)
-    light(group, [0.2, 3.4, -1.5], 0xe4c493, 27, 0.065)
-    // 戥子程序几何：戥杆、秤盘、砣三件；秤盘朝上，杆沿桌面纵深。
+    light(group, [-4.5, 2.4, -5.8], 0xd9c193, 9, 0.055)
+    light(group, [0.2, 3.55, -5.7], 0xcbb489, 14, 0.05)
+    light(group, [0.2, 3.4, -1.5], 0xe4c493, 32, 0.065)
+    // 暖棕主调补光：相机侧暖填充 + 柜面暖洗光，压住全局冷半球光
+    light(group, [0, 3.6, 3.5], 0xd8b98a, 12, 0.06)
+    light(group, [0, 3.4, -4.6], 0xe4c493, 11, 0.06)
+    // 戥子程序几何：深铜杆架高出台面，杆—浅碟—小砣三件分离可辨
     const dengzi = new THREE.Group()
     dengzi.name = 'dengzi-fallback'
-    dengzi.position.set(1.85, 1.38, -0.92)
+    dengzi.position.set(1.85, 1.24, -0.92)
     dengzi.rotation.y = -0.55
     bench.add(dengzi)
-    const scaleMetal = new THREE.MeshStandardMaterial({ color: 0xc09b5b, metalness: 0.58, roughness: 0.44, emissive: 0x50320d, emissiveIntensity: 0.22 })
-    const beam = cylinder(dengzi, 0.023, 0.76, [0, 0.12, 0], scaleMetal)
+    const scaleMetal = new THREE.MeshStandardMaterial({ color: 0x8a6a33, metalness: 0.7, roughness: 0.4, emissive: 0x2a1a06, emissiveIntensity: 0.18 })
+    for (const x of [-0.3, 0.3]) roundedBox(dengzi, [0.05, 0.16, 0.05], [x, 0.08, 0], scaleMetal, 0.012)
+    const beam = cylinder(dengzi, 0.018, 0.8, [0, 0.18, 0], scaleMetal)
     beam.rotation.z = Math.PI / 2
-    const pan = bowl(dengzi, [-0.34, 0.015, 0], 0.14, 0.065, scaleMetal)
-    for (const z of [-0.085, 0.085]) {
-      const chain = cylinder(dengzi, 0.004, 0.23, [-0.34, 0.145, z], scaleMetal)
-      chain.rotation.x = z < 0 ? -0.48 : 0.48
+    const pan = bowl(dengzi, [-0.36, 0.02, 0], 0.15, 0.045, scaleMetal)
+    for (const z of [-0.09, 0.09]) {
+      const chain = cylinder(dengzi, 0.004, 0.17, [-0.36, 0.1, z], scaleMetal)
+      chain.rotation.x = z < 0 ? -0.5 : 0.5
     }
-    roundedBox(dengzi, [0.11, 0.1, 0.09], [0.23, 0.065, 0], scaleMetal, 0.012)
+    cylinder(dengzi, 0.004, 0.08, [0.3, 0.13, 0], scaleMetal)
+    cylinder(dengzi, 0.035, 0.09, [0.3, 0.06, 0], scaleMetal)
     const pivot = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.008, 6, 14), scaleMetal)
-    pivot.position.set(-0.05, 0.14, 0)
+    pivot.position.set(-0.05, 0.2, 0)
     dengzi.add(pivot)
 
     light(group, [0.7, 3.2, -6.1], 0x9bc9b7, 8, 0.05)
     // 纸钱成串贴墙 + 落地散张：不再随机 confetti（随机 z 曾落到相机脸上变成悬空大板）
-    addPaperString(group, [-6.7, 3.4, -3.6], 6, Math.PI / 2)
-    addPaperString(group, [-6.7, 3.1, -1.2], 5, Math.PI / 2)
+    // B1：左墙素纸换有内容药签架 + 垂幡，背板做接触阴影
+    const rack = new THREE.Group()
+    rack.position.set(-6.72, 2.35, -3.6)
+    rack.rotation.y = Math.PI / 2
+    group.add(rack)
+    const rackShadow = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.8), new THREE.MeshBasicMaterial({ color: 0x14100c, transparent: true, opacity: 0.5, depthWrite: false }))
+    rackShadow.position.z = -0.015
+    rack.add(rackShadow)
+    const rackCanvas = document.createElement('canvas')
+    rackCanvas.width = 512
+    rackCanvas.height = 512
+    const rackContext = rackCanvas.getContext('2d')!
+    rackContext.fillStyle = '#c9bd9c'
+    rackContext.fillRect(0, 0, 512, 512)
+    rackContext.strokeStyle = '#6b5a41'
+    rackContext.lineWidth = 3
+    const herbNames = ['当归', '远志', '合欢', '忘忧', '黄芪', '甘草', '茯苓', '半夏', '陈皮', '桂枝', '白芍', '川芎', '地黄', '麦冬', '五味', '枸杞', '丹参', '桔梗', '枳壳', '厚朴']
+    rackContext.fillStyle = '#3a2c1c'
+    rackContext.font = '40px "Noto Serif SC", serif'
+    rackContext.textAlign = 'center'
+    rackContext.textBaseline = 'middle'
+    for (let index = 0; index < herbNames.length; index += 1) {
+      const cx = 64 + (index % 4) * 128
+      const cy = 64 + Math.floor(index / 4) * 96
+      rackContext.strokeRect(cx - 52, cy - 40, 104, 80)
+      rackContext.fillText(herbNames[index], cx, cy)
+    }
+    rackContext.fillStyle = '#761824'
+    rackContext.fillRect(440, 452, 44, 44)
+    const rackTexture = new THREE.CanvasTexture(rackCanvas)
+    rackTexture.colorSpace = THREE.SRGBColorSpace
+    const rackFace = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.7), new THREE.MeshStandardMaterial({ map: rackTexture, roughness: 0.92 }))
+    rackFace.position.z = 0.012
+    rackFace.castShadow = true
+    rack.add(rackFace)
+    for (const [w, h, x, y] of [[1.86, 0.09, 0, 0.88], [1.86, 0.09, 0, -0.88], [0.09, 1.86, -0.88, 0], [0.09, 1.86, 0.88, 0]] as const) {
+      const strip = box(rack, [w, h, 0.06], [x, y, 0.02], MEDICINE_WOOD)
+      strip.castShadow = true
+    }
+    addRaggedBanner(group, [-6.68, 3.5, -1.2], [0.8, 1.9], Math.PI / 2)
     addPaperString(group, [6.7, 3.5, 1.6], 6, -Math.PI / 2)
     for (const [x, z, r] of [[-4.6, 2.6, 0.4], [-2.2, 3.4, 1.2], [3.4, 2.2, 2.1], [1.6, 4.2, 0.8], [-5.2, -3.4, 1.7]] as const) {
       addPaper(group, [x, 0.17, z], [0.24, 0.32], [-Math.PI / 2, 0, r], false)
@@ -1343,7 +1502,7 @@ export class EscapeWorld {
     // 墙/顶微 emissive + 冷青 rim：勾出大殿四至，不拉全局曝光
     const palaceStone = DARK_STONE.clone()
     palaceStone.emissive = new THREE.Color(0x0a1210)
-    palaceStone.emissiveIntensity = 0.4
+    palaceStone.emissiveIntensity = 0.25
     group.traverse((node) => {
       const mesh = node as THREE.Mesh
       if (mesh.isMesh && mesh.material === DARK_STONE) mesh.material = palaceStone
@@ -1396,6 +1555,17 @@ export class EscapeWorld {
     rubble.receiveShadow = true
     group.add(rubble)
 
+    // B5：前景两段石栏收左右下角；中央通路 2.40m，不挡 1 号刻字 / 熄灯 / 路线
+    for (const side of [-1, 1]) {
+      const rail = new THREE.Group()
+      rail.position.set(side * 3.1, 0, -23.05)
+      group.add(rail)
+      roundedBox(rail, [3.8, 0.12, 0.3], [0, 0.06, 0], STONE, 0.03)
+      roundedBox(rail, [3.8, 0.1, 0.26], [0, 0.85, 0], WET_STONE, 0.03)
+      for (const x of [-1.82, 1.82]) roundedBox(rail, [0.16, 0.9, 0.26], [x, 0.45, 0], STONE, 0.03)
+      for (const x of [-0.95, 0, 0.95]) roundedBox(rail, [0.08, 0.62, 0.1], [x, 0.47, 0], STONE, 0.02)
+    }
+
     const altar = new THREE.Group()
     altar.position.set(0, 0, -34.25)
     group.add(altar)
@@ -1442,7 +1612,7 @@ export class EscapeWorld {
         const flame = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.12, 8), GHOST_FLAME)
         flame.position.y = 0.12
         lamp.add(flame)
-        light(lamp, [0, 0.28, 0], 0x8de1bc, 4.2, 0.05)
+        light(lamp, [0, 0.28, 0], 0x8de1bc, 2.6, 0.05)
       }
     }
     for (const x of [-5.6, 5.6]) {
@@ -1467,10 +1637,11 @@ export class EscapeWorld {
     for (const [x, z, r] of [[-4.9, -22.6, 0.3], [4.4, -23.4, 1.1], [-3.6, -33.4, 2.0], [2.8, -33.8, 0.6], [0.4, -22.2, 1.6]] as const) {
       addPaper(group, [x, 0.17, z], [0.22, 0.3], [-Math.PI / 2, 0, r], false)
     }
-    light(group, [-4.7, 3.0, -24.8], 0xc3d4ca, 18, 0.035)
-    light(group, [4.7, 3.0, -30], 0xadcfc0, 18, 0.035)
-    light(group, [0, 4.5, -28], 0xb8d5c8, 28, 0.04)
-    light(group, [0, 2.9, -34.7], 0xcbd2b8, 14, 0.035)
+    // B4：五殿环境光降约 30%，near_black 回 25–35%、luma 0.08–0.11，刻字靠自发光对比仍可辨
+    light(group, [-4.7, 3.0, -24.8], 0xc3d4ca, 9, 0.035)
+    light(group, [4.7, 3.0, -30], 0xadcfc0, 9, 0.035)
+    light(group, [0, 4.5, -28], 0xb8d5c8, 14, 0.04)
+    light(group, [0, 2.9, -34.7], 0xcbd2b8, 9.5, 0.035)
 
     const omenSeal = new THREE.Group()
     // 半印置于匾额左上，避免与规则文字同高遮挡「一 ·」。
@@ -1480,7 +1651,15 @@ export class EscapeWorld {
     box(omenSeal, [0.13, 0.33, 0.18], [-0.23, 0.24, 0], BRONZE)
     light(omenSeal, [-0.15, 0.05, 0.1], 0xc6a66b, 2.2, 0.035)
     label(group, '问案台 · 取簿', [0, 1.95, -34.08], 2.6)
-    label(group, '忘川桥 →', [0.85, 1.35, -35.48], 1.25)
+    // B7：指路牌偏右低悬、独立吊杆，与规则匾额 / 半印互不遮挡
+    const signGroup = new THREE.Group()
+    signGroup.position.set(1.95, 1.62, -35.44)
+    signGroup.rotation.y = -0.1
+    group.add(signGroup)
+    label(signGroup, '忘川桥 →', [0, 0, 0], 1.25)
+    const signRod = cylinder(signGroup, 0.015, 1.35, [0, 0.2, 0], WOOD)
+    signRod.rotation.z = Math.PI / 2
+    for (const x of [-0.5, 0.5]) cylinder(signGroup, 0.008, 0.14, [x, 0.12, 0], ROPE)
     const threshold = new THREE.Mesh(new THREE.PlaneGeometry(2.45, 3.0), new THREE.MeshBasicMaterial({ map: mistMap, color: 0xb2c8bd, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }))
     threshold.position.set(0, 1.65, -36.5)
     threshold.userData.mist = true
@@ -1500,7 +1679,7 @@ export class EscapeWorld {
     context.fillText(text, 128, 132)
     const texture = new THREE.CanvasTexture(canvas)
     texture.colorSpace = THREE.SRGBColorSpace
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.82, depthWrite: false, side: THREE.DoubleSide })
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide })
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width), material)
     mesh.position.set(...position)
     mesh.rotation.x = -Math.PI / 2
@@ -1576,6 +1755,10 @@ export class EscapeWorld {
         course.rotation.x = Math.atan(Math.cos(t * Math.PI) * bridgeArchHeight * Math.PI / 20.4)
       }
     }
+    // GLB 桥体底在 -0.161（水面上 0.39m）：程序桥台墩下延到 -0.6 接住；属殿组，不随 fallback 隐藏
+    for (const side of [-1, 1]) {
+      for (const z of [-53.0, -71.8]) roundedBox(group, [0.95, 0.95, 1.75], [side * 2.15, -0.14, z], STONE, 0.04)
+    }
     roundedBox(group, [5.2, 0.32, 8.2], [0, 0.06, -76.1], WET_STONE, 0.055)
     for (let row = 0; row < 4; row += 1) {
       for (let column = 0; column < 8; column += 1) {
@@ -1620,7 +1803,7 @@ export class EscapeWorld {
         const cap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 8), WET_STONE)
         cap.position.set(side * 2.35, y + 0.75, z)
         bridgeVisual.add(cap)
-        if (index === 0 || index === 9) addLanternBracket(group, side * 2.35, y + 1.05, z, -side, 0.6)
+        if (index === 0 || index === 9) addLanternBracket(group, side * 2.06, y + 1.05, z, -side, 0.6)
       }
       const railCurvePoints: THREE.Vector3[] = []
       for (let index = 0; index <= 36; index += 1) {
@@ -1679,14 +1862,19 @@ export class EscapeWorld {
       pavilion.add(broth)
     }
 
+    // B10：三套剪影轮替 + 不等距步点，魂列读作队伍而非复制人
+    const soulGaps = [1.35, 1.72, 1.48, 1.9, 1.42, 1.66, 1.3, 1.84, 1.55, 1.7, 1.44, 1.62]
+    let soulZ = -53.4
     for (let index = 0; index < 12; index += 1) {
-      const z = -53.4 - index * 1.52 - (index % 3) * 0.22
-      const t = THREE.MathUtils.clamp((-z - 52.2) / 20.4, 0, 1)
+      if (index > 0) soulZ -= soulGaps[index - 1]
+      const t = THREE.MathUtils.clamp((-soulZ - 52.2) / 20.4, 0, 1)
       const y = 0.22 + Math.sin(Math.PI * t) * bridgeArchHeight
-      const soul = addSoulSilhouette(group, [-0.35 + Math.sin(index * 2.2) * 0.16, y + 0.02, z], 0.71 + (index % 4) * 0.025)
+      const variant = index % 3
+      const scale = variant === 2 ? 0.58 + (index % 2) * 0.03 : 0.71 + (index % 4) * 0.025
+      const soul = addSoulSilhouette(group, [-0.35 + Math.sin(index * 2.2) * 0.16, y + 0.02, soulZ], scale, variant)
       soul.rotation.y = Math.PI + Math.sin(index * 1.9) * 0.12
       soul.rotation.z = index % 3 === 1 ? 0.075 : 0
-      if (index % 3 === 2) {
+      if (index % 4 === 1) {
         const bundle = roundedBox(soul, [0.32, 0.4, 0.24], [0, 1.03, -0.26], PAPER, 0.04)
         bundle.rotation.z = -0.12
       }
@@ -2046,36 +2234,64 @@ export class EscapeWorld {
 
   private loadAssets(): void {
     const loader = new GLTFLoader()
-    // Lux3D 迁移中间态：?glb=1 打开四件 GLB 主资产，默认仍走程序几何；正式交付前评估去留。
-    const useLuxPrimary = new URLSearchParams(window.location.search).get('glb') === '1'
-    const proceduralBridge = !useLuxPrimary && /river/i.test(new URLSearchParams(window.location.search).get('view') ?? '')
+    loader.setMeshoptDecoder(MeshoptDecoder)
+    // Lux3D v2 为默认主资产（视觉占比硬要求）：opt 转码副本优先、原件兜底；
+    // 程序 fallback 默认可见，GLB 成功落位后才隐藏对应子件，加载失败不留空洞。
     const assets: {
       file: string
+      opt?: string
       position: [number, number, number]
       size: [number, number, number]
       rotation: number
       nonUniform?: boolean
       longAxis?: 'z'
+      layFlat?: boolean
       replaces?: string
+      clones?: { position: [number, number, number]; rotation?: number }[]
     }[] = [
-      { file: 'herbal-cabinet.glb', position: [0, 2.42, -7.02], size: [10.9, 4.35, 0.76], rotation: 0, nonUniform: true, replaces: 'medicine-cabinet-fallback' },
+      {
+        file: 'herbal-cabinet-v2.glb', opt: 'lux3d-new/opt/herbal-cabinet-v2.glb',
+        position: [-3.45, 2.42, -7.02], size: [4.0, 4.35, 0.76], rotation: 0, nonUniform: true,
+        replaces: 'medicine-cabinet-fallback', clones: [{ position: [3.45, 2.42, -7.02] }]
+      },
       { file: 'dengzi-scale.glb', position: [0.4, 1.66, -0.98], size: [1.48, 0.9, 0.61], rotation: 0, replaces: 'dengzi-fallback' },
       { file: 'celadon-bowl.glb', position: [3.25, 1.38, -1.48], size: [0.56, 0.3, 0.56], rotation: 0, replaces: 'celadon-bowl-fallback' },
-      // 彩釉 GLB 不覆盖湿青石九宫；加载仍验证，程序石板保留刻字与踩板反馈。
-      { file: 'nine-palace.glb', position: [0, 0.1, -28], size: [7, 0.22, 7], rotation: 0, nonUniform: true, replaces: 'nine-palace-fallback' },
-      { file: 'stone-bridge.glb', position: [0, 1.52, -62.4], size: [4.3, 2.6, 20.4], rotation: 0, nonUniform: true, longAxis: 'z', replaces: 'stone-bridge-fallback' },
+      {
+        // v2 原始姿态是竖立石屏风：layFlat 放倒后才是踩板阵；只隐九块程序板，刻字/脚印/反馈保留
+        file: 'nine-palace-v2.glb', opt: 'lux3d-new/opt/nine-palace-v2.glb',
+        position: [0, 0.13, -27.75], size: [6.05, 0.24, 6.05], rotation: 0, nonUniform: true, layFlat: true,
+        replaces: 'nine-palace-tiles'
+      },
+      {
+        file: 'stone-bridge-v2.glb', opt: 'lux3d-new/opt/stone-bridge-v2.glb',
+        position: [0, 1.339, -62.4], size: [4.3, 3.0, 20.4], rotation: 0, nonUniform: true, longAxis: 'z',
+        replaces: 'stone-bridge-fallback'
+      },
+      {
+        file: 'spider-lily-v2.glb', opt: 'lux3d-new/opt/spider-lily-v2.glb',
+        position: [9.6, 0.155, -55], size: [0.79, 0.75, 0.76], rotation: 0.4,
+        clones: [
+          { position: [11.2, 0.155, -58.5], rotation: 1.7 },
+          { position: [9.0, 0.155, -62], rotation: 2.9 },
+          { position: [-10.4, 0.155, -56.5], rotation: 0.9 },
+          { position: [-12.0, 0.155, -60.5], rotation: 2.2 },
+          { position: [-9.4, 0.155, -66], rotation: 4.1 },
+          { position: [3.4, 0.39, -49.6], rotation: 1.1 },
+          { position: [-3.6, 0.39, -74.2], rotation: 3.6 },
+          { position: [5.6, 0.5, -46.5], rotation: 2.4 },
+          { position: [-5.6, 0.5, -47.2], rotation: 5.2 }
+        ]
+      },
       { file: 'six-realm-wheel.glb', position: [0, 2.8, -75.6], size: [4.1, 4.1, 0.45], rotation: 0, nonUniform: true, replaces: 'six-realm-wheel-fallback' }
     ]
+    // 标量 profile 仅留给旧 GLB：v2 的 metallicRoughness 贴图逐像素调制，覆盖标量会破坏 authored 因子
     const materialProfiles: Record<string, { metalness: number; roughness: number }> = {
-      'dengzi-scale.glb': { metalness: 0.58, roughness: 0.46 },
-      'nine-palace.glb': { metalness: 0.02, roughness: 0.72 },
-      'herbal-cabinet.glb': { metalness: 0, roughness: 0.82 },
-      'stone-bridge.glb': { metalness: 0.03, roughness: 0.72 }
+      'dengzi-scale.glb': { metalness: 0.58, roughness: 0.46 }
     }
     for (const asset of assets) {
-      if (proceduralBridge && asset.file === 'stone-bridge.glb') continue
       const place = (gltf: { scene: THREE.Group }) => {
         const model = gltf.scene
+        if (asset.layFlat) model.rotateX(-Math.PI / 2)
         const bounds = new THREE.Box3().setFromObject(model)
         const dimensions = bounds.getSize(new THREE.Vector3())
         const center = bounds.getCenter(new THREE.Vector3())
@@ -2112,23 +2328,26 @@ export class EscapeWorld {
             }
           }
         })
-        // 石桥必须保留有真实拱腹的程序几何；GLB 仍加载校验，但不覆盖桥面与拱洞。
-        if (!useLuxPrimary && (asset.file === 'stone-bridge.glb' || asset.file === 'nine-palace.glb' || asset.file === 'herbal-cabinet.glb' || asset.file === 'dengzi-scale.glb')) wrapper.visible = false
-        this.root.add(wrapper)
-        if (asset.replaces && (useLuxPrimary || (asset.file !== 'stone-bridge.glb' && asset.file !== 'nine-palace.glb' && asset.file !== 'herbal-cabinet.glb' && asset.file !== 'dengzi-scale.glb'))) {
-          if (useLuxPrimary && asset.file === 'nine-palace.glb') {
-            // 只替换九块石板：建筑、布幡、铜盏、匾额与数字刻字必须继续可见。
-            this.ninePalaceAsset = wrapper
-            for (const tile of this.stones.values()) tile.visible = false
-          } else {
-            const fallback = this.root.getObjectByName(asset.replaces)
-            if (fallback) fallback.visible = false
-          }
+        const instances = [wrapper]
+        for (const clone of asset.clones ?? []) {
+          const copy = wrapper.clone()
+          copy.position.set(clone.position[0], clone.position[1], clone.position[2])
+          copy.rotation.y = clone.rotation ?? 0
+          instances.push(copy)
+        }
+        for (const instance of instances) this.root.add(instance)
+        if (asset.replaces === 'nine-palace-tiles') {
+          this.ninePalaceAsset = wrapper
+          for (const tile of this.stones.values()) tile.visible = false
+        } else if (asset.replaces) {
+          const fallback = this.root.getObjectByName(asset.replaces)
+          if (fallback) fallback.visible = false
         }
         if (asset.file === 'six-realm-wheel.glb') this.wheels.push(wrapper)
       }
-      const originalUrl = `/assets/generated/${asset.file}`
-      loader.load(`/assets/generated/webp/${asset.file}`, place, undefined, () => loader.load(originalUrl, place, undefined, () => undefined))
+      const originalUrl = asset.opt ? `/assets/generated/lux3d-new/${asset.file}` : `/assets/generated/${asset.file}`
+      const primaryUrl = asset.opt ? `/assets/generated/${asset.opt}` : `/assets/generated/webp/${asset.file}`
+      loader.load(primaryUrl, place, undefined, () => loader.load(originalUrl, place, undefined, () => undefined))
     }
   }
 }
