@@ -1343,7 +1343,8 @@ export class EscapeWorld {
     // 入口上方梁会挡住俯视机位上部 1/4，仅保留远端梁与两侧纵梁。
     box(group, [14, 0.22, 0.36], [0, 4.78, -33.2], WOOD)
     for (const x of [-5.4, 5.4]) box(group, [0.36, 0.22, 10], [x, 4.78, -28], WOOD)
-    for (let index = -2; index <= 2; index += 2) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, -28], WOOD)
+    // 中央细木条离俯视机位仅 1.84 m，会投成黑竖条挡住规则匾额，故不建；两侧梁保留。
+    for (const index of [-2, 2]) box(group, [0.08, 0.09, 10.3], [index * 1.55, 4.72, -28], WOOD)
     // 不再放悬空藻井锥体：它遮住案台规则匾额，且没有结构依托。
     const layout = [[8, 1, 6], [3, 5, 7], [4, 9, 2]]
     const stoneMaterials = Array.from({ length: 3 }, () => WET_STONE.clone())
