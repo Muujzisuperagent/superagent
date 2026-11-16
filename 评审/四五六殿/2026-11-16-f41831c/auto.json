@@ -1,0 +1,398 @@
+{
+  "meta": {
+    "generatedAt": "2026-11-16T21:09:32",
+    "repo": "D:\\群核科技黑客松",
+    "game": "D:\\群核科技黑客松\\game",
+    "commit": "f41831c",
+    "url": "http://127.0.0.1:5173",
+    "scope": "acts 4-6 only; acts 1-3 excluded by product decision"
+  },
+  "steps": {
+    "capture": {
+      "cmd": [
+        "node",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\capture.mjs",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c",
+        "--url",
+        "http://127.0.0.1:5173",
+        "--game",
+        "D:\\群核科技黑客松\\game",
+        "--sample-ms",
+        "2200",
+        "--settle-ms",
+        "6000"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 28.97,
+      "stdout_tail": "{\"ok\":true,\"out\":\"D:\\\\群核科技黑客松\\\\评审\\\\四五六殿\\\\2026-11-16-f41831c\\\\capture.json\",\"views\":[\"medicine\",\"palace\",\"river\"]}\n",
+      "stderr_tail": ""
+    },
+    "assets": {
+      "cmd": [
+        "node",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\check_assets.mjs",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c",
+        "--game",
+        "D:\\群核科技黑客松\\game"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 0.32,
+      "stdout_tail": "{\"ok\":true,\"out\":\"D:\\\\群核科技黑客松\\\\评审\\\\四五六殿\\\\2026-11-16-f41831c\\\\assets.json\",\"fileCount\":6,\"errorFiles\":[],\"totalErrors\":0,\"totalWarnings\":0,\"totalTriangles\":193610}\n",
+      "stderr_tail": ""
+    },
+    "visual": {
+      "cmd": [
+        "C:\\Users\\lenovo\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\scripts\\visual_score.py",
+        "--screens",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens",
+        "--out",
+        "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c",
+        "--thresholds",
+        "D:\\群核科技黑客松\\.agents\\skills\\huihun-eval\\references\\thresholds.json"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 0.65,
+      "stdout_tail": "{\"ok\": true, \"out\": \"D:\\\\Ⱥ�˿Ƽ��ڿ���\\\\����\\\\��������\\\\2026-11-16-f41831c\\\\visual.json\", \"mode\": \"stats\", \"b1\": 72.11, \"tech\": 72.11, \"b2\": null, \"blank\": []}\n",
+      "stderr_tail": ""
+    }
+  },
+  "build": {
+    "cmd": [
+      "C:\\Program Files\\nodejs\\npm.cmd",
+      "run",
+      "build"
+    ],
+    "code": 0,
+    "ok": true,
+    "seconds": 4.08,
+    "stdout_tail": "\n> escape-room-3d@0.1.0 build\n> tsc --noEmit && vite build\n\n\u001b[36mvite v7.3.8 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m✓\u001b[39m 15 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  2.43 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:   1.33 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[35massets/index-BVTLhCkG.css  \u001b[39m\u001b[1m\u001b[2m  6.77 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:   2.16 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/index-Cq3sraZK.js   \u001b[39m\u001b[1m\u001b[2m 92.72 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:  35.04 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/three-Bx760bwj.js   \u001b[39m\u001b[1m\u001b[33m661.43 kB\u001b[39m\u001b[22m\u001b[2m │ gzip: 174.44 kB\u001b[22m\n\u001b[32m✓ built in 1.32s\u001b[39m\n",
+    "stderr_tail": "\u001b[33m\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m\n",
+    "tests": {
+      "cmd": [
+        "C:\\Program Files\\nodejs\\npm.cmd",
+        "test"
+      ],
+      "code": 0,
+      "ok": true,
+      "seconds": 1.6,
+      "stdout_tail": "\n> escape-room-3d@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.12 \u001b[39m\u001b[90mD:/群核科技黑客松/game\u001b[39m\n\n \u001b[32m✓\u001b[39m tests/act23.test.ts \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/story.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/puzzle.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m3 passed\u001b[39m\u001b[22m\u001b[90m (3)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m26 passed\u001b[39m\u001b[22m\u001b[90m (26)\u001b[39m\n\u001b[2m   Start at \u001b[22m 21:09:38\n\u001b[2m   Duration \u001b[22m 310ms\u001b[2m (transform 58ms, setup 0ms, import 95ms, tests 9ms, environment 0ms)\u001b[22m\n\n",
+      "stderr_tail": ""
+    },
+    "tests_ok": true
+  },
+  "server": {
+    "ok": true,
+    "pid": 45188,
+    "startedByEval": true
+  },
+  "capture": {
+    "baseUrl": "http://127.0.0.1:5173",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "capturedAt": "2026-11-16T13:09:44.223Z",
+    "views": {
+      "medicine": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens\\act4-medicine.png",
+        "loadMs": 589,
+        "frames": 132,
+        "seconds": 2.2043999999985098,
+        "fps": 59.880239520998565,
+        "drawsPerFrame": 310,
+        "mainDrawsPerFrame": 258,
+        "jsHeapMB": 59.895381927490234,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "palace": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens\\act5-palace.png",
+        "loadMs": 665,
+        "frames": 128,
+        "seconds": 2.20310000000149,
+        "fps": 58.09995007031611,
+        "drawsPerFrame": 205,
+        "mainDrawsPerFrame": 153,
+        "jsHeapMB": 70.24265098571777,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "river": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens\\act6-reincarnation.png",
+        "loadMs": 556,
+        "frames": 133,
+        "seconds": 2.206699999999255,
+        "fps": 60.2709928853242,
+        "drawsPerFrame": 125,
+        "mainDrawsPerFrame": 73,
+        "jsHeapMB": 86.31268501281738,
+        "canvas": 1,
+        "gpu": {
+          "vendor": "Google Inc. (Intel)",
+          "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      }
+    },
+    "summary": {
+      "canvas": 1,
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    }
+  },
+  "assets": {
+    "assetDir": "D:\\群核科技黑客松\\game\\public\\assets\\generated",
+    "summary": {
+      "fileCount": 6,
+      "errorFiles": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "totalTriangles": 193610
+    },
+    "files": [
+      {
+        "file": "celadon-bowl.glb",
+        "bytes": 9050216,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 26512,
+        "vertices": 15371,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "dengzi-scale.glb",
+        "bytes": 9016280,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 25766,
+        "vertices": 18979,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "herbal-cabinet.glb",
+        "bytes": 10434932,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 37910,
+        "vertices": 33978,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "nine-palace.glb",
+        "bytes": 13267936,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 23488,
+        "vertices": 28122,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "six-realm-wheel.glb",
+        "bytes": 8674220,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 35620,
+        "vertices": 25124,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      },
+      {
+        "file": "stone-bridge.glb",
+        "bytes": 9496300,
+        "errors": 0,
+        "warnings": 0,
+        "infos": 0,
+        "triangles": 44314,
+        "vertices": 36258,
+        "images": null,
+        "extensionsUsed": [],
+        "topIssues": []
+      }
+    ]
+  },
+  "visual": {
+    "ok": true,
+    "screens": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens",
+    "refs": null,
+    "metric_mode": "stats",
+    "pyiqa_error": "No module named 'pyiqa'",
+    "views": {
+      "medicine": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens\\act4-medicine.png",
+        "file": "act4-medicine.png",
+        "width": 1440,
+        "height": 900,
+        "mean_luma": 0.1215,
+        "std_luma": 0.1374,
+        "near_black_ratio": 0.273,
+        "near_white_ratio": 0.0,
+        "mean_saturation": 0.5753,
+        "entropy": 4.324,
+        "sharpness": 0.007003,
+        "colorfulness": 0.0876,
+        "blank": false,
+        "metrics": {},
+        "normalized": {},
+        "tech_normalized": {
+          "sharpness": 86.15,
+          "contrast": 81.17,
+          "entropy": 72.96,
+          "colorfulness": 84.5
+        },
+        "tech_score": 81.19,
+        "b1": 81.19,
+        "reference": null,
+        "lpips": null,
+        "lpips_normalized": null
+      },
+      "palace": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens\\act5-palace.png",
+        "file": "act5-palace.png",
+        "width": 1440,
+        "height": 900,
+        "mean_luma": 0.1147,
+        "std_luma": 0.1134,
+        "near_black_ratio": 0.3223,
+        "near_white_ratio": 0.0,
+        "mean_saturation": 0.446,
+        "entropy": 3.721,
+        "sharpness": 0.005967,
+        "colorfulness": 0.0605,
+        "blank": false,
+        "metrics": {},
+        "normalized": {},
+        "tech_normalized": {
+          "sharpness": 71.76,
+          "contrast": 61.17,
+          "entropy": 48.84,
+          "colorfulness": 50.62
+        },
+        "tech_score": 58.1,
+        "b1": 58.1,
+        "reference": null,
+        "lpips": null,
+        "lpips_normalized": null
+      },
+      "river": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-16-f41831c\\screens\\act6-reincarnation.png",
+        "file": "act6-reincarnation.png",
+        "width": 1440,
+        "height": 900,
+        "mean_luma": 0.2961,
+        "std_luma": 0.1976,
+        "near_black_ratio": 0.1064,
+        "near_white_ratio": 0.0,
+        "mean_saturation": 0.1992,
+        "entropy": 3.889,
+        "sharpness": 0.007787,
+        "colorfulness": 0.0644,
+        "blank": false,
+        "metrics": {},
+        "normalized": {},
+        "tech_normalized": {
+          "sharpness": 97.04,
+          "contrast": 100.0,
+          "entropy": 55.56,
+          "colorfulness": 55.5
+        },
+        "tech_score": 77.03,
+        "b1": 77.03,
+        "reference": null,
+        "lpips": null,
+        "lpips_normalized": null
+      }
+    },
+    "b1": 72.11,
+    "tech_score": 72.11,
+    "b2": null,
+    "blank_views": [],
+    "thresholds": {
+      "_comment": "Merge of the old 3D art rubric (0-4) and the engineering gates. Technical fallback thresholds calibrated 2026-11-15 on the three current act screenshots. pyiqa thresholds are optional and only used when pyiqa is installed.",
+      "sharpness": {
+        "type": "higher",
+        "bad": 0.0008,
+        "good": 0.008
+      },
+      "contrast": {
+        "type": "higher",
+        "bad": 0.04,
+        "good": 0.16
+      },
+      "entropy": {
+        "type": "higher",
+        "bad": 2.5,
+        "good": 5.0
+      },
+      "colorfulness": {
+        "type": "higher",
+        "bad": 0.02,
+        "good": 0.1
+      },
+      "musiq": {
+        "type": "higher",
+        "bad": 35.0,
+        "good": 65.0
+      },
+      "clipiqa+": {
+        "type": "higher",
+        "bad": 0.3,
+        "good": 0.6
+      },
+      "niqe": {
+        "type": "lower",
+        "good": 4.0,
+        "bad": 9.0
+      },
+      "topiq_nr": {
+        "type": "higher",
+        "bad": 0.3,
+        "good": 0.6
+      },
+      "brisque": {
+        "type": "lower",
+        "good": 20.0,
+        "bad": 60.0
+      },
+      "lpips": {
+        "type": "lower",
+        "good": 0.15,
+        "bad": 0.5
+      }
+    }
+  }
+}

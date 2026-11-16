@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "commit": "f41831c",
+  "date": "2026-11-16",
+  "flow_reachable": {
+    "value": true,
+    "evidence": "game/artifacts/flow/flow-log.json：ranAt=2026-11-16T13:12:38.947Z（本地 21:12:38，晚于 HEAD f41831c 提交 21:06:21）；34/34 步 ok=true，failed=[]，pageErrors=[]；四殿取四味→证据 C→半印④→出门、五殿误踩重置+跨格不误触+1→9→证据 D→半印⑤、六殿合符→[return,judge] 解锁→选择 return/judge→重开不残留→未齐印被拒；过程图 01/02/03/04-return/04-judge/05-ending-panel.png（mtime 21:12）。命令 GAME_URL=http://127.0.0.1:5173 node.exe tests/flow-check.mjs 输出 {\"ok\":true,\"failed\":[],\"pageErrors\":[]}"
+  },
+  "criteria": {
+    "A3": {
+      "max": 4,
+      "score": 1,
+      "evidence": "nav-act6-bridge.png/nav-act6-mid.png/flow/03-combined.png 桥 GLB 栏板与桥面呈白色半透明竖刺+黑色三角黑洞碎片；crops/act6_combine_top.png 合符台木盒埋入桥面只露一条边（scene.ts:2172 y=1.25 低于桥面）；crops/act4_cabinet_left.png 开抽屉为贴面黑/棕方块无抽屉体；柜/戥子/碗/花落地仍成立（nav-act4-bench、crops/act6_flowers_left 根盘接地）",
+      "reason": "桥材质/几何破碎与合符台穿模属明显失败，够不到 2 的「能用但需修」"
+    },
+    "B1": {
+      "max": 4,
+      "score": 2,
+      "evidence": "screens/act4-medicine.png 主焦点药案+戥子、act5 九宫+匾额、act6 亭左桥右对角线仍成立；但 crops/act5_ceiling.png 灰平板天花占交付帧上缘约 26% 压顶、act6 桥破碎白刺抢走主焦点",
+      "reason": "主目标可辨但压顶与破碎焦点破坏构图，基本可用但需修改"
+    },
+    "B2": {
+      "max": 4,
+      "score": 2,
+      "evidence": "act4 暖棕主光+柜冷光、nav-act4-exit 门内雾光✓；act5 铜盏幽绿、centerDark 27.6%✓但灰天花 RGB(69,77,71) 抬亮破坏近黑；act6 雾改乳白 RGB(119,122,115) 无矩形边✓但雾无层次、nav-act6-side/bridge 河面下约 35% 纯黑无信息、桥白刺过曝",
+      "reason": "光源与可读性大体成立，暗部/过曝两端仍有明显问题"
+    },
+    "B3": {
+      "max": 4,
+      "score": 1,
+      "evidence": "crops/act6_bridge_rail.png 栏板白色玻璃刺+穿孔、nav-act6-mid.png 桥面黑色碎片洞；crops/act5_slab 区（screens/act5）石板为 painted 绿面无湿石纹理；crops/act4_cabinet_left.png 贴面黑方块；木/铜/纸/碗渍仍可信（crops/act4_bowl.png 褐渍环）",
+      "reason": "桥与石板材质失真严重，明显问题档"
+    },
+    "B4": {
+      "max": 4,
+      "score": 2,
+      "evidence": "act4 暖像素 62.5% vs 冷 0.0%✓；act6 冷像素 10.6%（上轮 54.6%）乳白雾+彼岸红✓；但 crops/act5_red_banners.png 五殿匾额两侧新增纯红窄幡（六殿语汇）、act5 灰天花偏离冷青黑",
+      "reason": "六殿雾色修好，五殿新增红窄幡与灰顶造成配色违约，基本可用但需修改"
+    },
+    "B5": {
+      "max": 4,
+      "score": 3,
+      "evidence": "nav-act4-entry.png 柜 4.35m 与人体参照可信；nav-act6-side.png 桥拱跨度厚度可读；nav-act5-center.png 九宫 6.05m 与 1.65m 眼高比例成立；nav-act6-end.png 锅碗比例可信",
+      "reason": "比例与空间层次成立；合符台埋没属穿模计入 A3/B10"
+    },
+    "B6": {
+      "max": 4,
+      "score": 3,
+      "evidence": "crops/act4_yaoqian 区药签真字、戥子君臣佐使、flow/01 孟婆对白、flow/03 崔珏结案、crops/05-ending-panel.png 三路径「还阳/顶名/留司」+未解锁条件文案；半印/路引/证据链齐全",
+      "reason": "道具与建筑语汇服务剧情，无违约物件"
+    },
+    "B7": {
+      "max": 4,
+      "score": 2,
+      "evidence": "四殿暖木石/五殿冷青/六殿乳白红本应分幕连贯；但五殿红窄幡挪用六殿彼岸红、五殿灰天花与四殿暖天花语汇断裂、六殿桥白刺与四殿木石细节密度断裂（screens 三幕对照）",
+      "reason": "跨幕语汇出现两处明显串色/串材质，基本可用但需修改"
+    },
+    "B8": {
+      "max": 4,
+      "score": 2,
+      "evidence": "nav-act5-center.png 修好低机位见九宫+出口牌、nav-act6-mid.png 朝桥终点✓；nav-act4-bench.png nearby-list 物名+距离✓；crops/05-ending-panel.png 三路径可指认✓；但 crops/act6_combine_top.png 合符台埋入桥面不可指认、nav-act6-mid 桥面碎片误导可走路线",
+      "reason": "机位修好但合符点与桥面可读性新坏，基本可用但需修改"
+    },
+    "B9": {
+      "max": 4,
+      "score": 4,
+      "evidence": "操作前 screens/act4「半印 0/6 未配 证据 A」→ flow/01「半印 1/6 已收 证据 A/C」+toast+孟婆对白+nearby 3 条；flow/03「半印 3/6 证据 A/C/D」+toast；crops/05-ending-panel.png 选择前三路径面板+prompt「E·顶名（未解锁：不忘汤+证据 A/B/D）」+nearby 2 条；style.css lock-hint 不压刻字",
+      "reason": "前后对照、选择前面板、toast、对白、nearby 全齐且可读，有证据的出色实现"
+    },
+    "B10": {
+      "max": 4,
+      "score": 0,
+      "evidence": "nav-act6-bridge/mid/side 与 flow/03 桥栏白刺+桥面黑洞碎片（严重）；crops/act6_combine_top.png 合符台穿模埋没；crops/act4_cabinet_left/right.png 开抽屉贴面黑/棕方块；crops/act5_ceiling.png 灰平板天花；crops/act5_red_banners.png 红窄幡硬边无垂坠；crops/05-ending-panel.png 左右硬边梯形雾片",
+      "reason": "六处可见缺陷含桥体破碎与穿模两类严重失败，0 档"
+    },
+    "C1": {
+      "max": 5,
+      "score": 5,
+      "evidence": "9/9：百子柜主立面分格+铜环（screens/act4）、药案台面+腿层次（nav-act4-bench）、戥子杆盘砣贴桌、药材≥3 类+纸包、青瓷碗碗体碗沿+褐药渍环（crops/act4_bowl.png）、碗上局部蒸汽、左壁灯笼暖光+柜冷光、左门雾+纵深（nav-act4-bench/exit）、右木柜台+罐",
+      "reason": "9 项全达=5；柜面贴面黑块属质量问题在 B10 扣"
+    },
+    "C2": {
+      "max": 5,
+      "score": 5,
+      "evidence": "8/8：洛书 8 1 6/3 5 7/4 9 2 与 flow 踩板一致（nav-act5-center 刻字）、石板非发光色块、刻字近看可辨、脚印磨痕、侧墙宽绿布幡垂坠带破洞（screens/act5 两侧）、八盏铜盏 7 亮 1 熄（scene.ts lampSpots）、低机位前景石栏（nav-act5-entry/center）、冷青黑+幽绿黑位有层次（centerDark 27.6%、nb 32.23%）",
+      "reason": "7–8 项档=5；红窄幡与灰天花属质量/配色问题在 B4/B10 扣"
+    },
+    "C3": {
+      "max": 5,
+      "score": 5,
+      "evidence": "8/8：桥拱侧视跨度厚度（nav-act6-side）、桥面连续无台阶（nav-act6-bridge）、孟婆亭瓦垄起翘（screens/act6 左）、六道轮盘位置尺度可读、光门白框光区（crops/05-ending-panel）、彼岸花成片+根盘接地（crops/act6_flowers_left）、亡魂戴帽黑袍队列（nav-act6-mid）、河面竖幡已撤（nav-act6-side/bridge 水中无竖块）",
+      "reason": "7–8 项档=5；桥体破碎属质量问题在 B3/B10 扣"
+    },
+    "D1": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log 步骤 4-10 四味顺序+戥子平反馈+证据 C+半印④+北门已开；flow/01 孟婆剧情对白",
+      "reason": "完整闭环且有剧情反馈"
+    },
+    "D2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log 步骤 11-24 误踩重置+重置续行+跨格不误触 toast可见=false+1→9 每步反馈+九板同亮",
+      "reason": "跨格不误触且反馈清晰"
+    },
+    "D3": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log 步骤 25-33 合符+结局矩阵 return/judge 解锁、replace 未解锁带条件提示+选择 return=还阳/judge=留司；crops/05-ending-panel.png 选择前面板三路径",
+      "reason": "三结局条件与文案均成立"
+    },
+    "D4": {
+      "max": 1,
+      "score": 1,
+      "evidence": "flow-log 步骤 1-3 锁定/Esc/重锁 pointerLockElement=true hint=true；步骤 31 重开半印清零+面板隐藏；步骤 34 收尾 0/6",
+      "reason": "提示、库存、Esc、重开均正常"
+    },
+    "F1": {
+      "max": 2,
+      "score": 2,
+      "evidence": "game/启动密室.bat:4 调 start-game.ps1；ps1:26-40 缺 Node/缺依赖中文提示+pause；本轮 npm.cmd run dev --host 127.0.0.1 --port 5173 --strictPort 启动 curl 200",
+      "reason": "一键启动与依赖提示成立"
+    },
+    "F2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "本目录 auto/capture/assets/assets-v2 沿用/visual/assets-share.json/screens 三张/crops/nav 十张重拍（mtime 21:11）/flow-log+6 张过程图含 05-ending-panel；commit f41831c 写入 auto.json.meta；run_auto/visual-check/flow-check/score 命令可复现",
+      "reason": "截图、报告、提交号、可复现命令齐全"
+    }
+  }
+}
