@@ -1,0 +1,33 @@
+{
+  "assetDir": "D:/群核科技黑客松/game/public/assets/generated/lux3d-new/opt",
+  "files": [
+    {
+      "file": "herbal-cabinet-v2.glb",
+      "bytes": 2090248,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 186028
+    },
+    {
+      "file": "nine-palace-v2.glb",
+      "bytes": 1490692,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 167138
+    },
+    {
+      "file": "spider-lily-v2.glb",
+      "bytes": 3583424,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 210412
+    },
+    {
+      "file": "stone-bridge-v2.glb",
+      "bytes": 3239984,
+      "errors": 0,
+      "warnings": 0,
+      "triangles": 279036
+    }
+  ]
+}
