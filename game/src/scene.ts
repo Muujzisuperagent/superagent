@@ -2040,8 +2040,9 @@ export class EscapeWorld {
 
   private loadAssets(): void {
     const loader = new GLTFLoader()
-    // 六殿预览走程序几何：石桥 GLB 会遮住新做的拱腹侧影。
-    const proceduralBridge = /river/i.test(new URLSearchParams(window.location.search).get('view') ?? '')
+    // Lux3D 迁移中间态：?glb=1 打开四件 GLB 主资产，默认仍走程序几何；正式交付前评估去留。
+    const useLuxPrimary = new URLSearchParams(window.location.search).get('glb') === '1'
+    const proceduralBridge = !useLuxPrimary && /river/i.test(new URLSearchParams(window.location.search).get('view') ?? '')
     const assets: {
       file: string
       position: [number, number, number]
@@ -2052,7 +2053,7 @@ export class EscapeWorld {
       replaces?: string
     }[] = [
       { file: 'herbal-cabinet.glb', position: [0, 2.42, -7.02], size: [10.9, 4.35, 0.76], rotation: 0, nonUniform: true, replaces: 'medicine-cabinet-fallback' },
-      { file: 'dengzi-scale.glb', position: [1.72, 1.29, -1.48], size: [0.82, 0.5, 0.34], rotation: Math.PI / 2 },
+      { file: 'dengzi-scale.glb', position: [1.72, 1.29, -1.48], size: [0.82, 0.5, 0.34], rotation: Math.PI / 2, replaces: 'dengzi-fallback' },
       { file: 'celadon-bowl.glb', position: [3.25, 1.38, -1.48], size: [0.56, 0.3, 0.56], rotation: 0, replaces: 'celadon-bowl-fallback' },
       // 彩釉 GLB 不覆盖湿青石九宫；加载仍验证，程序石板保留刻字与踩板反馈。
       { file: 'nine-palace.glb', position: [0, -0.12, -28], size: [7, 0.22, 7], rotation: 0, nonUniform: true, replaces: 'nine-palace-fallback' },
@@ -2091,9 +2092,9 @@ export class EscapeWorld {
           }
         })
         // 石桥必须保留有真实拱腹的程序几何；GLB 仍加载校验，但不覆盖桥面与拱洞。
-        if (asset.file === 'stone-bridge.glb' || asset.file === 'nine-palace.glb' || asset.file === 'herbal-cabinet.glb' || asset.file === 'dengzi-scale.glb') wrapper.visible = false
+        if (!useLuxPrimary && (asset.file === 'stone-bridge.glb' || asset.file === 'nine-palace.glb' || asset.file === 'herbal-cabinet.glb' || asset.file === 'dengzi-scale.glb')) wrapper.visible = false
         this.root.add(wrapper)
-        if (asset.replaces && asset.file !== 'stone-bridge.glb' && asset.file !== 'nine-palace.glb' && asset.file !== 'herbal-cabinet.glb') {
+        if (asset.replaces && (useLuxPrimary || (asset.file !== 'stone-bridge.glb' && asset.file !== 'nine-palace.glb' && asset.file !== 'herbal-cabinet.glb' && asset.file !== 'dengzi-scale.glb'))) {
           const fallback = this.root.getObjectByName(asset.replaces)
           if (fallback) fallback.visible = false
         }
