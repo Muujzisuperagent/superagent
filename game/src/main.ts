@@ -85,6 +85,28 @@ const raycaster = new THREE.Raycaster()
 raycaster.far = 3.4
 const center = new THREE.Vector2(0, 0)
 
+// B8：准星聚焦物的线框高亮。BoxHelper 每次目标变化时重建，指向 focused 的 object。
+let focusOutline: THREE.BoxHelper | null = null
+let focusOutlineTarget: THREE.Object3D | null = null
+function updateFocusOutline(): void {
+  const target = focused?.object ?? null
+  if (focusOutlineTarget === target) return
+  if (focusOutline) {
+    scene.remove(focusOutline)
+    focusOutline.geometry.dispose()
+    focusOutline.material.dispose()
+    focusOutline = null
+  }
+  focusOutlineTarget = target
+  if (target) {
+    focusOutline = new THREE.BoxHelper(target, 0xc9a25a)
+    const material = focusOutline.material as THREE.LineBasicMaterial
+    material.transparent = true
+    material.opacity = 0.55
+    scene.add(focusOutline)
+  }
+}
+
 let won = false
 let focused: WorldInteraction | null = null
 let currentAct: ActId = world.actAt(camera.position.z)
@@ -416,6 +438,7 @@ function updateFocus(): void {
   focused = null
   if (!controls.isLocked || won) {
     setPrompt(null)
+    setNearbyList([])
     return
   }
 
@@ -425,6 +448,30 @@ function updateFocus(): void {
   const hit = hits.find((item) => item.distance <= 3.4)
   focused = hit ? enabled.find((item) => item.object === hit.object) ?? null : null
   setPrompt(focused ? promptFor(focused) : null)
+  setNearbyList(enabled)
+}
+
+// B8：近距物名提示——3.4m 内的交互物在 HUD 侧栏列名（含距离），玩家没瞄准也知道能点什么。
+// 正在准星上的那个由 #prompt 显示，这里排除，避免重复。
+const nearbyList = document.createElement('ul')
+nearbyList.id = 'nearby-list'
+nearbyList.setAttribute('aria-hidden', 'true')
+document.body.appendChild(nearbyList)
+
+const nearbyWorldPosition = new THREE.Vector3()
+
+function setNearbyList(enabled: WorldInteraction[]): void {
+  const entries: string[] = []
+  for (const item of enabled) {
+    if (item === focused) continue
+    item.object.getWorldPosition(nearbyWorldPosition)
+    const distance = nearbyWorldPosition.distanceTo(camera.position)
+    if (distance <= 3.4) entries.push(`${item.label} · ${distance.toFixed(1)}m`)
+  }
+  const markup = entries.map((entry) => `<li>${entry}</li>`).join('')
+  if (nearbyList.innerHTML === markup) return
+  nearbyList.innerHTML = markup
+  nearbyList.classList.toggle('hidden', entries.length === 0)
 }
 
 // B8：把「E · 标签」补成带去向/条件的可读提示，出口与结局不再只写一句泛泛的动词。
@@ -1016,6 +1063,8 @@ function animate(): void {
   updateMovement(delta)
   world.update(delta)
   updateFocus()
+  updateFocusOutline()
+  focusOutline?.update()
   if (toastTimer > 0) {
     toastTimer -= delta
     if (toastTimer <= 0) toastEl.classList.add('hidden')
