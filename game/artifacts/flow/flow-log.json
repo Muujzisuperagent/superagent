@@ -1,7 +1,7 @@
 {
   "gate": "G3",
-  "baseUrl": "http://127.0.0.1:5173",
-  "ranAt": "2026-11-16T07:52:21.302Z",
+  "baseUrl": "http://localhost:5173",
+  "ranAt": "2026-11-16T08:21:52.752Z",
   "pageErrors": [],
   "steps": [
     {
