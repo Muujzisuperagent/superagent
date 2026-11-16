@@ -1,0 +1,70 @@
+{
+  "baseUrl": "http://127.0.0.1:5176",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "capturedAt": "2026-11-16T13:04:49.182Z",
+  "views": {
+    "medicine": {
+      "screenshot": "D:\\群核科技黑客松\\game\\artifacts\\perf-round3\\screens\\act4-medicine.png",
+      "loadMs": 603,
+      "frames": 133,
+      "seconds": 2.210699999999255,
+      "fps": 60.161939657142455,
+      "drawsPerFrame": 304,
+      "mainDrawsPerFrame": 252,
+      "jsHeapMB": 57.557268142700195,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    "palace": {
+      "screenshot": "D:\\群核科技黑客松\\game\\artifacts\\perf-round3\\screens\\act5-palace.png",
+      "loadMs": 598,
+      "frames": 127,
+      "seconds": 2.203199999999255,
+      "fps": 57.64342774148645,
+      "drawsPerFrame": 205,
+      "mainDrawsPerFrame": 153,
+      "jsHeapMB": 67.92249774932861,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    "river": {
+      "screenshot": "D:\\群核科技黑客松\\game\\artifacts\\perf-round3\\screens\\act6-reincarnation.png",
+      "loadMs": 585,
+      "frames": 133,
+      "seconds": 2.20589999999851,
+      "fps": 60.29285099056614,
+      "drawsPerFrame": 125,
+      "mainDrawsPerFrame": 73,
+      "jsHeapMB": 99.57027053833008,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    }
+  },
+  "summary": {
+    "canvas": 1,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": []
+  }
+}

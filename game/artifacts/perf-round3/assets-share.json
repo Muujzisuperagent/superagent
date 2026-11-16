@@ -1,0 +1,74 @@
+{
+  "views": {
+    "medicine": {
+      "medicine": {
+        "glb": 424334,
+        "proc": 402126,
+        "glbInstances": 4,
+        "procMeshes": 146,
+        "glbShare": 0.5134
+      },
+      "palace": {
+        "glb": 167138,
+        "proc": 4538,
+        "glbInstances": 1,
+        "procMeshes": 63,
+        "glbShare": 0.9736
+      },
+      "reincarnation": {
+        "glb": 2418776,
+        "proc": 14100,
+        "glbInstances": 12,
+        "procMeshes": 36,
+        "glbShare": 0.9942
+      }
+    },
+    "palace": {
+      "medicine": {
+        "glb": 424334,
+        "proc": 402126,
+        "glbInstances": 4,
+        "procMeshes": 146,
+        "glbShare": 0.5134
+      },
+      "palace": {
+        "glb": 167138,
+        "proc": 4538,
+        "glbInstances": 1,
+        "procMeshes": 63,
+        "glbShare": 0.9736
+      },
+      "reincarnation": {
+        "glb": 2418776,
+        "proc": 14100,
+        "glbInstances": 12,
+        "procMeshes": 36,
+        "glbShare": 0.9942
+      }
+    },
+    "river": {
+      "medicine": {
+        "glb": 424334,
+        "proc": 402126,
+        "glbInstances": 4,
+        "procMeshes": 146,
+        "glbShare": 0.5134
+      },
+      "palace": {
+        "glb": 167138,
+        "proc": 4538,
+        "glbInstances": 1,
+        "procMeshes": 63,
+        "glbShare": 0.9736
+      },
+      "reincarnation": {
+        "glb": 2418776,
+        "proc": 14100,
+        "glbInstances": 12,
+        "procMeshes": 36,
+        "glbShare": 0.9942
+      }
+    }
+  },
+  "seam": []
+}
