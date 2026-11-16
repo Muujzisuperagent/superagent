@@ -44,26 +44,30 @@ for (const [view, file] of navViews) {
   await page.waitForFunction(() => document.body.dataset.assets === 'ready', null, { timeout: 12000 })
   await page.waitForTimeout(500)
   await page.screenshot({ path: `artifacts/nav/${file}` })
-  // 近黑判据：canvas 中心区域采样，亮度 < 0.06 的占比 > 95% 判黑帧（HUD 在四角，不采）。
-  const darkRatio = await page.evaluate(() => {
+  // 近黑判据 + 构图中心遮挡判据：canvas 采样（shots=1 才有像素，HUD 在四角不采）。
+  // frame：中央 60% 区域，暗像素 >85% 记错误（90% 级黑帧必须拦下；交付帧远低于此）。
+  // center：中央 1/3 区域，暗像素 >40% 记错误——挡住画面正中的遮挡物（如亡魂挡桥面）自动拦截。
+  const ratios = await page.evaluate(() => {
     const canvas = document.querySelector('canvas')
-    if (!canvas) return 1
+    if (!canvas) return { frame: 1, center: 1 }
     const sample = document.createElement('canvas')
     sample.width = 100; sample.height = 100
     const context = sample.getContext('2d')
-    if (!context) return 1
-    // 截取 canvas 中央 60% 区域（避开四角 HUD/准星），再缩到 100×100。
-    const sw = canvas.width * 0.6; const sh = canvas.height * 0.6
-    context.drawImage(canvas, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh, 0, 0, 100, 100)
-    const data = context.getImageData(0, 0, 100, 100).data
-    let dark = 0
-    for (let i = 0; i < data.length; i += 4) {
-      if (data[i] < 15 && data[i + 1] < 15 && data[i + 2] < 15) dark += 1
+    if (!context) return { frame: 1, center: 1 }
+    const darkRatio = (region) => {
+      context.clearRect(0, 0, 100, 100)
+      context.drawImage(canvas, (canvas.width - canvas.width * region) / 2, (canvas.height - canvas.height * region) / 2, canvas.width * region, canvas.height * region, 0, 0, 100, 100)
+      const data = context.getImageData(0, 0, 100, 100).data
+      let dark = 0
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] < 15 && data[i + 1] < 15 && data[i + 2] < 15) dark += 1
+      }
+      return dark / (data.length / 4)
     }
-    return dark / (data.length / 4)
+    return { frame: darkRatio(0.6), center: darkRatio(1 / 3) }
   })
-  // B9/导航判据：暗像素 > 85% 记错误（90% 级黑帧必须拦下；五殿 13.1%、六殿 8.2% 交付帧远低于此，不误伤）。
-  if (darkRatio > 0.85) errors.push(`nav frame near-black (${view}): ${(darkRatio * 100).toFixed(1)}%`)
+  if (ratios.frame > 0.85) errors.push(`nav frame near-black (${view}): ${(ratios.frame * 100).toFixed(1)}%`)
+  if (ratios.center > 0.4) errors.push(`nav frame center occluded (${view}): ${(ratios.center * 100).toFixed(1)}%`)
 }
 
 // B8 断言：预览态（未锁定指针、无交互）#nearby-list 不得显示空框。
