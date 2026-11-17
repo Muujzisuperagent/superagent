@@ -80,6 +80,40 @@ const carried: string[] = []
 let balanceDialogueShown = false
 
 const controls = new PointerLockControls(camera, renderer.domElement)
+
+// 夸克（QuarkPC）退出指针锁时不还原 Windows 的 ClipCursor，鼠标会被永久裁在网页矩形内。
+// 该内核改用「按住左键拖动环视」；其他浏览器保留指针锁手感。
+const usePointerLock = !/QuarkPC/i.test(navigator.userAgent)
+const dragLook = { active: false }
+const lookEngaged = (): boolean => (usePointerLock ? controls.isLocked : true)
+
+const lookEuler = new THREE.Euler(0, 0, 0, 'YXZ')
+const moveDir = new THREE.Vector3()
+function applyLook(dx: number, dy: number): void {
+  const sensitivity = 0.0022
+  lookEuler.setFromQuaternion(camera.quaternion)
+  lookEuler.y -= dx * sensitivity
+  lookEuler.x -= dy * sensitivity
+  const limit = Math.PI / 2 - 0.02
+  lookEuler.x = Math.max(-limit, Math.min(limit, lookEuler.x))
+  camera.quaternion.setFromEuler(lookEuler)
+}
+function moveForward(distance: number): void {
+  camera.getWorldDirection(moveDir)
+  moveDir.y = 0
+  if (moveDir.lengthSq() < 1e-8) return
+  moveDir.normalize()
+  camera.position.addScaledVector(moveDir, distance)
+}
+function moveRight(distance: number): void {
+  camera.getWorldDirection(moveDir)
+  moveDir.y = 0
+  if (moveDir.lengthSq() < 1e-8) return
+  moveDir.normalize()
+  moveDir.cross(camera.up)
+  camera.position.addScaledVector(moveDir, distance)
+}
+
 const clock = new THREE.Clock()
 const keys = new Set<string>()
 const raycaster = new THREE.Raycaster()
@@ -220,6 +254,7 @@ function finishAct(act: ActId): void {
 function showEnding(id: EndingId): void {
   won = true
   controls.unlock()
+  dragLook.active = false
   lockHint.classList.add('hidden')
   wayfinder.classList.add('hidden')
   const ending = ENDINGS[id]
@@ -359,7 +394,7 @@ window.addEventListener('keydown', (event) => {
   if (won) return
   unlockAudio()
   keys.add(event.code)
-  if (event.code === 'KeyE' && controls.isLocked) {
+  if (event.code === 'KeyE' && lookEngaged()) {
     if (focused) rig?.cue(interact(focused))
     else rig?.cue('fail')
   }
@@ -369,19 +404,81 @@ window.addEventListener('keyup', (event) => {
   keys.delete(event.code)
 })
 
+// 指针锁只在「页面拥有焦点」时保留。切走窗口 / 最小化 / 关闭标签时立刻释放，
+// 否则浏览器会把系统光标 ClipCursor 裁在网页矩形里，连任务栏都点不到。
+function releasePointerLock(): void {
+  // 失焦时先清按键：否则切回窗口后 W/A/S/D 可能仍停在"按下"状态，人会一直漂移。
+  keys.clear()
+  if (document.pointerLockElement !== null) document.exitPointerLock()
+}
+window.addEventListener('blur', releasePointerLock)
+window.addEventListener('pagehide', releasePointerLock)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) releasePointerLock()
+})
+
+const LOCK_HINT_IDLE = usePointerLock
+  ? '点击画面 · 锁定鼠标，开始引路'
+  : '按住左键拖动 · 环视；WASD 移动，E 交互'
+const LOCK_HINT_ACTIVE = '按 Esc 可随时释放鼠标'
+let lockHintTimer = 0
+
+// 提示条元素必须早于所有 lock/unlock/拖拽监听器创建：
+// setLockHint 与免锁模式的 pointerdown 回调都直接摸 lockHint，
+// 放在模块末尾会出现 const 的 TDZ 风险（初始化未完成就被调用 → 读未初始化的绑定）。
+const lockHint = document.createElement('div')
+lockHint.id = 'lock-hint'
+lockHint.textContent = LOCK_HINT_IDLE
+document.body.appendChild(lockHint)
+
+function setLockHint(text: string, visible: boolean, autoHideMs = 0): void {
+  window.clearTimeout(lockHintTimer)
+  lockHint.textContent = text
+  lockHint.classList.toggle('hidden', !visible)
+  if (visible && autoHideMs > 0) {
+    lockHintTimer = window.setTimeout(() => lockHint.classList.add('hidden'), autoHideMs)
+  }
+}
+
 renderer.domElement.addEventListener('click', () => {
   unlockAudio()
-  if (!won && !controls.isLocked) controls.lock()
+  if (usePointerLock && !won && !controls.isLocked) controls.lock()
 })
+
+// 免锁模式：不碰 Pointer Lock，系统光标永远自由，夸克也就不可能残留 ClipCursor。
+if (!usePointerLock) {
+  const canvas = renderer.domElement
+  canvas.style.cursor = 'grab'
+  canvas.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0) return
+    dragLook.active = true
+    canvas.setPointerCapture(event.pointerId)
+    canvas.style.cursor = 'grabbing'
+    lockHint.classList.add('hidden')
+  })
+  const endDrag = (event: PointerEvent): void => {
+    if (!dragLook.active) return
+    dragLook.active = false
+    canvas.style.cursor = 'grab'
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId)
+  }
+  canvas.addEventListener('pointerup', endDrag)
+  canvas.addEventListener('pointercancel', endDrag)
+  canvas.addEventListener('pointermove', (event) => {
+    if (!dragLook.active) return
+    applyLook(event.movementX, event.movementY)
+  })
+}
 
 controls.addEventListener('lock', () => {
   unlockAudio()
-  lockHint.classList.add('hidden')
+  // 锁定时鼠标被裁在页面矩形内，键盘 Esc 是唯一稳定出口——明确写出来。
+  setLockHint(LOCK_HINT_ACTIVE, true, 4000)
 })
 
 controls.addEventListener('unlock', () => {
   keys.clear()
-  if (!won) lockHint.classList.remove('hidden')
+  if (!won) setLockHint(LOCK_HINT_IDLE, true)
 })
 
 // D4：原生 pointerlockchange 兜底。controls 的 unlock 事件在 headless 环境
@@ -389,22 +486,26 @@ controls.addEventListener('unlock', () => {
 document.addEventListener('pointerlockchange', () => {
   if (document.pointerLockElement === null) {
     keys.clear()
-    if (!won) lockHint.classList.remove('hidden')
+    if (!won) setLockHint(LOCK_HINT_IDLE, true)
   } else {
-    lockHint.classList.add('hidden')
+    setLockHint(LOCK_HINT_ACTIVE, true, 4000)
   }
 })
 
+document.addEventListener('pointerlockerror', () => {
+  setLockHint('鼠标锁定被浏览器拒绝，再点一次画面重试', true, 4000)
+})
+
 function updateMovement(delta: number): void {
-  if (!controls.isLocked || won) return
+  if (!lookEngaged() || won) return
   const speed = 3.1
   const step = speed * delta
   const previous = camera.position.clone()
 
-  if (keys.has('KeyW') || keys.has('ArrowUp')) controls.moveForward(step)
-  if (keys.has('KeyS') || keys.has('ArrowDown')) controls.moveForward(-step)
-  if (keys.has('KeyA') || keys.has('ArrowLeft')) controls.moveRight(-step)
-  if (keys.has('KeyD') || keys.has('ArrowRight')) controls.moveRight(step)
+  if (keys.has('KeyW') || keys.has('ArrowUp')) moveForward(step)
+  if (keys.has('KeyS') || keys.has('ArrowDown')) moveForward(-step)
+  if (keys.has('KeyA') || keys.has('ArrowLeft')) moveRight(-step)
+  if (keys.has('KeyD') || keys.has('ArrowRight')) moveRight(step)
 
   world.constrain(camera.position, previous, completed)
   const travelled = Math.hypot(camera.position.x - previous.x, camera.position.z - previous.z)
@@ -467,21 +568,21 @@ function findPreviewFocus(enabled: WorldInteraction[]): WorldInteraction | null 
 
 function updateFocus(): void {
   focused = null
-  if ((!controls.isLocked && !previewFocusEnabled) || won) {
+  if ((!lookEngaged() && !previewFocusEnabled) || won) {
     setPrompt(null)
     setNearbyList([])
     return
   }
 
   raycaster.setFromCamera(center, camera)
-  raycaster.far = controls.isLocked ? 3.4 : Number.POSITIVE_INFINITY
+  raycaster.far = lookEngaged() ? 3.4 : Number.POSITIVE_INFINITY
   const enabled = world.interactions.filter((item) =>
-    item.enabled && (controls.isLocked || item.act === currentAct))
+    item.enabled && (lookEngaged() || item.act === currentAct))
   const hits = raycaster.intersectObjects(enabled.map((item) => item.object), false)
   const hit = hits.find((item) => item.distance <= raycaster.far)
   focused = hit ? enabled.find((item) => item.object === hit.object) ?? null : null
-  if (!focused && !controls.isLocked) focused = findPreviewFocus(enabled)
-  setPrompt(controls.isLocked && focused ? promptFor(focused) : null)
+  if (!focused && !lookEngaged()) focused = findPreviewFocus(enabled)
+  setPrompt(lookEngaged() && focused ? promptFor(focused) : null)
   setNearbyList(enabled)
 }
 
@@ -967,12 +1068,8 @@ document.addEventListener('visibilitychange', () => {
 
 updateAudioToggle()
 
-// ===================== 引路牌与锁定提示（B8 导航可读性） =====================
-const lockHint = document.createElement('div')
-lockHint.id = 'lock-hint'
-lockHint.textContent = '点击画面 · 锁定鼠标，开始引路'
-document.body.appendChild(lockHint)
-
+// ===================== 引路牌（B8 导航可读性） =====================
+// 锁定提示条 lockHint 已在指针锁段落创建（必须早于监听器注册，避免 TDZ）。
 const wayfinder = document.createElement('div')
 wayfinder.id = 'wayfinder'
 wayfinder.innerHTML = `
