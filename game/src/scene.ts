@@ -1690,6 +1690,10 @@ export class EscapeWorld {
       const spot = pileSpots[index]
       mesh.position.set(spot[0], spot[1], spot[2])
       mesh.rotation.y = index * 0.7
+      // 矮实体碰撞：砝码高约 0.36m，低于通用可踩阈值 0.42m，须显式标 solid；
+      // colliderOwner 让拾起隐藏（setWeightVisible）时碰撞同步失效，放回时恢复。
+      mesh.userData.lowSolid = true
+      mesh.userData.colliderOwner = true
       group.add(mesh)
       const body = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.22, 14), BRONZE)
       mesh.add(body)
@@ -1697,6 +1701,8 @@ export class EscapeWorld {
       knob.position.y = 0.15
       mesh.add(knob)
       label(group, weight.name, [spot[0], 0.55, spot[2]], 0.72, false, index % 2 ? -0.5 : 0.5)
+      // 砝码名牌是悬浮文字签（膝高），不作实体：碰撞由砝码本体承担，拾起后随本体失效
+      group.children[group.children.length - 1].userData.noCollide = true
       const target = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }))
       target.position.set(spot[0], 0.32, spot[2])
       group.add(target)
@@ -2724,7 +2730,7 @@ export class EscapeWorld {
         position.z = obstacle.z + (dz / distance) * minimum
       }
     }
-    // 四五六殿实体碰撞：最小穿透轴推出 → 沿墙滑动；前三殿仍只走上面的圆形 obstacle
+    // 二三四五六殿实体碰撞：最小穿透轴推出 → 沿墙滑动；二三殿旧圆形 obstacle 保留（秤盘/时辰盘/长案/纸扎人处与 AABB 重叠，圆半径更大者先生效，无抖动）
     this.resolveHallCollisions(position, previous)
     let floorHeight = 0
     if (position.z < -24.5 && position.z > -32.5 && Math.abs(position.x) < 3.2) floorHeight = 0.25
@@ -2746,11 +2752,13 @@ export class EscapeWorld {
     return this.hallColliders.map((entry) => ({ ...entry.box }))
   }
 
-  /** 四五六殿碰撞体采集：构造期（合批前）与每个 GLB 落位后各刷新一次。
+  /** 二三四五六殿碰撞体采集：构造期（合批前）与每个 GLB 落位后各刷新一次。
    *  跳过：noCollide / InstancedMesh / 透明薄雾纸水 / 可踩薄板（顶<0.42m）/
-   *  头顶构件（底>1.95m）/ 水平贴片（高差<0.02m）/ 房间级大面（跨度>7.5m，墙由宽度钳制承担）。 */
+   *  头顶构件（底>1.95m）/ 水平贴片（高差<0.02m）/ 房间级大面（跨度上限按殿：
+   *  archive 11.5m 容北簿架 10.9m 与侧架 10.6m，其余 7.5m；墙由宽度钳制承担）。
+   *  lowSolid：矮实体（业秤砝码）不按可踩薄板跳过；colliderOwner：拾取隐藏时碰撞同步失效。 */
   private refreshHallColliders(): void {
-    const hallActs = new Set<string>(['medicine', 'palace', 'reincarnation'])
+    const hallActs = new Set<string>(['scale', 'archive', 'medicine', 'palace', 'reincarnation'])
     const glbAct: Record<string, string> = { 'herbal-cabinet-v2.glb': 'medicine' }
     this.root.updateMatrixWorld(true)
     const bounds = new THREE.Box3()
@@ -2762,12 +2770,16 @@ export class EscapeWorld {
       this.colliderSeen.add(mesh)
       let act: string | undefined
       let owner: THREE.Object3D = mesh
+      let ownerSelf: THREE.Object3D | null = null
       let fallback: THREE.Object3D | null = null
       let skip = false
+      let lowSolid = false
       let current: THREE.Object3D | null = mesh
       while (current) {
         if (current.userData.noCollide || !current.visible) skip = true
         if (current.userData.hang || current.userData.origin || current.userData.water || current.userData.mist || current.userData.steamOffset !== undefined) skip = true
+        if (current.userData.lowSolid) lowSolid = true
+        if (current.userData.colliderOwner) ownerSelf = current
         if (typeof current.userData.act === 'string' && hallActs.has(current.userData.act)) act = current.userData.act
         if (typeof current.userData.glbAsset === 'string' && glbAct[current.userData.glbAsset]) act = glbAct[current.userData.glbAsset]
         if (current.name.endsWith('-fallback')) fallback = current
@@ -2779,12 +2791,13 @@ export class EscapeWorld {
       if (!Array.isArray(material) && material.transparent && material.opacity < 0.85) return
       bounds.setFromObject(mesh)
       bounds.getSize(size)
-      if (bounds.max.y < 0.42 || bounds.min.y > 1.95) return
+      if (bounds.max.y < (lowSolid ? 0.05 : 0.42) || bounds.min.y > 1.95) return
       if (size.y < 0.02) return
-      if (size.x > 7.5 || size.z > 7.5) return
+      const spanLimit = act === 'archive' ? 11.5 : 7.5
+      if (size.x > spanLimit || size.z > spanLimit) return
       this.hallColliders.push({
         box: { minX: bounds.min.x, maxX: bounds.max.x, minZ: bounds.min.z, maxZ: bounds.max.z },
-        owner: fallback ?? owner
+        owner: fallback ?? ownerSelf ?? owner
       })
     })
     // GLB 成功替换后程序 fallback 被隐藏：对应碰撞体同步撤掉，避免新旧双重碰撞
@@ -2796,6 +2809,7 @@ export class EscapeWorld {
   private hallCollisionAt(x: number, z: number): boolean {
     const r = PLAYER_RADIUS
     for (const entry of this.hallColliders) {
+      if (!entry.owner.visible) continue
       const c = entry.box
       if (x > c.minX - r && x < c.maxX + r && z > c.minZ - r && z < c.maxZ + r) return true
     }
@@ -2810,6 +2824,8 @@ export class EscapeWorld {
     for (let pass = 0; pass < 3; pass += 1) {
       let moved = false
       for (const entry of this.hallColliders) {
+        // 拾取/隐藏即时失效：砝码被拾起后 owner.visible=false，不再留隐形碰撞
+        if (!entry.owner.visible) continue
         const c = entry.box
         if (position.x <= c.minX - r || position.x >= c.maxX + r || position.z <= c.minZ - r || position.z >= c.maxZ + r) continue
         const pushXNeg = position.x - (c.minX - r)
