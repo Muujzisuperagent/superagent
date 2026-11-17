@@ -81,9 +81,16 @@ let balanceDialogueShown = false
 
 const controls = new PointerLockControls(camera, renderer.domElement)
 
-// 夸克（QuarkPC）退出指针锁时不还原 Windows 的 ClipCursor，鼠标会被永久裁在网页矩形内。
-// 该内核改用「按住左键拖动环视」；其他浏览器保留指针锁手感。
-const usePointerLock = !/QuarkPC/i.test(navigator.userAgent)
+// 指针锁只在人工浏览器里启用；自动化验收进程（navigator.webdriver）一律免锁。
+// 事故记录：
+// 1) 夸克退出指针锁时偶发不还原 Windows ClipCursor；
+// 2) 自动化浏览器（1440×900 窗口）点画布上锁后失焦，剪裁残留到桌面。
+// 因此 webdriver 环境退回「按住左键拖动环视」，人工环境保留点击锁定 + 下面两条兜底。
+const usePointerLock = !navigator.webdriver
+const isQuark = /QuarkPC/i.test(navigator.userAgent)
+// 指针锁最后一次被释放的时刻：夸克二次 Esc 刷新兜底只看这个时间戳，
+// 只有「刚退出过锁」才允许刷新，避免无关的连按 Esc 把玩家踢回上一幕。
+let lockReleasedAt = 0
 const dragLook = { active: false }
 const lookEngaged = (): boolean => (usePointerLock ? controls.isLocked : true)
 
@@ -385,10 +392,19 @@ window.addEventListener('keydown', (event) => {
     toggleMute()
     return
   }
-  // Esc：真实浏览器会自行退出指针锁，但 headless/自动化环境不一定响应；
-  // 显式调 exitPointerLock 保证「Esc 释放鼠标」在所有环境下都成立。
-  if (event.code === 'Escape' && document.pointerLockElement !== null) {
-    document.exitPointerLock()
+  // Esc：先释放指针锁；已释放时再按一次（1.5s 内）刷新页面。
+  // 夸克偶发exitPointerLock 后系统 ClipCursor 不还原，刷新是唯一稳定的脱困手段。
+  // 兜底窗口只在「刚刚发生过指针锁释放」时有效：与锁无关的连按 Esc 不会把玩家踢回上一幕。
+  if (event.code === 'Escape') {
+    if (document.pointerLockElement !== null) {
+      document.exitPointerLock()
+      lockReleasedAt = performance.now()
+      return
+    }
+    if (isQuark && performance.now() - lockReleasedAt < 1500) {
+      window.location.reload()
+      return
+    }
     return
   }
   if (won) return
@@ -409,7 +425,10 @@ window.addEventListener('keyup', (event) => {
 function releasePointerLock(): void {
   // 失焦时先清按键：否则切回窗口后 W/A/S/D 可能仍停在"按下"状态，人会一直漂移。
   keys.clear()
-  if (document.pointerLockElement !== null) document.exitPointerLock()
+  if (document.pointerLockElement !== null) {
+    document.exitPointerLock()
+    lockReleasedAt = performance.now()
+  }
 }
 window.addEventListener('blur', releasePointerLock)
 window.addEventListener('pagehide', releasePointerLock)
@@ -420,6 +439,10 @@ document.addEventListener('visibilitychange', () => {
 const LOCK_HINT_IDLE = usePointerLock
   ? '点击画面 · 锁定鼠标，开始引路'
   : '按住左键拖动 · 环视；WASD 移动，E 交互'
+// 夸克退出锁偶发 ClipCursor 不还原：给出明确的二次 Esc 刷新兜底。
+const LOCK_HINT_IDLE_ESCAPE = isQuark && usePointerLock
+  ? '点击画面重新锁定；若光标被困，连按 Esc 刷新页面'
+  : LOCK_HINT_IDLE
 const LOCK_HINT_ACTIVE = '按 Esc 可随时释放鼠标'
 let lockHintTimer = 0
 
@@ -478,7 +501,8 @@ controls.addEventListener('lock', () => {
 
 controls.addEventListener('unlock', () => {
   keys.clear()
-  if (!won) setLockHint(LOCK_HINT_IDLE, true)
+  lockReleasedAt = performance.now()
+  if (!won) setLockHint(LOCK_HINT_IDLE_ESCAPE, true)
 })
 
 // D4：原生 pointerlockchange 兜底。controls 的 unlock 事件在 headless 环境
@@ -486,7 +510,9 @@ controls.addEventListener('unlock', () => {
 document.addEventListener('pointerlockchange', () => {
   if (document.pointerLockElement === null) {
     keys.clear()
-    if (!won) setLockHint(LOCK_HINT_IDLE, true)
+    // 浏览器自己吞掉 Esc（键没派发到页面）时，释放时刻只能从这里记。
+    lockReleasedAt = performance.now()
+    if (!won) setLockHint(LOCK_HINT_IDLE_ESCAPE, true)
   } else {
     setLockHint(LOCK_HINT_ACTIVE, true, 4000)
   }

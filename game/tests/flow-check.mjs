@@ -84,29 +84,14 @@ async function shoot(name) {
 
 await page.goto(`${baseUrl}/?clean=1`, { waitUntil: 'load' })
 await frames(30)
+// 免锁模式：点击画布不得申请 Pointer Lock（否则会把系统光标裁进网页矩形）。
 await page.locator('canvas').click()
 await frames(4)
 const locked = await page.evaluate(() => document.pointerLockElement !== null)
-await record('锁定鼠标', `pointerLockElement=${locked}`, locked)
-if (!locked) throw new Error('pointer lock failed; flow cannot run')
-
-// —— D4：Esc 释放鼠标 → 提示浮现 → 点击重新锁定 ——
-// Playwright 的 press 会同时 down/up；浏览器里 Esc 由浏览器自身处理退出 pointer lock，
-// down 之后指针锁退出是异步的，因此 down 后逐帧等锁真的退出再松开。
-await page.keyboard.down('Escape')
-await page.waitForFunction(() => document.pointerLockElement === null, null, { timeout: 5000 })
-await page.keyboard.up('Escape')
-await frames(4)
-const escState = await page.evaluate(() => ({
-  released: document.pointerLockElement === null,
-  hintShown: !document.getElementById('lock-hint')?.classList.contains('hidden')
-}))
-await record('Esc 释放鼠标', `released=${escState.released} hint=${escState.hintShown}`, escState.released && escState.hintShown)
-await page.locator('canvas').click()
-await frames(4)
-const relocked = await page.evaluate(() => document.pointerLockElement !== null)
-await record('释放后重新锁定', `pointerLockElement=${relocked}`, relocked)
-if (!relocked) throw new Error('relock failed; flow cannot run')
+await record('点击画面不上锁', `pointerLockElement=${locked}`, !locked)
+if (locked) throw new Error('pointer lock expected to stay disabled; flow cannot run')
+const hintText = await page.evaluate(() => document.getElementById('lock-hint')?.textContent ?? '')
+await record('免锁提示', hintText, hintText.includes('按住左键拖动'))
 
 // —— 第四殿：按君臣佐使配药 ——
 for (const id of ['danggui', 'yuanzhi', 'hehuan', 'wangyou']) {

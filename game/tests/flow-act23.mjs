@@ -96,8 +96,8 @@ await frames(30)
 await page.locator('canvas').click()
 await frames(4)
 const locked = await page.evaluate(() => document.pointerLockElement !== null)
-await record('锁定鼠标', `pointerLockElement=${locked}`, locked)
-if (!locked) throw new Error('pointer lock failed; flow cannot run')
+await record('点击画面不上锁', `pointerLockElement=${locked}`, !locked)
+if (locked) throw new Error('pointer lock expected to stay disabled; flow cannot run')
 
 // —— 二殿·业秤 ——
 const spawn = await page.evaluate(() => [window.__camera.position.x, window.__camera.position.z])
