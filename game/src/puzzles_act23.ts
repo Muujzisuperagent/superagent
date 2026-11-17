@@ -68,7 +68,7 @@ export class ScalePuzzle {
     const nextSum = this.sum + weight.value
     if (nextSum > TARGET_TAELS) {
       this.placed = []
-      return { ok: false, solved: false, message: '多了。秤杆一翘，砝码全滚回地上。司吏道：善恶自有斤两。多出这一两，不是你的。重配。' }
+      return { ok: false, solved: false, message: '秤杆一翘，砝码全滚回地上，回声很长。\n司吏：多了。\n司吏：秤不平，先怪手，再怪心。重配。' }
     }
     this.placed.push(weight.id)
     if (nextSum === TARGET_TAELS) {

@@ -11,7 +11,7 @@ export type ActDefinition = {
 
 export const ACTS: readonly ActDefinition[] = [
   { id: 'scale', number: '第二殿', title: '业秤', subtitle: '配平 · 未时', objective: '读偈文，往左盘补足五十两，再把多出的一两压进未时。' },
-  { id: 'archive', number: '第三殿', title: '簿库', subtitle: '检索 · 显影', objective: '找出丙午年册，侧光验刮改，朱笔勘合。' },
+  { id: 'archive', number: '第三殿', title: '簿库', subtitle: '检索 · 显影', objective: '找出丙午年册，正光照字，侧光照改，朱笔勘合。' },
   { id: 'medicine', number: '第四殿', title: '药局', subtitle: '五味 · 不忘汤', objective: '解藏头诗，按君臣佐使配出不忘汤。' },
   { id: 'palace', number: '第五殿', title: '九宫阵', subtitle: '步罡 · 核位', objective: '按洛书顺序踏完九块石板。' },
   { id: 'reincarnation', number: '第六殿', title: '忘川桥', subtitle: '孟婆亭 · 轮回门', objective: '沿忘川桥过孟婆亭，拼合六枚半印，走完自己的案子。' }
@@ -65,7 +65,7 @@ export class NinePalacePuzzle {
     this.next += 1
     if (this.next === LO_SHU_ORDER.length) {
       this.solved = true
-      return { ok: true, solved: true, message: '最后一步落在九。九块石板同时亮了。' }
+      return { ok: true, solved: true, message: '九块石板同时亮了。' }
     }
     return { ok: true, solved: false, message: `石板 ${value} 下沉。还剩 ${9 - this.next} 步。` }
   }
@@ -102,7 +102,7 @@ export class JourneyState {
 }
 
 export const ENDINGS: Record<EndingId, { title: string; subtitle: string; text: string; condition: string }> = {
-  return: { title: '还阳', subtitle: '结局一 · 庙前回首又寻常', text: '你饮下汤。再睁眼，是城隍庙前。石阶，门槛，一盏灯笼。你路过，看了一眼，没进去。', condition: '六印齐；饮汤忘前尘' },
+  return: { title: '还阳', subtitle: '结局一 · 庙前回首又寻常', text: '你饮下汤。再睁眼，是城隍庙前。石阶，门槛，一盏灯笼。\n你停下来，看了很久。\n然后接着走', condition: '六印齐；饮汤忘前尘' },
   replace: { title: '顶名', subtitle: '结局二 · 再选一次', text: '你带着记忆，把名字留下。你不记得她，却又做了一次同样的决定。', condition: '不忘汤 + 证据 A / B / D' },
   judge: { title: '留司', subtitle: '结局三 · 甲字肆号', text: '你拿起朱笔，留在阴司接任判官。取号机轻响，一枚竹牌落下：甲字肆号。下一位亡魂进门。', condition: '不忘汤 + 证据 C + 簿页残片' }
 }

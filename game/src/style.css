@@ -101,6 +101,7 @@ body {
   border-top: 1px solid rgba(201, 162, 90, 0.55);
   border-bottom: 1px solid rgba(201, 162, 90, 0.55);
   line-height: 1.7;
+  white-space: pre-line;
 }
 
 #dialogue {
@@ -120,7 +121,7 @@ body {
 #ending .panel { width: min(560px, 88vw); }
 #ending-content span, #ending-content small { color: #a5b6a5; line-height: 1.7; }
 #ending-content h2 { font-size: 36px; margin-top: 16px; }
-#ending-content p { line-height: 2; }
+#ending-content p { line-height: 2; white-space: pre-line; }
 #restart { position: fixed; bottom: 8%; left: calc(50% - 75px); }
 
 .overlay.hidden,

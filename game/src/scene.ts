@@ -1608,7 +1608,7 @@ export class EscapeWorld {
     // 北墙足秤偈碑
     roundedBox(group, [3.4, 1.7, 0.18], [0, 2.35, 55.55], STONE, 0.04)
     label(group, '十六两为斤 · 五十两为足秤', [0, 2.72, 55.43], 3.0, false, Math.PI)
-    this.addInteraction(group, 'inscription', 'scale', 'gatha', '读足秤偈', [0, 2.35, 55.5], [3.2, 1.6, 0.4], true)
+    this.addInteraction(group, 'inscription', 'scale', 'gatha', '偈要一句句读，读到秤平为止', [0, 2.35, 55.5], [3.2, 1.6, 0.4], true)
 
     // 中央杆秤：吊链 + 横梁 + 秤星 + 双盘
     for (const dx of [-0.55, 0, 0.55]) cylinder(group, 0.022, 2.0, [dx, 3.75, 47], BRONZE)

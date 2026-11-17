@@ -217,7 +217,7 @@ function updateAct(): void {
   objectiveEl.textContent = definition.objective
   toast(`${definition.number} · ${definition.title}｜${definition.subtitle}`, 3)
   if (act === 'scale') {
-    dialogue('业秤司吏', '善恶自有斤两。左盘三十两，是你生前自己称下的。补足它，一样都不能多。', 10)
+    dialogue('业秤司吏', '善恶自有斤两。左盘三十两，是你生前自己称下的。补足它，一样都不能少，也一样都不能多。', 10)
     updateScaleObjective()
   }
   if (act === 'archive') {
@@ -237,11 +237,11 @@ function finishAct(act: ActId): void {
     toast('半印④落下。不忘汤入手。北门已开。', 6)
     dialogue('孟婆', '别人求忘，你求记。稀奇。')
   } else if (act === 'palace') {
-    toast('半印⑤落下。路引浮字：按例应问案由。未问。', 7)
+    toast('半印⑤落下。路引浮字：按规矩，本该先问一句案由的，可没人问。', 7)
     dialogue('掌印司吏', '完了。下一房。')
   } else if (act === 'scale') {
     journey.collectEvidence('B')
-    toast('半印②落下。证据 B 已入路引：你名下多出的一两——不是你挣的。南门已开。', 7)
+    toast('半印②落下。证据 B 已入路引：你名下多出了一两，却不是你挣的。南门已开。', 7)
     dialogue('业秤司吏', '称过了。下一房，籍房。')
   } else if (act === 'archive') {
     journey.collectEvidence('C')
@@ -307,7 +307,7 @@ function interact(target: WorldInteraction): CueKind {
       if (scalePuzzle.isBalanced && !balanceDialogueShown) {
         balanceDialogueShown = true
         world.spawnHourWeight()
-        dialogue('业秤司吏', '善恶自有斤两。多出这一两，不是你的。压进未时，这一案就算你认了。', 10)
+        dialogue('业秤司吏', '善恶自有斤两。多出这一两，虽然不是你的，可一旦压进未时，这一案就算你认了。', 10)
       }
       updateScaleObjective()
       return result.ok ? 'ok' : 'fail'
@@ -316,7 +316,7 @@ function interact(target: WorldInteraction): CueKind {
     dialogue('足秤偈', '十六两为一斤，五十两为足秤。左盘三十两，是你生前自己称下的。补足它。多一两者过，少一两者贪。', 12)
     return 'ok'
   } else if (target.kind === 'hourplate') {
-    dialogue('十二时辰盘', '盘上十二槽。只有未时槽里落了东西——秤平之后，它自己会认你。', 9)
+    dialogue('十二时辰盘', '盘上共十二槽，只有未时那一槽落了东西——等秤持平了，它自会认你。', 9)
     return 'ok'
   } else if (target.kind === 'register') {
     const result = archive.openRegister(target.id)
@@ -364,7 +364,7 @@ function interact(target: WorldInteraction): CueKind {
     journey.completeAct('reincarnation')
     updateInventory()
     dialogue('崔珏', '三年前，阿满病危。你拿自己的名字，押她几年阳寿。原告是你。被告是你。办案的，也是你。这案子，我审不了。', 14)
-    toast('六印合成。朱字浮出——那是你的笔迹。三条路已亮。', 8)
+    toast('六印合成。朱字浮出——那是你的笔迹。前方三条路已经亮了。', 8)
     return 'seal'
   } else if (target.kind === 'ending') {
     const id = target.id as EndingId
@@ -1144,7 +1144,7 @@ function currentGoal(): { name: string; meta: string; position: THREE.Vector3 } 
     const weight = findInteraction('weight', undefined, 'scale')
     if (weight) return { name: weight.label, meta: `左盘 ${scalePuzzle.sum} / 50 两`, position: weight.object.getWorldPosition(goalPosition) }
     const gatha = findInteraction('inscription', 'gatha')
-    if (gatha) return { name: '读足秤偈', meta: '十六两为一斤', position: gatha.object.getWorldPosition(goalPosition) }
+    if (gatha) return { name: '偈要一句句读，读到秤平为止', meta: '十六两为一斤', position: gatha.object.getWorldPosition(goalPosition) }
   }
   if (act === 'archive') {
     // 架上另有甲午/庚申两册错册且永不禁用；不指定 id 会一直指向甲午册，玩家永远找不到丙午册。
@@ -1152,7 +1152,7 @@ function currentGoal(): { name: string; meta: string; position: THREE.Vector3 } 
       : !archive.isRevealed ? findInteraction('lamp', undefined, 'archive')
         : findInteraction('brush', undefined, 'archive')
     if (target) {
-      const meta = !archive.isFound ? '先找丙午年册' : !archive.isRevealed ? '侧光验刮改' : '朱笔勘合'
+      const meta = !archive.isFound ? '先找丙午年册' : !archive.isRevealed ? '正光照字，侧光照改。' : '朱笔勘合'
       return { name: target.label, meta, position: target.object.getWorldPosition(goalPosition) }
     }
   }
@@ -1224,7 +1224,7 @@ animate()
 Object.assign(window, { __camera: camera })
 
 if (!previewMode.has('clean')) {
-  if (currentAct === 'scale') dialogue('业秤司吏', '善恶自有斤两。左盘三十两，是你生前自己称下的。补足它，一样都不能多。', 12)
+  if (currentAct === 'scale') dialogue('业秤司吏', '善恶自有斤两。左盘三十两，是你生前自己称下的。补足它，一样都不能少，也一样都不能多。', 12)
   if (currentAct === 'archive') dialogue('籍房司吏', '落户要三样：生辰、卒年、案由。你缺一样。', 12)
   if (currentAct === 'medicine') dialogue('孟婆', '本房核汤。今天这碗，你自己配。当归三钱，远志一盏，合欢未开，忘忧在碗底。按君、臣、佐、使。', 12)
   if (currentAct === 'palace') dialogue('掌印司吏', '本房核位。戴九履一，左三右七。踩完，印自己会落。', 12)
