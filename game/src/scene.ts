@@ -772,7 +772,7 @@ function projectWorldUV(geometry: THREE.BufferGeometry, scale: THREE.Vector3, ti
  *  不触碰 GLB 顶点/法线/UV（f41831c 压顶点致栏板破碎回归，本轮禁改桥几何）。 */
 function addContinuousDeck(parent: THREE.Object3D, material: THREE.Material): void {
   const segments = 36
-  const startZ = -55.3
+  const startZ = -54.2
   const endZ = -69.5
   const halfWidth = 1.8
   const positions: number[] = []
@@ -781,10 +781,10 @@ function addContinuousDeck(parent: THREE.Object3D, material: THREE.Material): vo
   for (let step = 0; step <= segments; step += 1) {
     const t = (startZ + (endZ - startZ) * (step / segments) + 52.2) / -20.4
     const z = startZ + (endZ - startZ) * (step / segments)
-    // 端部 1.5m 偏移渐收至 -0.02（潜入 GLB 台阶下），中段 +0.06 盖住台阶 → 无硬接缝
+    // B10：端部 2m 二次渐沉 -0.23（tip 潜入过渡二阶石级内），中段 +0.06 → 侧视无齿无唇边
     const edge = Math.min(step / segments, 1 - step / segments) * (startZ - endZ)
-    const blend = THREE.MathUtils.clamp(edge / 1.5, 0, 1)
-    const y = 0.22 + Math.sin(Math.PI * THREE.MathUtils.clamp(t, 0, 1)) * 1.8 + 0.06 * blend - 0.02 * (1 - blend)
+    const blend = THREE.MathUtils.clamp(edge / 2.0, 0, 1)
+    const y = 0.22 + Math.sin(Math.PI * THREE.MathUtils.clamp(t, 0, 1)) * 1.8 + 0.06 * blend - 0.23 * (1 - blend) * (1 - blend)
     for (const x of [-halfWidth, halfWidth]) {
       positions.push(x, y, z)
       uvs.push((x + halfWidth) / (halfWidth * 2), step / segments)
@@ -802,6 +802,13 @@ function addContinuousDeck(parent: THREE.Object3D, material: THREE.Material): vo
   const deck = new THREE.Mesh(geometry, material)
   deck.receiveShadow = true
   parent.add(deck)
+  // B10：引桥端两阶过渡石级（顶 0.42/0.56），overlay tip 沉入二阶 → 踏步→连续面缓坡收边
+  for (const [z, top] of [[-53.3, 0.42], [-54.0, 0.56]] as const) {
+    const step = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.5, 0.7), material)
+    step.position.set(0, top - 0.25, z)
+    step.receiveShadow = true
+    parent.add(step)
+  }
 }
 
 function addSteam(parent: THREE.Object3D, position: [number, number, number], heightScale = 1): void {
@@ -1428,6 +1435,27 @@ export class EscapeWorld {
       cord.rotation.x = Math.PI / 2
       bench.add(cord)
     }
+    // B6 生活痕迹：药渣散堆 + 戥砣散放（一立一倒）+ 折纸包，位置错落带接触阴影
+    const dregs = new THREE.Group()
+    dregs.position.set(0.55, 1.225, -1.05)
+    bench.add(dregs)
+    for (let index = 0; index < 7; index += 1) {
+      const bit = new THREE.Mesh(new THREE.ConeGeometry(0.035 + (index % 3) * 0.015, 0.05, 6), index % 2 ? herbBrown : herbGreen)
+      bit.position.set(Math.sin(index * 2.4) * 0.16, 0.025, Math.cos(index * 1.7) * 0.12)
+      bit.rotation.set(0.3 + (index % 3) * 0.2, index, 0.2)
+      dregs.add(bit)
+    }
+    addContactShadow(bench, [0.55, 1.23, -1.05], 0.5, 0.4)
+    const looseWeight = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 0.09, 10), BRONZE)
+    looseWeight.position.set(0.95, 1.27, -1.75)
+    bench.add(looseWeight)
+    const fallenWeight = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 0.09, 10), BRONZE)
+    fallenWeight.position.set(1.15, 1.285, -1.6)
+    fallenWeight.rotation.z = 1.35
+    bench.add(fallenWeight)
+    const packet = roundedBox(bench, [0.3, 0.08, 0.22], [-2.35, 1.265, -1.15], PAPER, 0.02)
+    packet.rotation.y = 0.5
+    addContactShadow(bench, [-2.35, 1.23, -1.15], 0.42, 0.34)
     roundedBox(bench, [0.42, 0.4, 0.42], [4.55, 1.38, -2.6], BRONZE, 0.045)
     this.addSeal(group, 'medicine', 'seal4', '半印④ · 不忘汤已成', [4.55, 1.52, -2.6])
 
@@ -1940,6 +1968,26 @@ export class EscapeWorld {
     halfSeal.position.set(0, 1.5, 0)
     altar.add(halfSeal)
     this.addSeal(group, 'palace', 'seal5', '半印⑤ · 案由未问', [0, 1.58, -34.25])
+    // B6 生活痕迹：香灰摊 + 插香 + 烛残两段带蜡泪（案面有人做过法的痕迹）
+    const ash = new THREE.Mesh(new THREE.CircleGeometry(0.14, 16), FOOTPRINT)
+    ash.rotation.x = -Math.PI / 2
+    ash.position.set(-0.85, 1.145, 0.1)
+    altar.add(ash)
+    const candleWax = new THREE.MeshStandardMaterial({ color: 0xd8d2bc, roughness: 0.6 })
+    for (const [cx, cz, ch] of [[-0.85, 0.1, 0.16], [-0.62, -0.18, 0.09]] as const) {
+      const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, ch, 10), candleWax)
+      candle.position.set(cx, 1.14 + ch / 2, cz)
+      altar.add(candle)
+      const drip = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 6, 12), candleWax)
+      drip.rotation.x = Math.PI / 2
+      drip.position.set(cx, 1.15, cz)
+      altar.add(drip)
+    }
+    addContactShadow(altar, [-0.74, 1.142, -0.04], 0.62, 0.62)
+    const incense = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.22, 6), ROPE)
+    incense.position.set(-0.85, 1.24, 0.1)
+    incense.rotation.z = 0.28
+    altar.add(incense)
     const evidence = new THREE.Group()
     // 局部坐标：altar 已在 z=-34.25，此处再写 -34.25 会双重偏移到六殿桥面
     evidence.position.set(1.2, 1.18, 0)
@@ -2052,14 +2100,18 @@ export class EscapeWorld {
     canvas.height = 256
     const context = canvas.getContext('2d')!
     context.clearRect(0, 0, 256, 256)
-    context.fillStyle = '#8a9a90'
     context.textAlign = 'center'
     context.textBaseline = 'middle'
-    context.font = 'bold 164px serif'
+    // B10：刻字对比 +15%——深凹槽墨色 + 骨白描边 + 字号 164→180，近景九格全可读
+    context.font = 'bold 180px serif'
+    context.strokeStyle = '#cfd8d2'
+    context.lineWidth = 10
+    context.strokeText(text, 128, 132)
+    context.fillStyle = '#2e3b34'
     context.fillText(text, 128, 132)
     const texture = new THREE.CanvasTexture(canvas)
     texture.colorSpace = THREE.SRGBColorSpace
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide })
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 1, depthWrite: false, side: THREE.DoubleSide })
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width), material)
     mesh.position.set(...position)
     mesh.rotation.x = -Math.PI / 2
@@ -2254,11 +2306,14 @@ export class EscapeWorld {
     let soulZ = -53.4
     for (let index = 0; index < 12; index += 1) {
       if (index > 0) soulZ -= soulGaps[index - 1]
-      const t = THREE.MathUtils.clamp((-soulZ - 52.2) / 20.4, 0, 1)
-      const y = 0.22 + Math.sin(Math.PI * t) * bridgeArchHeight
       const variant = index % 3
       const scale = variant === 2 ? 0.58 + (index % 2) * 0.03 : 0.71 + (index % 4) * 0.025
-      const soul = addSoulSilhouette(group, [-0.35 + Math.sin(index * 2.2) * 0.16, y + 0.02, soulZ], scale, variant)
+      // B10：idx9/10 原落在合符台正上方（z-69.65/-70.75）遮顶视半台 → 移两侧翼，台面全显
+      const flank: Record<number, [number, number]> = { 9: [-1.3, -69.2], 10: [1.25, -70.9] }
+      const [sx, sz] = flank[index] ?? [-0.35 + Math.sin(index * 2.2) * 0.16, soulZ]
+      const st = THREE.MathUtils.clamp((-sz - 52.2) / 20.4, 0, 1)
+      const sy = 0.22 + Math.sin(Math.PI * st) * bridgeArchHeight
+      const soul = addSoulSilhouette(group, [sx, sy + 0.02, sz], scale, variant)
       soul.rotation.y = Math.PI + Math.sin(index * 1.9) * 0.12
       soul.rotation.z = index % 3 === 1 ? 0.075 : 0
       if (index % 4 === 1) {
@@ -2267,10 +2322,37 @@ export class EscapeWorld {
       }
     }
 
+    // B6 生活痕迹：桥头湿脚印trail（魂列上桥处）+ 散落纸钱八张
+    for (let index = 0; index < 6; index += 1) {
+      addFootprint(group, [-0.3 + (index % 2) * 0.5, 0.17, -50.2 - index * 0.55], 0.15 + Math.sin(index) * 0.2)
+    }
+    for (let index = 0; index < 8; index += 1) {
+      const note = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.2), PAPER)
+      note.rotation.x = -Math.PI / 2
+      note.rotation.z = index * 1.3
+      note.position.set(Math.sin(index * 2.7) * 1.5, 0.175 + (index % 3) * 0.004, -49.6 - index * 0.62)
+      group.add(note)
+    }
+    addContactShadow(group, [0.4, 0.16, -51.4], 1.6, 2.2)
     addBareTree(group, [6.7, -0.48, -61.5])
     for (const [y, z] of [[3.15, -62.2], [4.25, -60.8], [3.75, -64.1], [5.15, -62.4]] as const) {
       addLantern(group, [6.7 + Math.sin(y * 2) * 1.35, y, z], 0.52)
     }
+    // B7 远岸密度补一档：不点灯笼×2（带杆）+ 石灯×1，draws ≤+10
+    for (const [lx, lz, ls] of [[-11.6, -66.5, 0.62], [-12.4, -70.2, 0.55]] as const) {
+      cylinder(group, 0.03, 1.3, [lx, 0.85, lz], WOOD)
+      addLantern(group, [lx, 1.5, lz], ls, false)
+    }
+    const stoneLamp = new THREE.Group()
+    stoneLamp.position.set(10.8, 0.16, -58.5)
+    group.add(stoneLamp)
+    cylinder(stoneLamp, 0.09, 0.7, [0, 0.35, 0], STONE)
+    roundedBox(stoneLamp, [0.34, 0.26, 0.34], [0, 0.82, 0], STONE, 0.03)
+    const lampCap = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.18, 4), DARK_STONE)
+    lampCap.position.y = 1.02
+    lampCap.rotation.y = Math.PI / 4
+    stoneLamp.add(lampCap)
+    addContactShadow(group, [10.8, 0.16, -58.5], 0.6, 0.6)
 
     const wheelCenter = new THREE.Group()
     wheelCenter.name = 'six-realm-wheel-fallback'
@@ -2708,12 +2790,12 @@ export class EscapeWorld {
     slabMapCanvas.height = 256
     const slabMapContext = slabMapCanvas.getContext('2d')!
     slabMapContext.drawImage(stoneTexture.image as HTMLCanvasElement, 0, 0, 256, 256)
-    for (let index = 0; index < 90; index += 1) {
+    for (let index = 0; index < 140; index += 1) {
       const wet = index % 2 === 0
       slabMapContext.globalAlpha = 0.14 + Math.random() * 0.2
       slabMapContext.fillStyle = wet ? '#4a5852' : '#c2ccc5'
       slabMapContext.beginPath()
-      slabMapContext.ellipse(Math.random() * 256, Math.random() * 256, 6 + Math.random() * 30, 4 + Math.random() * 18, Math.random(), 0, Math.PI * 2)
+      slabMapContext.ellipse(Math.random() * 256, Math.random() * 256, 4 + Math.random() * 24, 3 + Math.random() * 14, Math.random(), 0, Math.PI * 2)
       slabMapContext.fill()
     }
     slabMapContext.globalAlpha = 1

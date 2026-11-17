@@ -1,0 +1,70 @@
+{
+  "baseUrl": "http://127.0.0.1:5176",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "capturedAt": "2026-11-17T01:11:30.334Z",
+  "views": {
+    "medicine": {
+      "screenshot": "D:\\群核科技黑客松\\game\\artifacts\\perf-round6\\screens\\act4-medicine.png",
+      "loadMs": 662,
+      "frames": 231,
+      "seconds": 4.008600000000559,
+      "fps": 57.62610387665713,
+      "drawsPerFrame": 254,
+      "mainDrawsPerFrame": 254,
+      "jsHeapMB": 64.39349842071533,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    "palace": {
+      "screenshot": "D:\\群核科技黑客松\\game\\artifacts\\perf-round6\\screens\\act5-palace.png",
+      "loadMs": 640,
+      "frames": 249,
+      "seconds": 4.003,
+      "fps": 62.20334748938296,
+      "drawsPerFrame": 172,
+      "mainDrawsPerFrame": 172,
+      "jsHeapMB": 62.32844543457031,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    "river": {
+      "screenshot": "D:\\群核科技黑客松\\game\\artifacts\\perf-round6\\screens\\act6-reincarnation.png",
+      "loadMs": 621,
+      "frames": 288,
+      "seconds": 4.001399999999442,
+      "fps": 71.97480881692412,
+      "drawsPerFrame": 82,
+      "mainDrawsPerFrame": 82,
+      "jsHeapMB": 54.19243144989014,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    }
+  },
+  "summary": {
+    "canvas": 1,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": []
+  }
+}
