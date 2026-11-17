@@ -1,0 +1,84 @@
+{
+  "assetDir": "D:\\群核科技黑客松\\game\\public\\assets\\generated",
+  "summary": {
+    "fileCount": 6,
+    "errorFiles": [],
+    "totalErrors": 0,
+    "totalWarnings": 0,
+    "totalTriangles": 193610
+  },
+  "files": [
+    {
+      "file": "celadon-bowl.glb",
+      "bytes": 9050216,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "triangles": 26512,
+      "vertices": 15371,
+      "images": null,
+      "extensionsUsed": [],
+      "topIssues": []
+    },
+    {
+      "file": "dengzi-scale.glb",
+      "bytes": 9016280,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "triangles": 25766,
+      "vertices": 18979,
+      "images": null,
+      "extensionsUsed": [],
+      "topIssues": []
+    },
+    {
+      "file": "herbal-cabinet.glb",
+      "bytes": 10434932,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "triangles": 37910,
+      "vertices": 33978,
+      "images": null,
+      "extensionsUsed": [],
+      "topIssues": []
+    },
+    {
+      "file": "nine-palace.glb",
+      "bytes": 13267936,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "triangles": 23488,
+      "vertices": 28122,
+      "images": null,
+      "extensionsUsed": [],
+      "topIssues": []
+    },
+    {
+      "file": "six-realm-wheel.glb",
+      "bytes": 8674220,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "triangles": 35620,
+      "vertices": 25124,
+      "images": null,
+      "extensionsUsed": [],
+      "topIssues": []
+    },
+    {
+      "file": "stone-bridge.glb",
+      "bytes": 9496300,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "triangles": 44314,
+      "vertices": 36258,
+      "images": null,
+      "extensionsUsed": [],
+      "topIssues": []
+    }
+  ]
+}
