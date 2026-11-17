@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "commit": "3894f94",
+  "date": "2026-11-17",
+  "flow_reachable": {
+    "value": true,
+    "evidence": "flow-log.json（本目录，自 game/artifacts/flow 拷贝）：ranAt=2026-11-17T07:20:26.931Z（本地 15:20:26，晚于 HEAD 3894f94 提交 15:04:18）；33 步 ok，failed=0；flow-check 输出 {\"ok\":true,\"failed\":[],\"pageErrors\":[]}，含四味药→证据C→半印④、五殿踩板→证据D→半印⑤→北门、六殿合符→还阳/留司选择→未齐印被拒→重开清零；04-ending-return.png / 04-ending-judge.png / 05-ending-panel.png 过程图齐全"
+  },
+  "criteria": {
+    "A3": {
+      "max": 4,
+      "score": 4,
+      "evidence": "nav-act4-bench.png 戥子杆盘砣贴桌面+药签棒捆+纸包散放有接触阴影、青瓷碗落右柜台；nav-act4-exit.png 百子柜抽屉+铜环贴立面；nav-act6-side.png 桥拱跨度厚度+栏板连续+水面倒影同轴；nav-act6-end.png 孟婆汤锅+青瓷碗接地；probes.json colliderCount=317（GLB 落位后稳定）",
+      "reason": "比例、朝向、材质、接触面均成立，无穿模/漂浮（本轮截图与探针均未见异常）"
+    },
+    "B1": {
+      "max": 4,
+      "score": 3,
+      "evidence": "screens/act4-medicine.png 药案+戥子为主焦点、百子柜中景、右柜台前景层次；act5-palace.png 低机位九宫+匾额+暗木顶压边；act6-reincarnation.png 亭左桥右对角线+雾层纵深；无抢焦点/压顶/破碎",
+      "reason": "构图符合目标；从前景到主目标的贯通引导线证据仍未建立（同上轮 P1）"
+    },
+    "B2": {
+      "max": 4,
+      "score": 4,
+      "evidence": "act4-medicine.png 柜体暖光+门洞冷绿雾光（nav-act4-exit.png 门内青绿辉光纵深）；act5-palace.png 幽绿盏光+黑位层次+暗木顶；act6-reincarnation.png 乳白雾垂直梯度+nav-act6-side.png 河面灯影倒影同色；无高光/雾吞线索",
+      "reason": "主辅光有来源、暗部保信息，三幕均成立"
+    },
+    "B3": {
+      "max": 4,
+      "score": 4,
+      "evidence": "nav-act4-exit.png 老榆木纹理+抽屉铜环近景；nav-act4-bench.png 戥子铜/杆木/药草绿红黄三堆/纸包/青瓷碗材质互异；nav-act5-center.png 湿青石斑点+水膜高光+脚印磨痕；nav-act6-side.png 石桥栏板+水面反射",
+      "reason": "木/铜/石/瓷/纸可区分且带做旧细节"
+    },
+    "B4": {
+      "max": 4,
+      "score": 4,
+      "evidence": "act4-medicine.png 暖棕+药草绿主调、近黑地板压重；act5-palace.png 冷青黑+幽绿点光、luma 0.1067∈设计带（visual.json）；act6-reincarnation.png 乳白雾+彼岸红唯一高饱和强调（mean_saturation 0.2408，visual.json）；三幕主辅色与来源情绪一致",
+      "reason": "分幕情绪成立、强调色克制有效"
+    },
+    "B5": {
+      "max": 4,
+      "score": 3,
+      "evidence": "nav-act4-entry.png 百子柜与门洞人体比例参照；nav-act6-side.png 桥拱跨度/厚度与眼高参照；nav-act5-center.png 九宫 2.05m 格距与前景铜盏尺度可信；act6 三结局台 1.2m 面板比例（05-ending-panel.png）",
+      "reason": "比例与遮挡层次成立；雾中远景纵深递进仍未建立（同上轮）"
+    },
+    "B6": {
+      "max": 4,
+      "score": 4,
+      "evidence": "nav-act4-bench.png 案面药渣散点+药签棒捆+纸包（带接触阴影）；nav-act5-center.png 问案台香器+香灰+匾额「戴九履一·左三右七」；nav-act6-end.png 汤锅+四只青瓷碗+彼岸花根盘接地；act6-reincarnation.png 桥面纸钱散点；半印/路引/证据链+崔珏对白（05-ending-panel.png）齐全",
+      "reason": "每幕≥3 处生活痕迹，剧情道具出色服务剧情"
+    },
+    "B7": {
+      "max": 4,
+      "score": 4,
+      "evidence": "三幕共用老榆木/青石/青铜/宣纸语汇（nav-act4-exit vs nav-act6-side vs nav-act5-center）；分幕色板差异保留（暖棕/冷青黑/乳白+红）；HUD 三幕同版式（左上标题+右上目标+底部提示条）",
+      "reason": "材质语汇连贯、分幕差异保留，一致出色"
+    },
+    "B8": {
+      "max": 4,
+      "score": 4,
+      "evidence": "tests/visual-check.mjs 输出 {\"errors\":[],\"canvas\":1}（nav 近黑/中心遮挡判据全过）；nav-act4-entry/act5-entry/act6-bridge.png 入口机位见路线与目标；nav-act4-exit.png 北门可辨；05-ending-panel.png 三路径牌+prompt「E·顶名（未解锁…）」+nearby 3.3m；nav-act4-bench.png nearby 列表带距离",
+      "reason": "入口/路线/交互物/出口在玩家机位全部可辨"
+    },
+    "B9": {
+      "max": 4,
+      "score": 4,
+      "evidence": "操作前 act4-medicine.png「半印 0/6 · 不忘汤 · 未配 · 证据 A」→ flow 过程 03-combined.png 合符后状态；05-ending-panel.png 选择前面板三路径+未解锁条件 prompt+崔珏对白+nearby 2 条；免锁提示「按住左键拖动 · 环视；WASD 移动，E 交互」可读（probes.json lockState）",
+      "reason": "前后对照、选择前面板、prompt、nearby 全齐且可读"
+    },
+    "B10": {
+      "max": 4,
+      "score": 4,
+      "evidence": "nav-act5-center.png 刻字 1/3/5/7/8/6 清晰可辨、脚印无错位；nav-act6-side.png 桥面连续无断阶、栏板无破面；三幕截图无穿模/悬浮/贴图拉伸/硬边雾片；capture.json 三幕 pageErrors/consoleErrors/failedRequests 均 []",
+      "reason": "可见缺陷为零，完成度出色"
+    },
+    "C1": {
+      "max": 5,
+      "score": 5,
+      "evidence": "8/8 项达（蒸汽在本轮机位不可辨，n/a 剔除分母）：百子柜主立面分格+铜环（nav-act4-exit.png）、药案台面+桌腿层次（act4-medicine.png）、戥子杆盘砣贴桌（nav-act4-bench.png）、药材≥3 类+纸包（nav-act4-bench.png 绿/红/黄三堆）、青瓷碗碗体碗沿（nav-act4-bench.png 右柜台）、左壁暖光+柜冷光有来源（act4-medicine.png）、左门雾纵深（nav-act4-exit.png 门洞青绿辉光）、右木柜台+罐（act4-medicine.png 右侧）",
+      "reason": "可核 8 项全达，蒸汽 n/a 剔除后按比例满分"
+    },
+    "C2": {
+      "max": 5,
+      "score": 5,
+      "evidence": "8/8：洛书 8 1 6/3 5 7/4 9 2 石板与 flow 踩板一致（nav-act5-center.png + scene.ts:1938 layout 同源）、湿青石斑点高光非发光色块、刻字九格可辨、脚印磨痕（5 号板等）、侧墙宽墨绿布幡垂坠（act5-palace.png 两侧）、八盏铜盏青绿火苗（act5-palace.png/nav-act5-center.png 多盏可见）、低机位+前景铜盏（nav-act5-center.png）、冷青黑+幽绿黑位有层次",
+      "reason": "7–8 项档=5"
+    },
+    "C3": {
+      "max": 5,
+      "score": 5,
+      "evidence": "8/8：桥拱侧视跨度厚度（nav-act6-side.png）、桥面连续石面（act6-reincarnation.png）、孟婆亭瓦垄起翘（act6-reincarnation.png 左上亭顶）、六道轮盘雾中轮影（nav-act6-side.png）、光门白框光区+轮影（05-ending-panel.png）、彼岸花成片+根盘接地（nav-act6-end.png）、亡魂戴帽队列（act6-reincarnation.png 桥上黑袍人影）、河面无竖幡+灯影倒影（nav-act6-side.png）",
+      "reason": "7–8 项档=5"
+    },
+    "D1": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log.json 33 步 0 failed：四味按君臣佐使顺序+戥子反馈+证据 C+半印④+北门开；探针 act4 未配药停 z=-7.8、配药后绕药案达北门 z=-15.94（probes.json）",
+      "reason": "完整闭环且有剧情反馈，含顺序门闸"
+    },
+    "D2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-check.mjs 全 PASS（含误踩重置/跨格不误触/1→9）；探针 9/9 格心可达（probes.json cellResults 全 ok=true）；收印⑤北门 z=-37.5、未收印停门线 z≥-36",
+      "reason": "跨格不误触且反馈清晰"
+    },
+    "D3": {
+      "max": 3,
+      "score": 3,
+      "evidence": "flow-log.json 合符+还阳/留司选择+未齐印被拒（「骑缝未合。先取得第四、第五殿的半印。」）+重开清零；04-ending-return.png / 04-ending-judge.png / 05-ending-panel.png 三路径面板与未解锁条件文案；探针三结局台 (-2.7/0/+2.7,-77.6) 全可达",
+      "reason": "三结局条件与文案均成立"
+    },
+    "D4": {
+      "max": 1,
+      "score": 1,
+      "evidence": "pointerlock-restore.mjs 6/6（人工浏览器点击上锁/锁定提示/Esc 释放/夸克二次 Esc 刷新 navigations=1/webdriver 免锁/提示拖动）；draglook.mjs 7/7；flow-log 重开半印清零 0/6",
+      "reason": "提示、库存、Esc、重开均正常（自动化分流新语义下全部通过）"
+    },
+    "F1": {
+      "max": 2,
+      "score": 2,
+      "evidence": "game/启动密室.bat 存在（ls game/*.bat 命中），调 start-game.ps1 缺依赖中文提示（4a31a40 轮核实，本轮文件未改：git log 无该文件变更）；本轮 npm.cmd run dev --port 5196 --strictPort 启动 curl 200",
+      "reason": "一键启动与依赖提示成立"
+    },
+    "F2": {
+      "max": 3,
+      "score": 3,
+      "evidence": "本目录 auto.json/capture.json/assets.json/visual.json/probes.json/rubric.json/screens 13 张（三幕+nav 十张）/flow-log.json+4 张过程图/dev-5196.log；auto.json.meta.commit=3894f94；run_auto/visual-check/flow-check/flow-act23/pointerlock-restore/draglook/probe.mjs 命令均可复现",
+      "reason": "截图、报告、提交号、可复现命令齐全"
+    }
+  }
+}

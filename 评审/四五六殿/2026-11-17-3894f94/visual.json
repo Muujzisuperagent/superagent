@@ -1,0 +1,150 @@
+{
+  "ok": true,
+  "screens": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-17-3894f94\\screens",
+  "refs": null,
+  "metric_mode": "stats",
+  "pyiqa_error": "No module named 'pyiqa'",
+  "views": {
+    "medicine": {
+      "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-17-3894f94\\screens\\act4-medicine.png",
+      "file": "act4-medicine.png",
+      "width": 1440,
+      "height": 900,
+      "mean_luma": 0.1113,
+      "std_luma": 0.1325,
+      "near_black_ratio": 0.2917,
+      "near_white_ratio": 0.0,
+      "mean_saturation": 0.6084,
+      "entropy": 4.142,
+      "sharpness": 0.007851,
+      "colorfulness": 0.0852,
+      "blank": false,
+      "metrics": {},
+      "normalized": {},
+      "tech_normalized": {
+        "sharpness": 97.93,
+        "contrast": 77.08,
+        "entropy": 65.68,
+        "colorfulness": 81.5
+      },
+      "tech_score": 80.55,
+      "b1": 80.55,
+      "reference": null,
+      "lpips": null,
+      "lpips_normalized": null
+    },
+    "palace": {
+      "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-17-3894f94\\screens\\act5-palace.png",
+      "file": "act5-palace.png",
+      "width": 1440,
+      "height": 900,
+      "mean_luma": 0.1067,
+      "std_luma": 0.1351,
+      "near_black_ratio": 0.3175,
+      "near_white_ratio": 0.0,
+      "mean_saturation": 0.5484,
+      "entropy": 3.706,
+      "sharpness": 0.007453,
+      "colorfulness": 0.0698,
+      "blank": false,
+      "metrics": {},
+      "normalized": {},
+      "tech_normalized": {
+        "sharpness": 92.4,
+        "contrast": 79.25,
+        "entropy": 48.24,
+        "colorfulness": 62.25
+      },
+      "tech_score": 70.53,
+      "b1": 70.53,
+      "reference": null,
+      "lpips": null,
+      "lpips_normalized": null
+    },
+    "river": {
+      "screenshot": "D:\\群核科技黑客松\\评审\\四五六殿\\2026-11-17-3894f94\\screens\\act6-reincarnation.png",
+      "file": "act6-reincarnation.png",
+      "width": 1440,
+      "height": 900,
+      "mean_luma": 0.4023,
+      "std_luma": 0.3336,
+      "near_black_ratio": 0.1207,
+      "near_white_ratio": 0.0,
+      "mean_saturation": 0.2408,
+      "entropy": 5.079,
+      "sharpness": 0.009238,
+      "colorfulness": 0.1008,
+      "blank": false,
+      "metrics": {},
+      "normalized": {},
+      "tech_normalized": {
+        "sharpness": 100.0,
+        "contrast": 100.0,
+        "entropy": 100.0,
+        "colorfulness": 100.0
+      },
+      "tech_score": 100.0,
+      "b1": 100.0,
+      "reference": null,
+      "lpips": null,
+      "lpips_normalized": null
+    }
+  },
+  "b1": 83.69,
+  "tech_score": 83.69,
+  "b2": null,
+  "blank_views": [],
+  "thresholds": {
+    "_comment": "Merge of the old 3D art rubric (0-4) and the engineering gates. Technical fallback thresholds calibrated 2026-11-15 on the three current act screenshots. pyiqa thresholds are optional and only used when pyiqa is installed.",
+    "sharpness": {
+      "type": "higher",
+      "bad": 0.0008,
+      "good": 0.008
+    },
+    "contrast": {
+      "type": "higher",
+      "bad": 0.04,
+      "good": 0.16
+    },
+    "entropy": {
+      "type": "higher",
+      "bad": 2.5,
+      "good": 5.0
+    },
+    "colorfulness": {
+      "type": "higher",
+      "bad": 0.02,
+      "good": 0.1
+    },
+    "musiq": {
+      "type": "higher",
+      "bad": 35.0,
+      "good": 65.0
+    },
+    "clipiqa+": {
+      "type": "higher",
+      "bad": 0.3,
+      "good": 0.6
+    },
+    "niqe": {
+      "type": "lower",
+      "good": 4.0,
+      "bad": 9.0
+    },
+    "topiq_nr": {
+      "type": "higher",
+      "bad": 0.3,
+      "good": 0.6
+    },
+    "brisque": {
+      "type": "lower",
+      "good": 20.0,
+      "bad": 60.0
+    },
+    "lpips": {
+      "type": "lower",
+      "good": 0.15,
+      "bad": 0.5
+    }
+  }
+}
