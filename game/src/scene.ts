@@ -2698,7 +2698,9 @@ export class EscapeWorld {
     if (position.z > 40 || (position.z > 16 && position.z < 32) || (position.z > -8 && position.z < 8) || (position.z < -20 && position.z > -36) || position.z < -44) width = zone.width / 2
     // 桥口收窄从岸台边缘（z=-52）才开始：亭子在岸台上（x≈-6.6, z≈-51），
     // 旧值 -50 会让人一靠近亭子就被横向拽回桥心，读作「被弹出来」。
-    if (position.z < -52 && position.z > -74) width = 1.45
+    // 可走半宽 1.9：桥面视觉半宽 2.15、栏管内缘≈2.25，玩家半径 0.3，
+    // 中心留 0.35m 余量（体表距栏 0.05m），贴栏不再撞隐形墙，仍禁止穿栏。
+    if (position.z < -52 && position.z > -74) width = 1.9
     if (Math.abs(position.x) > width) {
       if (Math.abs(previous.x) > width) {
         // 岸边横着撞向桥口：原地挡住，不做横向瞬移
