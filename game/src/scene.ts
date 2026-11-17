@@ -354,6 +354,8 @@ function bakeStatic(group: THREE.Object3D, keep: Set<THREE.Object3D>): void {
     mesh.castShadow = bucket.castShadow
     mesh.receiveShadow = bucket.receiveShadow
     mesh.name = `baked-${group.name || group.type}`
+    // 合批网格的世界 AABB 会把分离物件之间的空隙填成整块，禁止进碰撞采集
+    mesh.userData.noCollide = true
     for (const original of bucket.meshes) original.removeFromParent()
     group.add(mesh)
   }
@@ -515,6 +517,8 @@ function addBanner(parent: THREE.Object3D, position: [number, number, number], s
   banner.position.set(...position)
   banner.rotation.y = rotationY
   banner.userData.hang = true
+  // 布幙可穿行：软布不挡路，且避免封死问案台两侧通道
+  banner.userData.noCollide = true
   floatingObjects.push(banner)
   parent.add(banner)
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, size[0] + 0.3, 8), WOOD)
@@ -813,6 +817,8 @@ function addContinuousDeck(parent: THREE.Object3D, material: THREE.Material): vo
     const step = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.5, 0.7), material)
     step.position.set(0, top - 0.25, z)
     step.receiveShadow = true
+    // 引桥踏步高差 ≤0.34m，属可踩台阶，不挡桥面
+    step.userData.noCollide = true
     parent.add(step)
   }
 }
@@ -873,6 +879,8 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   const soul = new THREE.Group()
   soul.position.set(...position)
   soul.scale.setScalar(scale)
+  // 魂影是虚像，必须可穿
+  soul.userData.noCollide = true
   parent.add(soul)
   const robeMaterial = SOUL_ROBE
   const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.45, 1.35, 10, 6, true), robeMaterial)
@@ -970,6 +978,11 @@ function addBareTree(parent: THREE.Object3D, position: [number, number, number])
   }
 }
 
+/** 玩家碰撞半径（XZ 平面）；前三殿圆形 obstacle 保留旧值 0.32，行为不变。 */
+const PLAYER_RADIUS = 0.3
+/** 四五六殿实体碰撞体：XZ 平面 AABB，不可见、不参与渲染。 */
+type HallCollider = { minX: number; maxX: number; minZ: number; maxZ: number }
+
 export class EscapeWorld {
   readonly root = new THREE.Group()
   readonly interactions: WorldInteraction[] = []
@@ -989,6 +1002,9 @@ export class EscapeWorld {
     { x: -1.9, z: 22, r: 1.1 },
     { x: -5.5, z: 30.2, r: 0.5 }
   ]
+  /** 四五六殿 AABB 碰撞体；owner 用于 GLB 替换隐藏 fallback 时同步撤碰撞。 */
+  private readonly hallColliders: { box: HallCollider; owner: THREE.Object3D }[] = []
+  private readonly colliderSeen = new WeakSet<THREE.Object3D>()
   private scaleBeam: THREE.Object3D | null = null
   private scaleLeftPan: THREE.Object3D | null = null
   private scaleRightPan: THREE.Object3D | null = null
@@ -1037,6 +1053,8 @@ export class EscapeWorld {
     this.buildPalace()
     this.buildCorridor(-40)
     this.buildReincarnation()
+    // 碰撞采集必须在 bakeStatic 合批前：合批后单件网格被合并，世界 AABB 不再对应单件实体
+    this.refreshHallColliders()
     const keep = new Set<THREE.Object3D>([
       ...this.weightMeshes.values(),
       ...this.interactions.map((item) => item.object),
@@ -2388,6 +2406,8 @@ export class EscapeWorld {
     wheelCenter.name = 'six-realm-wheel-fallback'
     wheelCenter.position.set(0, 2.5, -73.8)
     wheelCenter.scale.setScalar(1.18)
+    // 轮盘是旋转灵体（辐条每帧转动），不做实体碰撞，避免封死桥尾通路
+    wheelCenter.userData.noCollide = true
     group.add(wheelCenter)
     const wheelRing = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.16, 12, 64), BRONZE)
     wheelCenter.add(wheelRing)
@@ -2430,15 +2450,17 @@ export class EscapeWorld {
     }
     roundedBox(doorFrame, [4.55, 0.58, 0.7], [0, 5.05, 0], WET_STONE, 0.06)
     const portalBorder = new THREE.MeshBasicMaterial({ color: 0xd9cfaa, transparent: true, opacity: 0.86 })
-    for (const x of [-1.82, 1.82]) box(doorFrame, [0.075, 4.35, 0.05], [x, 2.66, 0.38], portalBorder)
-    box(doorFrame, [3.72, 0.08, 0.05], [0, 4.82, 0.38], portalBorder)
+    // 光门描边是发光条而非实体，不挡门洞
+    for (const x of [-1.82, 1.82]) box(doorFrame, [0.075, 4.35, 0.05], [x, 2.66, 0.38], portalBorder).userData.noCollide = true
+    box(doorFrame, [3.72, 0.08, 0.05], [0, 4.82, 0.38], portalBorder).userData.noCollide = true
     const portalMaterial = new THREE.MeshBasicMaterial({ color: 0xd9dfc3, transparent: true, opacity: 0.48, side: THREE.DoubleSide })
     this.portal = new THREE.Mesh(new THREE.PlaneGeometry(3.8, 4.8), portalMaterial)
     this.portal.position.set(0, 2.7, -80.3)
     group.add(this.portal)
     light(group, [0, 3.5, -79.0], 0xc1e4d5, 18, 0.12)
     // 合符台抬出桥面（z-70.3 桥面顶 ≈0.86）：底座贴桥面、整台顶 1.49 高于桥面 0.63m
-    roundedBox(group, [1.65, 0.1, 1.0], [0, 0.9, -70.3], WET_STONE, 0.04)
+    // 底座仅高出桥面 0.1m，属可踩台阶；碰撞收窄到案面，保证桥两侧净宽 ≥0.7m
+    roundedBox(group, [1.65, 0.1, 1.0], [0, 0.9, -70.3], WET_STONE, 0.04).userData.noCollide = true
     const combineBox = this.addInteraction(group, 'combine', 'reincarnation', 'combine', '将六枚半印合于路引', [0, 1.25, -70.3], [1.35, 0.48, 0.78], true)
     // 合符台：旧木案面 + 青铜压边 + 印泥痕 + 四腿落地，替代纯绿 emissive 盒
     combineBox.material = new THREE.MeshStandardMaterial({ map: woodTexture, bumpMap: woodTexture, bumpScale: 0.03, color: 0x8a6f4a, roughness: 0.62, metalness: 0.08, emissive: 0x140b04, emissiveIntensity: 0.3 })
@@ -2700,6 +2722,8 @@ export class EscapeWorld {
         position.z = obstacle.z + (dz / distance) * minimum
       }
     }
+    // 四五六殿实体碰撞：最小穿透轴推出 → 沿墙滑动；前三殿仍只走上面的圆形 obstacle
+    this.resolveHallCollisions(position, previous)
     let floorHeight = 0
     if (position.z < -24.5 && position.z > -32.5 && Math.abs(position.x) < 3.2) floorHeight = 0.25
     if (position.z <= -52.2 && position.z >= -72.6) {
@@ -2709,6 +2733,100 @@ export class EscapeWorld {
     if (position.z < -72.6 && position.z > -80.5) floorHeight = 0.22
     position.y = floorHeight + 1.65
     if (!Number.isFinite(position.x)) position.copy(previous)
+  }
+
+  /** 只读调试出口（window.__escapeWorld.colliderCount / colliderBoxes）：供验收核对，不参与渲染。 */
+  get colliderCount(): number {
+    return this.hallColliders.length
+  }
+
+  get colliderBoxes(): HallCollider[] {
+    return this.hallColliders.map((entry) => ({ ...entry.box }))
+  }
+
+  /** 四五六殿碰撞体采集：构造期（合批前）与每个 GLB 落位后各刷新一次。
+   *  跳过：noCollide / InstancedMesh / 透明薄雾纸水 / 可踩薄板（顶<0.42m）/
+   *  头顶构件（底>1.95m）/ 水平贴片（高差<0.02m）/ 房间级大面（跨度>7.5m，墙由宽度钳制承担）。 */
+  private refreshHallColliders(): void {
+    const hallActs = new Set<string>(['medicine', 'palace', 'reincarnation'])
+    const glbAct: Record<string, string> = { 'herbal-cabinet-v2.glb': 'medicine' }
+    this.root.updateMatrixWorld(true)
+    const bounds = new THREE.Box3()
+    const size = new THREE.Vector3()
+    this.root.traverse((node) => {
+      const mesh = node as THREE.Mesh
+      if (!mesh.isMesh || (mesh as THREE.InstancedMesh).isInstancedMesh) return
+      if (this.colliderSeen.has(mesh)) return
+      this.colliderSeen.add(mesh)
+      let act: string | undefined
+      let owner: THREE.Object3D = mesh
+      let fallback: THREE.Object3D | null = null
+      let skip = false
+      let current: THREE.Object3D | null = mesh
+      while (current) {
+        if (current.userData.noCollide || !current.visible) skip = true
+        if (current.userData.hang || current.userData.origin || current.userData.water || current.userData.mist || current.userData.steamOffset !== undefined) skip = true
+        if (typeof current.userData.act === 'string' && hallActs.has(current.userData.act)) act = current.userData.act
+        if (typeof current.userData.glbAsset === 'string' && glbAct[current.userData.glbAsset]) act = glbAct[current.userData.glbAsset]
+        if (current.name.endsWith('-fallback')) fallback = current
+        if (current.parent === this.root) owner = current
+        current = current.parent
+      }
+      if (skip || !act) return
+      const material = mesh.material as THREE.Material | THREE.Material[]
+      if (!Array.isArray(material) && material.transparent && material.opacity < 0.85) return
+      bounds.setFromObject(mesh)
+      bounds.getSize(size)
+      if (bounds.max.y < 0.42 || bounds.min.y > 1.95) return
+      if (size.y < 0.02) return
+      if (size.x > 7.5 || size.z > 7.5) return
+      this.hallColliders.push({
+        box: { minX: bounds.min.x, maxX: bounds.max.x, minZ: bounds.min.z, maxZ: bounds.max.z },
+        owner: fallback ?? owner
+      })
+    })
+    // GLB 成功替换后程序 fallback 被隐藏：对应碰撞体同步撤掉，避免新旧双重碰撞
+    for (let index = this.hallColliders.length - 1; index >= 0; index -= 1) {
+      if (!this.hallColliders[index].owner.visible) this.hallColliders.splice(index, 1)
+    }
+  }
+
+  private hallCollisionAt(x: number, z: number): boolean {
+    const r = PLAYER_RADIUS
+    for (const entry of this.hallColliders) {
+      const c = entry.box
+      if (x > c.minX - r && x < c.maxX + r && z > c.minZ - r && z < c.maxZ + r) return true
+    }
+    return false
+  }
+
+  /** AABB-半径外扩检测，3 轮迭代；命中按最小穿透轴推出（X/Z 取重叠较小者）→ 沿面滑动。
+   *  仍相交时回退 previous（仅当 previous 干净）；传送进实体内部时保留推出结果，不卡死。 */
+  private resolveHallCollisions(position: THREE.Vector3, previous: THREE.Vector3): void {
+    if (this.hallColliders.length === 0) return
+    const r = PLAYER_RADIUS
+    for (let pass = 0; pass < 3; pass += 1) {
+      let moved = false
+      for (const entry of this.hallColliders) {
+        const c = entry.box
+        if (position.x <= c.minX - r || position.x >= c.maxX + r || position.z <= c.minZ - r || position.z >= c.maxZ + r) continue
+        const pushXNeg = position.x - (c.minX - r)
+        const pushXPos = c.maxX + r - position.x
+        const pushZNeg = position.z - (c.minZ - r)
+        const pushZPos = c.maxZ + r - position.z
+        const minimum = Math.min(pushXNeg, pushXPos, pushZNeg, pushZPos)
+        if (minimum === pushXNeg) position.x = c.minX - r
+        else if (minimum === pushXPos) position.x = c.maxX + r
+        else if (minimum === pushZNeg) position.z = c.minZ - r
+        else position.z = c.maxZ + r
+        moved = true
+      }
+      if (!moved) return
+    }
+    if (this.hallCollisionAt(position.x, position.z) && !this.hallCollisionAt(previous.x, previous.z)) {
+      position.x = previous.x
+      position.z = previous.z
+    }
   }
 
   update(delta: number): void {
@@ -2946,6 +3064,8 @@ export class EscapeWorld {
           if (fallback) fallback.visible = false
         }
         if (asset.file === 'six-realm-wheel.glb') this.wheels.push(wrapper)
+        // GLB 落位后刷新碰撞：收 herbal-cabinet 实体，撤被隐藏 fallback 的碰撞
+        this.refreshHallColliders()
       }
       const originalUrl = asset.opt ? `/assets/generated/lux3d-new/${asset.file}` : `/assets/generated/${asset.file}`
       const primaryUrl = asset.opt ? `/assets/generated/${asset.opt}` : `/assets/generated/webp/${asset.file}`
