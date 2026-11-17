@@ -203,7 +203,7 @@ function updateScaleObjective(): void {
 }
 
 function updateArchiveObjective(): void {
-  objectiveEl.textContent = `①找出丙午年册 ${archive.isFound ? '✓' : ''}　→　②侧光验刮改 ${archive.isRevealed ? '✓' : ''}　→　③朱笔勘合 ${archive.isSolved ? '✓' : ''}`
+  objectiveEl.textContent = `①找出丙午年册 ${archive.isFound ? '✓' : ''}　→　②正光照字，侧光照改。 ${archive.isRevealed ? '✓' : ''}　→　③朱笔勘合 ${archive.isSolved ? '✓' : ''}`
 }
 
 function updateAct(): void {
