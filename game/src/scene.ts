@@ -2653,8 +2653,18 @@ export class EscapeWorld {
     position.z = THREE.MathUtils.clamp(position.z, -81, 55)
     let width = 1.25
     if (position.z > 40 || (position.z > 16 && position.z < 32) || (position.z > -8 && position.z < 8) || (position.z < -20 && position.z > -36) || position.z < -44) width = zone.width / 2
-    if (position.z < -50 && position.z > -74) width = 1.45
-    position.x = THREE.MathUtils.clamp(position.x, -width, width)
+    // 桥口收窄从岸台边缘（z=-52）才开始：亭子在岸台上（x≈-6.6, z≈-51），
+    // 旧值 -50 会让人一靠近亭子就被横向拽回桥心，读作「被弹出来」。
+    if (position.z < -52 && position.z > -74) width = 1.45
+    if (Math.abs(position.x) > width) {
+      if (Math.abs(previous.x) > width) {
+        // 岸边横着撞向桥口：原地挡住，不做横向瞬移
+        position.x = previous.x
+        position.z = previous.z
+      } else {
+        position.x = THREE.MathUtils.clamp(position.x, -width, width)
+      }
+    }
     if (position.z > 8 && position.z < 16 && !completed.has('archive')) position.z = Math.max(position.z, 15.8)
     if (position.z > 32 && position.z < 40 && !completed.has('scale')) position.z = Math.max(position.z, 39.8)
     if (position.z < -8 && position.z > -20 && !completed.has('medicine')) position.z = Math.max(position.z, -7.8)
