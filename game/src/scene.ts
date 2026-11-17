@@ -165,6 +165,51 @@ function addMistPuff(parent: THREE.Object3D, position: [number, number, number],
   return sprite
 }
 
+/** 六殿天空垂直梯度：顶乳白 → 地平线暖灰 → 水下暗灰，屏幕空间连续无硬边。 */
+function skyGradientTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 4
+  canvas.height = 256
+  const context = canvas.getContext('2d')!
+  const gradient = context.createLinearGradient(0, 0, 0, 256)
+  gradient.addColorStop(0, '#d8dcd4')
+  gradient.addColorStop(0.45, '#c2c6bc')
+  gradient.addColorStop(0.62, '#b0aca2')
+  gradient.addColorStop(0.8, '#8f8c84')
+  gradient.addColorStop(1, '#6f6c66')
+  context.fillStyle = gradient
+  context.fillRect(0, 0, 4, 256)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+/** 接触阴影贴片：径向暗环，贴地/贴台面消悬浮感。 */
+function aoTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 128
+  const context = canvas.getContext('2d')!
+  const gradient = context.createRadialGradient(64, 64, 4, 64, 64, 62)
+  gradient.addColorStop(0, 'rgba(8,8,6,0.55)')
+  gradient.addColorStop(0.6, 'rgba(8,8,6,0.32)')
+  gradient.addColorStop(1, 'rgba(8,8,6,0)')
+  context.fillStyle = gradient
+  context.fillRect(0, 0, 128, 128)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+const aoMap = aoTexture()
+const AO_DECAL = new THREE.MeshBasicMaterial({ map: aoMap, transparent: true, depthWrite: false })
+
+function addContactShadow(parent: THREE.Object3D, position: [number, number, number], width: number, depth: number): void {
+  const decal = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), AO_DECAL)
+  decal.rotation.x = -Math.PI / 2
+  decal.position.set(...position)
+  parent.add(decal)
+}
+
 /** 碗内旧药渍环片。 */
 function addStainRing(parent: THREE.Object3D, position: [number, number, number], radius: number): void {
   const ring = new THREE.Mesh(new THREE.CircleGeometry(radius, 24), new THREE.MeshBasicMaterial({ map: stainMap, transparent: true, opacity: 0.85, depthWrite: false }))
@@ -214,7 +259,7 @@ const TILE = new THREE.MeshStandardMaterial({ color: 0x2c3430, roughness: 0.88, 
 const TILE_EDGE = new THREE.MeshStandardMaterial({ color: 0x4b564d, roughness: 0.74, metalness: 0.04 })
 const HEMP = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.06, color: 0x3a4a3c, roughness: 0.97, side: THREE.DoubleSide, transparent: true, opacity: 0.94 })
 const LILY_RED = new THREE.MeshStandardMaterial({ color: 0xe21c35, emissive: 0x8b0715, emissiveIntensity: 0.65, roughness: 0.65, side: THREE.DoubleSide })
-const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.085, color: 0xb8b9a8, roughness: 1, side: THREE.DoubleSide, flatShading: true })
+const SOUL_ROBE = new THREE.MeshStandardMaterial({ map: clothTexture, bumpMap: clothTexture, bumpScale: 0.14, color: 0xb8b9a8, roughness: 1, side: THREE.DoubleSide, flatShading: true })
 const SOUL_INNER = new THREE.MeshStandardMaterial({ map: clothTexture, color: 0xa8aa98, roughness: 1, side: THREE.DoubleSide })
 const SOUL_HEAD = new THREE.MeshStandardMaterial({ color: 0x8a8f82, roughness: 1 })
 const SOUL_SASH = new THREE.MeshStandardMaterial({ color: 0x5a2524, roughness: 0.85 })
@@ -226,7 +271,32 @@ const WHEEL_SECTOR = [
 ]
 const bulbMaterials = new Map<number, THREE.MeshBasicMaterial>()
 const FOOTPRINT = new THREE.MeshBasicMaterial({ color: 0x182723, transparent: true, opacity: 0.46, depthWrite: false })
-const GHOST_FLAME = new THREE.MeshBasicMaterial({ color: 0x46e08e })
+const GHOST_FLAME = new THREE.MeshBasicMaterial({ color: 0x46e08e, transparent: true, opacity: 0.9 })
+const FLAME_CORE = new THREE.MeshBasicMaterial({ color: 0xd8ffe8, transparent: true, opacity: 0.85 })
+const animatedFlames: THREE.Object3D[] = []
+
+/** 竖直泪滴焰：外青绿内白芯，尖端收细；替代扁盘 cone。 */
+function addFlame(parent: THREE.Object3D, position: [number, number, number]): void {
+  const profile = [
+    new THREE.Vector2(0, 0),
+    new THREE.Vector2(0.035, 0.02),
+    new THREE.Vector2(0.045, 0.07),
+    new THREE.Vector2(0.03, 0.14),
+    new THREE.Vector2(0.012, 0.2),
+    new THREE.Vector2(0, 0.24)
+  ]
+  const flame = new THREE.Group()
+  flame.position.set(...position)
+  parent.add(flame)
+  const outer = new THREE.Mesh(new THREE.LatheGeometry(profile, 10), GHOST_FLAME)
+  flame.add(outer)
+  const core = new THREE.Mesh(new THREE.LatheGeometry(profile, 8), FLAME_CORE)
+  core.scale.setScalar(0.5)
+  core.position.y = 0.02
+  flame.add(core)
+  flame.userData.flameOffset = animatedFlames.length * 1.7
+  animatedFlames.push(flame)
+}
 const BANNER_MARK = new THREE.MeshStandardMaterial({ color: 0x9aa08c, roughness: 1, transparent: true, opacity: 0.8 })
 const ROPE = new THREE.MeshStandardMaterial({ color: 0x6c6450, roughness: 1 })
 const BROTH = new THREE.MeshPhysicalMaterial({ color: 0x66776b, roughness: 0.2 })
@@ -711,7 +781,10 @@ function addContinuousDeck(parent: THREE.Object3D, material: THREE.Material): vo
   for (let step = 0; step <= segments; step += 1) {
     const t = (startZ + (endZ - startZ) * (step / segments) + 52.2) / -20.4
     const z = startZ + (endZ - startZ) * (step / segments)
-    const y = 0.22 + Math.sin(Math.PI * THREE.MathUtils.clamp(t, 0, 1)) * 1.8 + 0.06
+    // 端部 1.5m 偏移渐收至 -0.02（潜入 GLB 台阶下），中段 +0.06 盖住台阶 → 无硬接缝
+    const edge = Math.min(step / segments, 1 - step / segments) * (startZ - endZ)
+    const blend = THREE.MathUtils.clamp(edge / 1.5, 0, 1)
+    const y = 0.22 + Math.sin(Math.PI * THREE.MathUtils.clamp(t, 0, 1)) * 1.8 + 0.06 * blend - 0.02 * (1 - blend)
     for (const x of [-halfWidth, halfWidth]) {
       positions.push(x, y, z)
       uvs.push((x + halfWidth) / (halfWidth * 2), step / segments)
@@ -794,7 +867,7 @@ function addSoulSilhouette(parent: THREE.Object3D, position: [number, number, nu
   for (let index = 0; index < folds.count; index += 1) {
     const y = folds.getY(index)
     const angle = Math.atan2(folds.getZ(index), folds.getX(index))
-    const ridge = 1 + Math.sin(angle * 10 + y * 1.5) * 0.055
+    const ridge = 1 + Math.sin(angle * 10 + y * 1.5) * 0.11
     folds.setX(index, folds.getX(index) * ridge)
     folds.setZ(index, folds.getZ(index) * ridge)
   }
@@ -916,25 +989,32 @@ export class EscapeWorld {
   private ninePalaceAsset: THREE.Object3D | null = null
   private elapsed = 0
   private readonly backgroundTarget = new THREE.Color(0x080d0d)
+  private readonly backgroundColor = new THREE.Color(0x080d0d)
+  private readonly skyGradient = skyGradientTexture()
   private readonly fogTarget = new THREE.Color(0x121c1a)
   private readonly fog = new THREE.FogExp2(0x121c1a, 0.018)
+  private shadowLight: THREE.DirectionalLight | null = null
 
   constructor(private readonly scene: THREE.Scene) {
     scene.add(this.root)
     // 调试/验收采集入口：三角面占比、漏光定位用；不影响玩法
     ;(window as unknown as { __escapeWorld?: EscapeWorld }).__escapeWorld = this
-    scene.background = new THREE.Color(0x080d0d)
+    scene.background = this.backgroundColor
     scene.fog = this.fog
     scene.add(new THREE.HemisphereLight(0x97aaa1, 0x1a211d, 0.92))
     const fill = new THREE.DirectionalLight(0x9caaa1, 0.58)
     fill.position.set(-2, 7, 4)
     fill.castShadow = true
-    fill.shadow.mapSize.set(2048, 2048)
+    fill.shadow.mapSize.set(1024, 1024)
     fill.shadow.camera.left = -30
     fill.shadow.camera.right = 30
     fill.shadow.camera.top = 30
     fill.shadow.camera.bottom = -30
     scene.add(fill)
+    // 静态场景：阴影图一次烘焙，免每帧 depth pass（iGPU 填充率瓶颈）；GLB 落位时手动重烘
+    fill.shadow.autoUpdate = false
+    fill.shadow.needsUpdate = true
+    this.shadowLight = fill
     this.buildScale()
     this.buildCorridor(36)
     this.buildArchive()
@@ -1329,8 +1409,9 @@ export class EscapeWorld {
     this.interactions.push({ object: bowlTarget, kind: 'bowl', act: 'medicine', id: 'aman', label: '查看青瓷药碗', enabled: true })
 
     const evidence = new THREE.Group()
-    // 纸包盒底贴案面（bench 顶 1.225），消悬浮间隙
-    evidence.position.set(3.85, 1.235, -1.48)
+    // 纸包盒独立托板：盒底 = 托板顶 1.27，消穿模/悬浮
+    roundedBox(bench, [0.62, 0.16, 0.62], [3.85, 1.19, -1.48], WOOD, 0.055)
+    evidence.position.set(3.85, 1.28, -1.48)
     bench.add(evidence)
     for (let index = 0; index < 4; index += 1) addPaper(evidence, [Math.sin(index) * 0.1, index * 0.012, Math.cos(index) * 0.07], [0.3, 0.4], [index * 0.02, index * 0.11, index * 0.05], false)
     const evidenceC = this.addInteraction(evidence, 'evidence', 'medicine', 'C', '取得证据 C · 朱笔改字与簿页残片', [0, 0.2, 0], [0.46, 0.42, 0.12], true)
@@ -1365,6 +1446,13 @@ export class EscapeWorld {
     broth.position.y = 1.02
     pot.add(broth)
     addSteam(group, [4.4, 1.08, -5.5])
+    // 接触阴影：柜/案/锅/托板贴地暗环，消悬浮感（地砖顶 0.155，贴片须在其上）
+    addContactShadow(group, [-3.45, 0.16, -7.0], 4.6, 1.3)
+    addContactShadow(group, [3.45, 0.16, -7.0], 4.6, 1.3)
+    addContactShadow(group, [-0.5, 0.16, -1.48], 4.8, 2.0)
+    addContactShadow(group, [4.4, 0.16, -5.5], 1.8, 1.8)
+    addContactShadow(bench, [3.85, 1.275, -1.48], 0.7, 0.7)
+    addContactShadow(openTray, [0, 2.645, 0.03], 0.8, 0.6)
     addLantern(group, [5.35, 2.55, -4.0], 1.22)
     // 灯笼移离左墙药签架（原 z-2.4 压住签格右列）；角落盏不点光省填充率
     addLantern(group, [-6.2, 3.6, -5.6], 0.72, false)
@@ -1835,6 +1923,7 @@ export class EscapeWorld {
     const altar = new THREE.Group()
     altar.position.set(0, 0, -34.25)
     group.add(altar)
+    addContactShadow(group, [0, 0.16, -34.25], 4.2, 1.6)
     roundedBox(altar, [3.7, 0.24, 1.15], [0, 1.02, 0], WOOD, 0.06)
     for (const x of [-1.55, 1.55]) for (const z of [-0.35, 0.35]) roundedBox(altar, [0.2, 1.0, 0.2], [x, 0.48, z], WOOD, 0.035)
     roundedBox(altar, [0.45, 0.2, 0.45], [0, 1.25, 0], BRONZE, 0.035)
@@ -1872,6 +1961,7 @@ export class EscapeWorld {
       const lamp = new THREE.Group()
       lamp.position.set(x, y, z)
       group.add(lamp)
+      addContactShadow(group, [x, 0.16, z], 0.7, 0.7)
       bowl(lamp, [0, 0, 0], 0.24, 0.16, BRONZE)
       const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.18, 0.12, 18), BRONZE)
       cup.position.y = -0.07
@@ -1886,9 +1976,7 @@ export class EscapeWorld {
         snuffMark.position.y = 0.16
         lamp.add(snuffMark)
       } else {
-        const flame = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.15, 8), GHOST_FLAME)
-        flame.position.y = 0.12
-        lamp.add(flame)
+        addFlame(lamp, [0, 0.1, 0])
         // 八盏皆点光（中调光池承担熵/对比）；填充率靠天花不接阴影保
         light(lamp, [0, 0.28, 0], 0x7fd8a8, 3.4, 0.05)
       }
@@ -1983,7 +2071,7 @@ export class EscapeWorld {
     }
 
     const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0e1a1a, roughness: 0.35, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.25, reflectivity: 0.06, bumpMap: stoneTexture, bumpScale: 0.02 })
-    const water = new THREE.Mesh(new THREE.PlaneGeometry(46, 34, 64, 48), waterMaterial)
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(200, 200, 64, 48), waterMaterial)
     water.rotation.x = -Math.PI / 2
     water.position.set(0, -0.55, -63)
     water.userData.water = true
@@ -2140,6 +2228,7 @@ export class EscapeWorld {
     const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.42, 0.64, 24), BRONZE)
     pot.position.set(0, 1.4, 0)
     pavilion.add(pot)
+    addContactShadow(pavilion, [0, 1.045, 0], 1.3, 1.3)
     addSteam(pavilion, [0, 1.75, 0])
     light(pavilion, [0, 2.1, 0.4], 0xcfe8dc, 2.6, 0.05)
     addLanternBracket(pavilion, 1.35, 2.55, 1.35, 1, 0.8)
@@ -2151,8 +2240,8 @@ export class EscapeWorld {
       pavilion.add(broth)
     }
 
-    // B10：三套剪影轮替 + 不等距步点，魂列读作队伍而非复制人
-    const soulGaps = [1.35, 1.72, 1.48, 1.9, 1.42, 1.66, 1.3, 1.84, 1.55, 1.7, 1.44, 1.62]
+    // B10：三套剪影轮替 + 不等距步点；近机位（nav-mid z-57）右缘不放魂，避免贴脸遮缘
+    const soulGaps = [1.35, 7.75, 0.95, 1.1, 0.9, 1.15, 1.0, 1.1, 0.95, 1.1, 0.9, 1.0]
     let soulZ = -53.4
     for (let index = 0; index < 12; index += 1) {
       if (index > 0) soulZ -= soulGaps[index - 1]
@@ -2239,6 +2328,7 @@ export class EscapeWorld {
     sealPad.position.set(0, 1.495, -70.3)
     group.add(sealPad)
     light(group, [0, 2.1, -70.3], 0xd8b98a, 5, 0.05)
+    addContactShadow(group, [0, 0.95, -70.3], 2.0, 1.4)
     const endings = [
       { id: 'return', x: -2.7, title: '还阳' },
       { id: 'replace', x: 0, title: '顶名' },
@@ -2437,11 +2527,12 @@ export class EscapeWorld {
       this.fogTarget.setHex(0x241d12)
       this.fog.density = 0.024
     } else if (act === 'reincarnation') {
-      // 乳白雾幕：暖白低饱和天空 + 分层 sprite 浓度；冷青只留远景光门/轮盘自发光
-      this.backgroundTarget.setHex(0xa9ada3)
+      // 乳白雾幕 + 天空垂直梯度纹理；冷青只留远景光门/轮盘自发光
+      this.scene.background = this.skyGradient
       this.fogTarget.setHex(0x9ba096)
       this.fog.density = 0.026
     } else {
+      this.scene.background = this.backgroundColor
       this.backgroundTarget.setHex(0x080d0d)
       this.fogTarget.setHex(0x121c1a)
       this.fog.density = 0.018
@@ -2491,7 +2582,9 @@ export class EscapeWorld {
 
   update(delta: number): void {
     this.elapsed += delta
-    ;(this.scene.background as THREE.Color).lerp(this.backgroundTarget, Math.min(1, delta * 0.65))
+    if (this.scene.background instanceof THREE.Color) {
+      this.scene.background.lerp(this.backgroundTarget, Math.min(1, delta * 0.65))
+    }
     this.fog.color.lerp(this.fogTarget, Math.min(1, delta * 0.65))
     for (const seal of this.seals) seal.rotation.y += delta * 0.55
     for (const wheel of this.wheels) wheel.rotation.z += delta * 0.035
@@ -2523,6 +2616,12 @@ export class EscapeWorld {
       const baseY = (wisp.userData.steamBaseY as number | undefined) ?? 1
       wisp.scale.y = baseY * (0.92 + Math.sin(phase * 0.6) * 0.1)
       ;((wisp as THREE.Mesh).material as THREE.MeshBasicMaterial).opacity = 0.07 + (Math.sin(phase) + 1) * 0.035
+    }
+    for (const flame of animatedFlames) {
+      const phase = this.elapsed * 9 + flame.userData.flameOffset
+      flame.scale.y = 1 + Math.sin(phase) * 0.1
+      flame.scale.x = 1 + Math.sin(phase * 0.77) * 0.06
+      flame.scale.z = flame.scale.x
     }
     this.root.traverse((object) => {
       if (object.userData.mist) {
@@ -2592,7 +2691,27 @@ export class EscapeWorld {
     }
     // v2 石板/桥面改赋程序石材质：湿石磨痕 / 青石颗粒，消除大理石塑料感与熔融高光
     // 湿青石：Standard 材质（省 clearcoat 填充率），低粗糙度出水膜高光，bump 磨痕
-    const slabStone = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.25, color: 0xdfe8e4, roughness: 0.55, metalness: 0.015 })
+    const slabStone = new THREE.MeshStandardMaterial({ map: stoneTexture, bumpMap: stoneTexture, bumpScale: 0.25, color: 0xc7d2cc, roughness: 0.55, metalness: 0.015 })
+    // 水膜湿斑/干斑烘进 albedo（不用 roughnessMap：新增 Standard 排列使首渲编译 +2.4s，
+    // 电池模式下 ready 超 visual-check 12s 门槛）；排列与 HEAD 的 map+bump 相同
+    const slabMapCanvas = document.createElement('canvas')
+    slabMapCanvas.width = 256
+    slabMapCanvas.height = 256
+    const slabMapContext = slabMapCanvas.getContext('2d')!
+    slabMapContext.drawImage(stoneTexture.image as HTMLCanvasElement, 0, 0, 256, 256)
+    for (let index = 0; index < 90; index += 1) {
+      const wet = index % 2 === 0
+      slabMapContext.globalAlpha = 0.14 + Math.random() * 0.2
+      slabMapContext.fillStyle = wet ? '#4a5852' : '#c2ccc5'
+      slabMapContext.beginPath()
+      slabMapContext.ellipse(Math.random() * 256, Math.random() * 256, 6 + Math.random() * 30, 4 + Math.random() * 18, Math.random(), 0, Math.PI * 2)
+      slabMapContext.fill()
+    }
+    slabMapContext.globalAlpha = 1
+    const slabMap = new THREE.CanvasTexture(slabMapCanvas)
+    slabMap.wrapS = THREE.RepeatWrapping
+    slabMap.wrapT = THREE.RepeatWrapping
+    slabStone.map = slabMap
     // 桥材质：提亮石纹 canvas 防低反照率黑桥；repeat 补 0..1 atlas UV 的颗粒密度；单面保留原法线
     const bridgeCanvas = document.createElement('canvas')
     bridgeCanvas.width = 512
@@ -2687,6 +2806,7 @@ export class EscapeWorld {
           instances.push(copy)
         }
         for (const instance of instances) this.root.add(instance)
+        if (this.shadowLight) this.shadowLight.shadow.needsUpdate = true
         if (asset.replaces === 'nine-palace-tiles') {
           this.ninePalaceAsset = wrapper
           for (const tile of this.stones.values()) tile.visible = false
