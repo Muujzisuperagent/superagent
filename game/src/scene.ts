@@ -5,6 +5,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { ACTS, type ActId } from './story'
 import { SCALE_WEIGHTS } from './puzzles_act23'
+import { copyText, registerCopySurface } from './copy-store'
 
 export type InteractionKind = 'herb' | 'bowl' | 'seal' | 'exit' | 'combine' | 'ending' | 'evidence' | 'weight' | 'inscription' | 'hourplate' | 'register' | 'lamp' | 'brush'
 
@@ -411,30 +412,35 @@ function label(parent: THREE.Object3D, text: string, position: [number, number, 
   canvas.width = 768
   canvas.height = 160
   const context = canvas.getContext('2d')!
-  context.fillStyle = '#211a15'
-  context.fillRect(0, 0, canvas.width, canvas.height)
-  context.strokeStyle = '#756649'
-  context.lineWidth = 5
-  context.strokeRect(8, 8, canvas.width - 16, canvas.height - 16)
-  context.fillStyle = '#c9b78c'
-  const maxTextWidth = canvas.width - 72
-  let fontSize = 56
-  context.font = `${fontSize}px "Noto Serif SC", serif`
-  const measuredWidth = context.measureText(text).width
-  if (measuredWidth > maxTextWidth) {
-    fontSize = Math.max(28, Math.floor(fontSize * maxTextWidth / measuredWidth))
-    context.font = `${fontSize}px "Noto Serif SC", serif`
-  }
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
-  context.fillText(text, canvas.width / 2, canvas.height / 2, maxTextWidth)
   const texture = new THREE.CanvasTexture(canvas)
+  const draw = (value: string): void => {
+    context.fillStyle = '#211a15'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.strokeStyle = '#756649'
+    context.lineWidth = 5
+    context.strokeRect(8, 8, canvas.width - 16, canvas.height - 16)
+    context.fillStyle = '#c9b78c'
+    const maxTextWidth = canvas.width - 72
+    let fontSize = 56
+    context.font = `${fontSize}px "Noto Serif SC", serif`
+    const measuredWidth = context.measureText(value).width
+    if (measuredWidth > maxTextWidth) {
+      fontSize = Math.max(28, Math.floor(fontSize * maxTextWidth / measuredWidth))
+      context.font = `${fontSize}px "Noto Serif SC", serif`
+    }
+    context.textAlign = 'center'
+    context.textBaseline = 'middle'
+    context.fillText(value, canvas.width / 2, canvas.height / 2, maxTextWidth)
+    texture.needsUpdate = true
+  }
+  draw(copyText(text))
   texture.colorSpace = THREE.SRGBColorSpace
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width / 4.8), new THREE.MeshStandardMaterial({ map: texture, roughness: 0.9, side: THREE.DoubleSide, emissive: 0x241a10, emissiveIntensity: 0.6 }))
   mesh.position.set(...position)
   if (floor) mesh.rotation.x = -Math.PI / 2
   mesh.rotation.y = rotationY
   parent.add(mesh)
+  registerCopySurface(text, () => draw(copyText(text)))
 }
 
 function light(parent: THREE.Object3D, position: [number, number, number], color = 0xa8d8c3, intensity = 5, radius = 0.11): void {
@@ -1223,21 +1229,26 @@ export class EscapeWorld {
     atlasCanvas.width = 640
     atlasCanvas.height = 256
     const atlasContext = atlasCanvas.getContext('2d')!
-    atlasContext.fillStyle = '#c9bd9c'
-    atlasContext.fillRect(0, 0, 640, 256)
-    atlasContext.strokeStyle = '#6b5a41'
-    atlasContext.lineWidth = 3
-    atlasContext.fillStyle = '#3a2c1c'
-    atlasContext.font = '30px "Noto Serif SC", serif'
-    atlasContext.textAlign = 'center'
-    atlasContext.textBaseline = 'middle'
-    for (let index = 0; index < tagNames.length; index += 1) {
-      const cx = (index % 5) * 128 + 64
-      const cy = Math.floor(index / 5) * 64 + 32
-      atlasContext.strokeRect((index % 5) * 128 + 3, Math.floor(index / 5) * 64 + 3, 122, 58)
-      atlasContext.fillText(tagNames[index], cx, cy)
-    }
     const atlasTexture = new THREE.CanvasTexture(atlasCanvas)
+    const drawTagAtlas = (): void => {
+      atlasContext.fillStyle = '#c9bd9c'
+      atlasContext.fillRect(0, 0, 640, 256)
+      atlasContext.strokeStyle = '#6b5a41'
+      atlasContext.lineWidth = 3
+      atlasContext.fillStyle = '#3a2c1c'
+      atlasContext.font = '30px "Noto Serif SC", serif'
+      atlasContext.textAlign = 'center'
+      atlasContext.textBaseline = 'middle'
+      for (let index = 0; index < tagNames.length; index += 1) {
+        const cx = (index % 5) * 128 + 64
+        const cy = Math.floor(index / 5) * 64 + 32
+        atlasContext.strokeRect((index % 5) * 128 + 3, Math.floor(index / 5) * 64 + 3, 122, 58)
+        atlasContext.fillText(copyText(tagNames[index]), cx, cy)
+      }
+      atlasTexture.needsUpdate = true
+    }
+    drawTagAtlas()
+    for (const name of tagNames) registerCopySurface(name, drawTagAtlas)
     atlasTexture.colorSpace = THREE.SRGBColorSpace
     const tagMaterial = new THREE.MeshStandardMaterial({ map: atlasTexture, roughness: 0.92 })
     const tagUV = (geometry: THREE.BufferGeometry, index: number): void => {
@@ -1529,24 +1540,29 @@ export class EscapeWorld {
     rackCanvas.width = 512
     rackCanvas.height = 512
     const rackContext = rackCanvas.getContext('2d')!
-    rackContext.fillStyle = '#c9bd9c'
-    rackContext.fillRect(0, 0, 512, 512)
-    rackContext.strokeStyle = '#6b5a41'
-    rackContext.lineWidth = 3
-    const herbNames = ['当归', '远志', '合欢', '忘忧', '黄芪', '甘草', '茯苓', '半夏', '陈皮', '桂枝', '白芍', '川芎', '地黄', '麦冬', '五味', '枸杞', '丹参', '桔梗', '枳壳', '厚朴']
-    rackContext.fillStyle = '#3a2c1c'
-    rackContext.font = '40px "Noto Serif SC", serif'
-    rackContext.textAlign = 'center'
-    rackContext.textBaseline = 'middle'
-    for (let index = 0; index < herbNames.length; index += 1) {
-      const cx = 64 + (index % 4) * 128
-      const cy = 64 + Math.floor(index / 4) * 96
-      rackContext.strokeRect(cx - 52, cy - 40, 104, 80)
-      rackContext.fillText(herbNames[index], cx, cy)
-    }
-    rackContext.fillStyle = '#761824'
-    rackContext.fillRect(440, 452, 44, 44)
     const rackTexture = new THREE.CanvasTexture(rackCanvas)
+    const herbNames = ['当归', '远志', '合欢', '忘忧', '黄芪', '甘草', '茯苓', '半夏', '陈皮', '桂枝', '白芍', '川芎', '地黄', '麦冬', '五味', '枸杞', '丹参', '桔梗', '枳壳', '厚朴']
+    const drawRackAtlas = (): void => {
+      rackContext.fillStyle = '#c9bd9c'
+      rackContext.fillRect(0, 0, 512, 512)
+      rackContext.strokeStyle = '#6b5a41'
+      rackContext.lineWidth = 3
+      rackContext.fillStyle = '#3a2c1c'
+      rackContext.font = '40px "Noto Serif SC", serif'
+      rackContext.textAlign = 'center'
+      rackContext.textBaseline = 'middle'
+      for (let index = 0; index < herbNames.length; index += 1) {
+        const cx = 64 + (index % 4) * 128
+        const cy = 64 + Math.floor(index / 4) * 96
+        rackContext.strokeRect(cx - 52, cy - 40, 104, 80)
+        rackContext.fillText(copyText(herbNames[index]), cx, cy)
+      }
+      rackContext.fillStyle = '#761824'
+      rackContext.fillRect(440, 452, 44, 44)
+      rackTexture.needsUpdate = true
+    }
+    drawRackAtlas()
+    for (const name of herbNames) registerCopySurface(name, drawRackAtlas)
     rackTexture.colorSpace = THREE.SRGBColorSpace
     const rackFace = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.7), new THREE.MeshStandardMaterial({ map: rackTexture, roughness: 0.92 }))
     rackFace.position.z = 0.012
@@ -2108,23 +2124,28 @@ export class EscapeWorld {
     canvas.width = 256
     canvas.height = 256
     const context = canvas.getContext('2d')!
-    context.clearRect(0, 0, 256, 256)
-    context.textAlign = 'center'
-    context.textBaseline = 'middle'
-    // B10：刻字对比 +15%——深凹槽墨色 + 骨白描边 + 字号 164→180，近景九格全可读
-    context.font = 'bold 180px serif'
-    context.strokeStyle = '#cfd8d2'
-    context.lineWidth = 10
-    context.strokeText(text, 128, 132)
-    context.fillStyle = '#2e3b34'
-    context.fillText(text, 128, 132)
     const texture = new THREE.CanvasTexture(canvas)
+    const draw = (value: string): void => {
+      context.clearRect(0, 0, 256, 256)
+      context.textAlign = 'center'
+      context.textBaseline = 'middle'
+      // B10：刻字对比 +15%——深凹槽墨色 + 骨白描边 + 字号 164→180，近景九格全可读
+      context.font = 'bold 180px serif'
+      context.strokeStyle = '#cfd8d2'
+      context.lineWidth = 10
+      context.strokeText(value, 128, 132)
+      context.fillStyle = '#2e3b34'
+      context.fillText(value, 128, 132)
+      texture.needsUpdate = true
+    }
+    draw(copyText(text))
     texture.colorSpace = THREE.SRGBColorSpace
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 1, depthWrite: false, side: THREE.DoubleSide })
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width), material)
     mesh.position.set(...position)
     mesh.rotation.x = -Math.PI / 2
     parent.add(mesh)
+    registerCopySurface(text, () => draw(copyText(text)))
   }
 
   private buildReincarnation(): void {

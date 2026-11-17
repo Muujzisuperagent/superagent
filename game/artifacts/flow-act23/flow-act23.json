@@ -125,7 +125,7 @@
     {
       "name": "性能（三殿区域）",
       "ok": true,
-      "detail": "fps=26 draws=284 tris=3295060"
+      "detail": "fps=39 draws=284 tris=3296560"
     },
     {
       "name": "无 pageerror",
@@ -141,9 +141,9 @@
   "pageErrors": [],
   "console404": [],
   "metrics": {
-    "fps": 26,
+    "fps": 39,
     "drawCalls": 284,
-    "triangles": 3295060
+    "triangles": 3296560
   },
   "knownIssues": []
 }
