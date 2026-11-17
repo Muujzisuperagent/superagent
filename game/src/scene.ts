@@ -1456,8 +1456,13 @@ export class EscapeWorld {
     const packet = roundedBox(bench, [0.3, 0.08, 0.22], [-2.35, 1.265, -1.15], PAPER, 0.02)
     packet.rotation.y = 0.5
     addContactShadow(bench, [-2.35, 1.23, -1.15], 0.42, 0.34)
-    roundedBox(bench, [0.42, 0.4, 0.42], [4.55, 1.38, -2.6], BRONZE, 0.045)
-    this.addSeal(group, 'medicine', 'seal4', '半印④ · 不忘汤已成', [4.55, 1.52, -2.6])
+    // 半印④印台：四腿小案落地承印，离侧柜抽屉面 0.25m；修掉旧铜块与柜面共面、悬空 1.18m 的穿模
+    roundedBox(bench, [0.6, 0.06, 0.6], [4.2, 0.92, -2.6], WOOD, 0.03)
+    for (const [dx, dz] of [[-0.24, -0.24], [0.24, -0.24], [-0.24, 0.24], [0.24, 0.24]] as const) {
+      roundedBox(bench, [0.07, 0.89, 0.07], [4.2 + dx, 0.445, -2.6 + dz], WOOD, 0.02)
+    }
+    roundedBox(bench, [0.34, 0.03, 0.34], [4.2, 0.965, -2.6], BRONZE, 0.012)
+    this.addSeal(group, 'medicine', 'seal4', '半印④ · 不忘汤已成', [4.2, 1.41, -2.6])
 
     const pot = new THREE.Group()
     pot.position.set(4.4, 0, -5.5)
