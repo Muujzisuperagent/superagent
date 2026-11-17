@@ -1,0 +1,70 @@
+{
+  "baseUrl": "http://127.0.0.1:5173",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "capturedAt": "2026-11-16T09:14:26.266Z",
+  "views": {
+    "medicine": {
+      "screenshot": "D:\\群核科技黑客松\\artifacts\\performance\\screens\\act4-medicine.png",
+      "loadMs": 606,
+      "frames": 133,
+      "seconds": 2.208,
+      "fps": 60.235507246376805,
+      "drawsPerFrame": 288,
+      "mainDrawsPerFrame": 238,
+      "jsHeapMB": 40.28996658325195,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    "palace": {
+      "screenshot": "D:\\群核科技黑客松\\artifacts\\performance\\screens\\act5-palace.png",
+      "loadMs": 566,
+      "frames": 133,
+      "seconds": 2.2153000000007452,
+      "fps": 60.03701530264761,
+      "drawsPerFrame": 220,
+      "mainDrawsPerFrame": 170,
+      "jsHeapMB": 42.645267486572266,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    "river": {
+      "screenshot": "D:\\群核科技黑客松\\artifacts\\performance\\screens\\act6-reincarnation.png",
+      "loadMs": 566,
+      "frames": 133,
+      "seconds": 2.205,
+      "fps": 60.317460317460316,
+      "drawsPerFrame": 130,
+      "mainDrawsPerFrame": 80,
+      "jsHeapMB": 55.03479480743408,
+      "canvas": 1,
+      "gpu": {
+        "vendor": "Google Inc. (Intel)",
+        "renderer": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    }
+  },
+  "summary": {
+    "canvas": 1,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": []
+  }
+}

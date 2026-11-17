@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\act6-reincarnation.png",
+      "sha256": "bd4bc4888536f3ead66428cdad7b27e042f617bda5195ea215e76c6379161b5d",
+      "scene": "六殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.137602,
+      "luma_std_srgb": 0.098201,
+      "near_black_pct_luma_lt_0_05": 8.2227,
+      "near_white_pct_luma_gt_0_95": 0.0,
+      "saturation_hsv_mean": 0.3437,
+      "high_saturation_pct_gt_0_8": 1.7762,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 3.0917,
+        "深木": 91.1617,
+        "烛黄": 0.0103,
+        "朱砂": 0.5141,
+        "宣纸": 0.5813,
+        "彼岸红": 1.9149
+      },
+      "palette_coverage_pct": 97.2739,
+      "red_family_candidate_pct": 2.429,
+      "review_notes": [
+        "六殿允许大面积彼岸红，不按全图红色比例执行5%限制"
+      ]
+    }
+  ]
+}

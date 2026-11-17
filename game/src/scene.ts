@@ -1800,8 +1800,12 @@ export class EscapeWorld {
     const floatingBook = new THREE.Group()
     floatingBook.position.set(5.15, 2.35, 17.7)
     group.add(floatingBook)
+    // 自发光书页：悬在架尽黑暗里，远看也能认出是那一册
+    const pageMaterial = PAPER.clone()
+    pageMaterial.emissive = new THREE.Color(0x3d5f4c)
+    pageMaterial.emissiveIntensity = 0.55
     for (const side of [-1, 1]) {
-      const page = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.42, 0.028), PAPER)
+      const page = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.42, 0.028), pageMaterial)
       page.position.set(side * 0.16, 0, 0.03)
       page.rotation.y = side * 0.55
       page.rotation.x = side * 0.12

@@ -1050,7 +1050,8 @@ function currentGoal(): { name: string; meta: string; position: THREE.Vector3 } 
     if (gatha) return { name: '读足秤偈', meta: '十六两为一斤', position: gatha.object.getWorldPosition(goalPosition) }
   }
   if (act === 'archive') {
-    const target = !archive.isFound ? findInteraction('register', undefined, 'archive')
+    // 架上另有甲午/庚申两册错册且永不禁用；不指定 id 会一直指向甲午册，玩家永远找不到丙午册。
+    const target = !archive.isFound ? findInteraction('register', 'bingwu', 'archive')
       : !archive.isRevealed ? findInteraction('lamp', undefined, 'archive')
         : findInteraction('brush', undefined, 'archive')
     if (target) {
