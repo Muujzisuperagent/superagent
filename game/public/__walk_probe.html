@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>WASD 漫游探针</title>
+<style>
+html,body{margin:0;background:#080b0c;overflow:hidden}
+iframe{width:1440px;height:900px;border:0;display:block}
+#p{position:fixed;right:12px;bottom:10px;font:15px/1.5 monospace;color:#b8f2d6;
+   background:rgba(0,0,0,.78);border:1px solid #2c6b58;padding:6px 10px;z-index:9}
+</style></head>
+<body>
+<iframe id="f" src="/first-hall/?debug=1&cam=0,1.65,4.6&v=7"></iframe>
+<div id="p">probe: waiting for scene…</div>
+<script>
+// 确定性验证：等 first-hall 完成 GLB 载入并复位到已知机位 cam=0,1.65,4.6 后，
+// 派发一次 KeyW（键盘链路），再调用 debug 钩子同步推进 30 步（运动学链路）。
+// W 朝视线方向（-Z），期望 after.z 明显小于 before.z。
+var f = document.getElementById("f"), p = document.getElementById("p");
+
+function run() {
+  var w = f.contentWindow;
+  try {
+    w.dispatchEvent(new w.KeyboardEvent("keydown", { code: "KeyW", bubbles: true }));
+    var r = w.__walkProbe ? w.__walkProbe(30) : null;
+    if (!r) { p.textContent = "probe: __walkProbe missing"; return; }
+    var fmt = function (a) { return a.map(function (v) { return v.toFixed(2); }).join(","); };
+    var dz = r.before[2] - r.after[2];
+    p.textContent = "before cam=" + fmt(r.before) + "  |  after cam=" + fmt(r.after) +
+                    "  |  keys=" + r.keys.join("+") + "  |  dz=+" + dz.toFixed(3) +
+                    "  |  " + (dz > 0.5 ? "WASD_FORWARD_OK" : "FAIL");
+  } catch (e) { p.textContent = "probe error: " + e.message; }
+}
+
+f.addEventListener("load", function () {
+  var w = f.contentWindow, n = 0;
+  function wait() {
+    n++;
+    var d = w.document, el = d && d.getElementById("loading");
+    if (el && el.classList.contains("done")) { run(); return; }
+    if (n < 400) w.requestAnimationFrame(wait);
+    else p.textContent = "probe: timeout waiting scene";
+  }
+  w.requestAnimationFrame(wait);
+});
+</script>
+</body>
+</html>

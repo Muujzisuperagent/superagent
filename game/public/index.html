@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>还魂路引 · 千房 3D AI 密室系列</title>
+<style>
+:root{
+  --bg:#080c0b; --panel:rgba(16,22,20,.9); --line:rgba(186,200,190,.18);
+  --ink:#e8e6da; --dim:#929c96; --jade:#a8c9bb; --cinnabar:#b8573e;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --serif:"Songti SC","STSong","SimSun",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+body{background:
+  radial-gradient(ellipse 62% 50% at 50% 22%,rgba(168,201,187,.06),transparent 72%),
+  radial-gradient(ellipse 90% 60% at 50% 118%,rgba(184,87,62,.05),transparent 70%),var(--bg)}
+#veil{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 64% at 50% 46%,transparent 42%,rgba(2,6,5,.62) 100%)}
+.wrap{position:relative;z-index:1;max-width:940px;margin:0 auto;padding:56px 24px 70px}
+
+header{text-align:center;margin-bottom:42px}
+.seal{width:52px;height:52px;margin:0 auto 20px;border:1px solid rgba(184,87,62,.7);
+  background:rgba(184,87,62,.08);color:var(--cinnabar);display:grid;place-items:center;
+  border-radius:3px;font:600 26px/1 var(--serif);letter-spacing:.1em}
+h1{margin:0;font:400 34px/1.3 var(--serif);letter-spacing:.22em;text-indent:.22em}
+.sub{margin:10px 0 0;font:400 11px/1.6 var(--mono);letter-spacing:.14em;color:var(--dim)}
+.lede{max-width:620px;margin:22px auto 0;font:400 14px/2 var(--serif);
+  letter-spacing:.05em;color:#cfd3c8}
+.lede b{color:var(--cinnabar);font-weight:400}
+
+/* 动线：两厅 + 后续殿，点节点直接进厅 */
+.route{display:flex;align-items:stretch;justify-content:center;gap:0;margin:46px 0 40px;flex-wrap:wrap}
+.node{position:relative;width:250px;padding:22px 20px 20px;text-decoration:none;color:inherit;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;transition:.2s;
+  display:flex;flex-direction:column;min-height:184px}
+.node.live:hover{border-color:rgba(168,201,187,.55);background:rgba(168,201,187,.07);transform:translateY(-3px)}
+.node .no{font:400 10px/1 var(--mono);letter-spacing:.16em;color:var(--dim)}
+.node h2{margin:12px 0 0;font:400 20px/1.4 var(--serif);letter-spacing:.12em}
+.node .en{margin:4px 0 0;font:400 9px/1.5 var(--mono);letter-spacing:.1em;color:var(--dim)}
+.node p{margin:12px 0 0;font:400 12px/1.8 var(--serif);color:#bcc4ba;flex:1}
+.node .act{margin-top:14px;font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--jade)}
+.node.soon{opacity:.5;cursor:default}
+.node.soon .act{color:var(--dim)}
+.arrow{display:grid;place-items:center;width:52px;color:var(--dim);font:400 20px/1 var(--serif)}
+
+.how{max-width:720px;margin:0 auto;border-top:1px solid var(--line);padding-top:26px}
+.how h3{margin:0 0 14px;font:400 14px/1.4 var(--serif);letter-spacing:.1em;color:var(--jade)}
+.how ul{margin:0;padding-left:20px;font:400 12px/2 var(--serif);color:#bcc4ba}
+.how code{font:400 11px/1.5 var(--mono);color:#d7c9a8;background:rgba(255,255,255,.04);
+  padding:1px 5px;border-radius:3px}
+footer{margin-top:36px;text-align:center;font:400 10px/1.9 var(--mono);
+  letter-spacing:.08em;color:#6f7b74}
+
+@media(max-width:760px){
+  .wrap{padding:38px 16px 50px}
+  h1{font-size:26px}
+  .arrow{width:100%;height:30px;transform:rotate(90deg)}
+  .node{width:100%;min-height:0}
+}
+</style>
+</head>
+<body>
+<div id="veil"></div>
+<div class="wrap">
+  <header>
+    <div class="seal">引</div>
+    <h1>还魂路引</h1>
+    <p class="sub">千房 · 3D AI 密室系列 / AHOLO LUX3D · 阴曹地府风</p>
+    <p class="lede">你寿数未终，簿上却已勾了名。<br>
+      四十九日，六殿各盖半印，拼成骑缝章，换一张<b>还魂路引</b>。<br>
+      从便民司领牒点香，到孽镜台照见从前——路，从第一扇门后开始。</p>
+  </header>
+
+  <nav class="route" aria-label="密室动线">
+    <a class="node live" href="prologue/">
+      <span class="no">第 0 站 · PROLOGUE</span>
+      <h2>序厅 · 阴司便民司</h2>
+      <p class="en">THE WAITING HALL</p>
+      <p>六窗只开一扇，纸人面壁。走到案边听判官崔珏问话，说一句「我不认」，摇号、取牌、合牒、点香。</p>
+      <span class="act">进入序厅 →</span>
+    </a>
+    <div class="arrow" aria-hidden="true">→</div>
+    <a class="node live" href="first-hall/?from=prologue=1">
+      <span class="no">第 1 站 · HALL ONE</span>
+      <h2>第一殿 · 孽镜台</h2>
+      <p class="en">KARMA MIRROR</p>
+      <p>点镜，雾里浮出「进门之前」。把五处陈设摆回镜中样子，镜裂，半印① 落下。</p>
+      <span class="act">直接进第一殿 ↗</span>
+    </a>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="node soon">
+      <span class="no">第 2 – 6 站 · 待续</span>
+      <h2>其余五殿</h2>
+      <p class="en">THE REMAINING HALLS</p>
+      <p>业秤、枉死城……其余半印与终局骑缝，留给后续关卡。</p>
+      <span class="act">尚未开放</span>
+    </div>
+  </nav>
+
+  <section class="how">
+    <h3>怎么玩</h3>
+    <ul>
+      <li>建议从<b style="color:var(--jade);font-weight:400">序厅</b>开始：点香后走到长廊尽头，点那扇自己开的门，会直接穿进第一殿。</li>
+      <li><code>W A S D</code> 走动，<code>Q / E</code> 升降视点，<code>Shift</code> 快走，<code>R</code> 回中央机位；左键转视角。</li>
+      <li>序厅：<b style="color:var(--jade);font-weight:400">走近判官</b>才开口，<code>T</code> 开卷宗，唯一申辩是「我不认」。</li>
+      <li>第一殿：点镜子照旧景，<b style="color:var(--jade);font-weight:400">按住空格</b>透视实景来回比对；默认不给答案提示。</li>
+      <li>两厅都可单独打开；从序厅穿门进来时，第一殿会显示承接对白，通关后可点「回到便民司」。</li>
+    </ul>
+  </section>
+
+  <footer>
+    千房 · 3D AI 密室系列　|　程序化场景 + Aholo Lux3D 生成资产　|　Three.js r128 · 无外部 CDN<br>
+    请通过本地静态服务打开（见 README），不要直接双击 index.html。
+  </footer>
+</div>
+</body>
+</html>
