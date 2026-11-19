@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>还魂路引 · 路线图｜序厅 → 第一殿 → 第二至第六殿</title>
+<style>
+:root{
+  --bg:#080c0b; --panel:rgba(16,22,20,.9); --line:rgba(186,200,190,.18);
+  --ink:#e8e6da; --dim:#929c96; --jade:#a8c9bb; --cinnabar:#b8573e;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --serif:"Songti SC","STSong","SimSun",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+body{background:
+  radial-gradient(ellipse 62% 50% at 50% 22%,rgba(168,201,187,.06),transparent 72%),
+  radial-gradient(ellipse 90% 60% at 50% 118%,rgba(184,87,62,.05),transparent 70%),var(--bg)}
+#veil{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 64% at 50% 46%,transparent 42%,rgba(2,6,5,.62) 100%)}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:56px 24px 70px}
+
+header{text-align:center;margin-bottom:38px}
+.seal{width:52px;height:52px;margin:0 auto 20px;border:1px solid rgba(184,87,62,.7);
+  background:rgba(184,87,62,.08);color:var(--cinnabar);display:grid;place-items:center;
+  border-radius:3px;font:600 26px/1 var(--serif);letter-spacing:.1em}
+h1{margin:0;font:400 34px/1.3 var(--serif);letter-spacing:.22em;text-indent:.22em}
+.sub{margin:10px 0 0;font:400 11px/1.6 var(--mono);letter-spacing:.14em;color:var(--dim)}
+.lede{max-width:660px;margin:22px auto 0;font:400 14px/2 var(--serif);
+  letter-spacing:.05em;color:#cfd3c8}
+.lede b{color:var(--cinnabar);font-weight:400}
+
+/* ── 动线段标题 ── */
+.band{margin:40px 0 18px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.band h2{margin:0;font:400 17px/1.3 var(--serif);letter-spacing:.16em;color:var(--jade)}
+.band span{font:400 10px/1.4 var(--mono);letter-spacing:.12em;color:var(--dim)}
+.band::after{content:"";flex:1;height:1px;background:var(--line);min-width:40px}
+
+/* ── 节点卡片 ── */
+.route{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(268px,1fr))}
+.node{position:relative;text-decoration:none;color:inherit;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;transition:.2s;
+  display:flex;flex-direction:column;min-height:186px;padding:20px 20px 18px;overflow:hidden}
+.node::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,rgba(184,87,62,.8),rgba(184,87,62,0))}
+.node.live:hover{border-color:rgba(168,201,187,.55);background:rgba(168,201,187,.07);transform:translateY(-3px)}
+.node .no{font:400 10px/1 var(--mono);letter-spacing:.16em;color:var(--dim)}
+.node h3{margin:12px 0 0;font:400 20px/1.4 var(--serif);letter-spacing:.12em}
+.node .en{margin:4px 0 0;font:400 9px/1.5 var(--mono);letter-spacing:.1em;color:var(--dim)}
+.node p{margin:12px 0 0;font:400 12px/1.85 var(--serif);color:#bcc4ba;flex:1}
+.node .act{margin-top:14px;font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--jade)}
+.node.same{border-style:dashed}
+.node.same .act{color:#d7c9a8}
+.badge{display:inline-block;align-self:flex-start;margin-top:10px;padding:2px 8px;border-radius:12px;
+  border:1px solid rgba(168,201,187,.4);color:var(--jade);
+  font:400 9px/1.6 var(--mono);letter-spacing:.1em}
+.badge.warm{border-color:rgba(184,87,62,.45);color:#e0a491}
+
+/* ── 说明 ── */
+.how{max-width:760px;margin:44px auto 0;border-top:1px solid var(--line);padding-top:26px}
+.how h3{margin:0 0 14px;font:400 14px/1.4 var(--serif);letter-spacing:.1em;color:var(--jade)}
+.how ul{margin:0;padding-left:20px;font:400 12px/2 var(--serif);color:#bcc4ba}
+.how code{font:400 11px/1.5 var(--mono);color:#d7c9a8;background:rgba(255,255,255,.04);
+  padding:1px 5px;border-radius:3px}
+.how b{color:var(--jade);font-weight:400}
+.how a{color:#d7c9a8}
+footer{margin-top:36px;text-align:center;font:400 10px/1.9 var(--mono);
+  letter-spacing:.08em;color:#6f7b74}
+
+@media(max-width:760px){
+  .wrap{padding:38px 16px 50px}
+  h1{font-size:26px}
+  .node{min-height:0}
+}
+</style>
+</head>
+<body>
+<div id="veil"></div>
+<div class="wrap">
+  <header>
+    <div class="seal">引</div>
+    <h1>还魂路引</h1>
+    <p class="sub">路线图 / 千房 · 3D AI 密室系列 / AHOLO LUX3D · 阴曹地府风</p>
+    <p class="lede">你寿数未终，簿上却已勾了名。<br>
+      四十九日，六殿各盖半印，拼成骑缝章，换一张<b>还魂路引</b>。<br>
+      序厅领牒点香，第一殿照见从前；<b>第二至第六殿在同一页面里连续推进</b>，不进浏览器、不切标签。</p>
+  </header>
+
+  <div class="band">
+    <h2>前两站 · 各自独立</h2>
+    <span>PROLOGUE → HALL ONE</span>
+  </div>
+  <nav class="route" aria-label="前两站">
+    <a class="node live" href="../prologue/index.html">
+      <span class="no">第 0 站 · PROLOGUE</span>
+      <h3>序厅 · 阴司便民司</h3>
+      <p class="en">THE WAITING HALL</p>
+      <p>六窗只开一扇，纸人面壁。走到案边听判官崔珏问话，说一句「我不认」，摇号、取牌、合牒、点香。香尽门自开。</p>
+      <span class="act">进入序厅 →</span>
+    </a>
+    <a class="node live" href="../first-hall/index.html">
+      <span class="no">第 1 站 · HALL ONE</span>
+      <h3>第一殿 · 孽镜台</h3>
+      <p class="en">KARMA MIRROR</p>
+      <p>点镜，雾里浮出「进门之前」。把五处陈设摆回镜中样子，镜裂，半印① 落下。摆好之后，右上角「殿中陈设」抽屉可随时展开。</p>
+      <span class="act">直接进第一殿 ↗</span>
+    </a>
+  </nav>
+
+  <div class="band">
+    <h2>后五站 · 同一局连续推进</h2>
+    <span>SECOND → SIXTH · ONE PAGE</span>
+  </div>
+  <nav class="route" aria-label="第二至第六殿">
+    <a class="node same" href="../../">
+      <span class="no">第 2 站 · SECOND</span>
+      <h3>第二殿 · 业秤</h3>
+      <p class="en">THE SCALE</p>
+      <p>左盘三十两，是你生前自己称下的。读偈文，补足五十两，再把多出的一两压进未时。秤平，半印② 落下。</p>
+      <span class="badge">同一局</span>
+      <span class="act">从这里开局 →</span>
+    </a>
+    <a class="node same" href="../../">
+      <span class="no">第 3 站 · THIRD</span>
+      <h3>第三殿 · 簿库</h3>
+      <p class="en">THE ARCHIVE</p>
+      <p>落户要三样：生辰、卒年、案由。你缺一样。丙午年册悬在架上，正光照字，侧光照改，朱笔勘合，半印③ 落下。</p>
+      <span class="badge">同一局</span>
+      <span class="act">承前继续 →</span>
+    </a>
+    <a class="node same" href="../../">
+      <span class="no">第 4 站 · FOURTH</span>
+      <h3>第四殿 · 药局</h3>
+      <p class="en">THE MEDICINE</p>
+      <p>解藏头诗，按君臣佐使配出不忘汤：取药、查看药碗、收取半印④。药渣别剩，汤温刚好。</p>
+      <span class="badge">同一局</span>
+      <span class="act">承前继续 →</span>
+    </a>
+    <a class="node same" href="../../">
+      <span class="no">第 5 站 · FIFTH</span>
+      <h3>第五殿 · 九宫阵</h3>
+      <p class="en">THE NINE PALACE</p>
+      <p>戴九履一，左三右七。踩完九块石板，印自己会落，半印⑤ 入路引。本该先问一句案由，可没人问。</p>
+      <span class="badge">同一局</span>
+      <span class="act">承前继续 →</span>
+    </a>
+    <a class="node same" href="../../">
+      <span class="no">第 6 站 · SIXTH</span>
+      <h3>第六殿 · 忘川桥</h3>
+      <p class="en">THE RIVER FORGETTING</p>
+      <p>过桥，走到亭前。合六印开三条路，三种结局各有各的代价——回去、留下、或者替别人走完。</p>
+      <span class="badge warm">终局 · 可选结局</span>
+      <span class="act">承前继续 →</span>
+    </a>
+  </nav>
+
+  <section class="how">
+    <h3>怎么玩</h3>
+    <ul>
+      <li>建议从<b>序厅</b>开始：摇号 → 取牌 → 合牒 → 点香，香尽门自开，穿过走廊尽头的门即进第一殿。</li>
+      <li>第一殿通关后，点「入第二殿 · 业秤」直接落到第二至第六殿这一局；根游戏开局浮层可选「从序厅开始」或「直接进入第二殿」。</li>
+      <li>第二至第六殿是<b>同一页面连续推进</b>：二殿业秤 → 三殿簿库 → 四殿药局 → 五殿九宫 → 六殿忘川，殿与殿之间推门即过。</li>
+      <li>序厅 / 第一殿：<code>W A S D</code> 走动，<code>Q / E</code> 升降视点，<code>Shift</code> 快走，<code>R</code> 回中央机位；左键转视角。</li>
+      <li>第二至第六殿：<code>WASD</code> 移动，鼠标环视，<code>E</code> 交互，<code>Esc</code> 释放鼠标，右上角箭头指路。</li>
+      <li>第一殿默认不给答案提示；需要复核时加 <code>?hints=1</code>，可见五处对照与「摆成镜中样」。</li>
+    </ul>
+  </section>
+
+  <footer>
+    千房 · 3D AI 密室系列　|　程序化场景 + Aholo Lux3D 生成资产　|　Three.js r128 · 无外部 CDN<br>
+    请通过本地静态服务打开（见 README），不要直接双击 index.html。
+  </footer>
+</div>
+</body>
+</html>

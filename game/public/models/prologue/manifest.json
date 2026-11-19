@@ -1,0 +1,60 @@
+{
+  "source": "Aholo Lux3D text_to_3d (G1-Turbo, enablePbr, faceCount=20000)",
+  "assets": [
+    {
+      "key": "S0-12_ticket_machine_A",
+      "label": "取号机",
+      "taskId": 8386320,
+      "worldId": null,
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/d2d777a3ccdd4500a44a4c57f3a4a889/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 557920,
+      "sha256": "4ee514e69fa94ba2c82e959ab2150a0f20946b3de5b043e5ef8204a086f52d9a"
+    },
+    {
+      "key": "S0-13_bamboo_tally_A",
+      "label": "竹牌",
+      "taskId": 8386324,
+      "worldId": null,
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/9828fdb4f398459f96c9f5a3660b72da/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 259720,
+      "sha256": "dc3cec17a35407cd5196f5c597afa9fa408a7c37d4f571bc5ec2b906e3cd8daa"
+    },
+    {
+      "key": "S0-07_elm_bench_A",
+      "label": "榆木长凳",
+      "taskId": 8386327,
+      "worldId": null,
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/c450c7e1fe294a7fbd74be44b97945e5/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 378956,
+      "sha256": "f828d33e38fb9c39a6c18ad0cb965f5cbbf9ed6c2f78a1de8cbcbea9c9eb1956"
+    },
+    {
+      "key": "S0-37_paper_effigy_A",
+      "label": "纸扎人",
+      "taskId": 8388306,
+      "worldId": null,
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/20a2fe00660a48f6b854da2820beddbd/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 662952,
+      "sha256": "9423bb4903d071778b059459709278dbf0cad9502e014a50f3dc5388afaeb28c"
+    },
+    {
+      "key": "S0-15_paper_lantern_A",
+      "label": "白纸灯笼",
+      "taskId": 8386335,
+      "worldId": null,
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/b75192bcb5754a398080c90a1c4d78fa/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 484340,
+      "sha256": "a74ca4a576d9b79124dfe63d9a86238a73ec88f245502e78a8f5b681c3619e7b"
+    },
+    {
+      "key": "S0-21_blank_pass_A",
+      "label": "空白路引",
+      "taskId": 8386821,
+      "worldId": null,
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/f2b614931b554761a118bbaa1d93dccf/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 492120,
+      "sha256": "c7edc010c5437fc3abfd83b157a607818c136338ba1657c4c0d3ba1255e07827"
+    }
+  ],
+  "note": "序厅六件 S0 资产：先生成 G1-Turbo + PBR，再用 gltf-transform optimize --compress quantize --texture-compress webp --texture-size 1024 压到网页可用体积"
+}

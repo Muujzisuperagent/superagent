@@ -1,0 +1,158 @@
+{
+  "scope_note": "序厅+第一殿基线（commit 922a9c5，采集时工作区干净）。G0 构建与单测沿用本轮 run_auto 全仓结果（build/tests 均过）。capture.views 取三张主截图；prologue-door / first-hall-vision / first-hall-solved 截图在 screens/ 目录、指标见 perf-prologue.json 与 visual-prologue.json。failedRequests 的 6 条 S0-*.glb 由 __lux3dStatus(missing=6) + console 404 证据推出（lux3d.js:24-35 映射 S0 URL，文件系统 find 确认不存在）。",
+  "build": {
+    "ok": true,
+    "tests_ok": true
+  },
+  "assets": {
+    "fileCount": 6,
+    "errorFiles": [],
+    "totalErrors": 0,
+    "totalWarnings": 6,
+    "totalTriangles": 108558,
+    "dir": "game/public/models/low",
+    "files": [
+      {
+        "file": "S1-01_karma_mirror_A.glb",
+        "bytes": 2042320,
+        "errors": 0,
+        "warnings": 1,
+        "triangles": 21514
+      },
+      {
+        "file": "S1-05_candlestand_A.glb",
+        "bytes": 1867344,
+        "errors": 0,
+        "warnings": 1,
+        "triangles": 19952
+      },
+      {
+        "file": "S1-06_censer_A.glb",
+        "bytes": 2138676,
+        "errors": 0,
+        "warnings": 1,
+        "triangles": 17364
+      },
+      {
+        "file": "S1-07_banner_A.glb",
+        "bytes": 1804972,
+        "errors": 0,
+        "warnings": 1,
+        "triangles": 15800
+      },
+      {
+        "file": "S1-08_cabinet_door_A.glb",
+        "bytes": 1835816,
+        "errors": 0,
+        "warnings": 1,
+        "triangles": 15434
+      },
+      {
+        "file": "S1-09_ledger_volume_A.glb",
+        "bytes": 1870364,
+        "errors": 0,
+        "warnings": 1,
+        "triangles": 18394
+      }
+    ],
+    "lux_mount": {
+      "total": 9,
+      "mounted": 3,
+      "missing": 6,
+      "missingAssets": [
+        "machine",
+        "ticket",
+        "bench",
+        "folk",
+        "lamp",
+        "pass"
+      ],
+      "evidence": "screens/check.json __lux3dStatus + lux3d.js:24-46"
+    },
+    "summary": {
+      "totalErrors": 0,
+      "totalWarnings": 6
+    }
+  },
+  "capture": {
+    "baseUrl": "http://127.0.0.1:5173",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "views": {
+      "prologue-start": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\序厅一殿\\2026-11-19-922a9c5\\screens\\prologue-start.png",
+        "loadMs": 6016,
+        "fps": 167.2,
+        "drawsPerFrame": 763,
+        "mainDrawsPerFrame": 763,
+        "pageErrors": [],
+        "consoleErrors": []
+      },
+      "prologue-judge": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\序厅一殿\\2026-11-19-922a9c5\\screens\\prologue-judge.png",
+        "loadMs": 5322,
+        "fps": 104.3,
+        "drawsPerFrame": 760,
+        "mainDrawsPerFrame": 760,
+        "pageErrors": [],
+        "consoleErrors": []
+      },
+      "first-hall-entry": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\序厅一殿\\2026-11-19-922a9c5\\screens\\first-hall-entry.png",
+        "loadMs": 5683,
+        "fps": 64.0,
+        "drawsPerFrame": 332,
+        "mainDrawsPerFrame": 332,
+        "pageErrors": [],
+        "consoleErrors": []
+      }
+    },
+    "summary": {
+      "canvas": 1,
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)（S0-*.glb 缺失资源，prologue-check.mjs ERRORS 记录）"
+      ],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:5173/models/prologue/S0-12_ticket_machine_A.glb",
+          "status": 404,
+          "evidence": "lux3d.js:24 映射 + __lux3dStatus.missing + console 404"
+        },
+        {
+          "url": "http://127.0.0.1:5173/models/prologue/S0-13_bamboo_tally_A.glb",
+          "status": 404,
+          "evidence": "lux3d.js:26 映射 + __lux3dStatus.missing"
+        },
+        {
+          "url": "http://127.0.0.1:5173/models/prologue/S0-07_elm_bench_A.glb",
+          "status": 404,
+          "evidence": "lux3d.js:28 映射 + __lux3dStatus.missing"
+        },
+        {
+          "url": "http://127.0.0.1:5173/models/prologue/S0-37_paper_effigy_A.glb",
+          "status": 404,
+          "evidence": "lux3d.js:30 映射 + __lux3dStatus.missing"
+        },
+        {
+          "url": "http://127.0.0.1:5173/models/prologue/S0-15_paper_lantern_A.glb",
+          "status": 404,
+          "evidence": "lux3d.js:32 映射 + __lux3dStatus.missing"
+        },
+        {
+          "url": "http://127.0.0.1:5173/models/prologue/S0-21_blank_pass_A.glb",
+          "status": 404,
+          "evidence": "lux3d.js:39 映射 + __lux3dStatus.missing"
+        }
+      ]
+    }
+  },
+  "visual": {
+    "metric_mode": "stats",
+    "b1": 29.36,
+    "blank_views": [],
+    "detail": "visual-prologue.json：六图清晰度/对比/信息熵/色彩丰富度归一均值 29.36（pyiqa 不可用，轻量像素口径，仅回归信号）"
+  }
+}

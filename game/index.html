@@ -40,6 +40,30 @@
       <span id="objective">解藏头诗，按君臣佐使配出不忘汤。</span>
       <span id="inventory">路引 · 半印 0/6　不忘汤 · 未配</span>
       <span>WASD 移动 · 鼠标环视 · E 交互 · Esc 释放鼠标</span>
+      <a id="route-link" href="entry/index.html">路线图 · 七站动线</a>
+    </div>
+
+    <!-- 起点浮层：序厅 → 第一殿 → 第二至第六殿 的统一入口。
+         非 ?clean=1 / ?shots=1 时显示；body[data-assets="ready"] 后按钮才可点，
+         浮层层级低于 #loading-veil，绝不挡住加载遮罩。 -->
+    <div id="start-overlay">
+      <div class="start-card">
+        <p class="start-eyebrow">阴司 · 起点</p>
+        <h1 class="start-title">还魂路引</h1>
+        <p class="start-sub">序厅 → 第一殿 → 第二至第六殿</p>
+        <p class="start-note">序厅与第一殿各自独立；<b>第二至第六殿在同一页面连续推进</b>——二殿业秤开局，一路走到六殿忘川桥。</p>
+        <div class="start-actions">
+          <button id="start-prologue" class="start-btn primary" type="button">从序厅开始（推荐）</button>
+          <button id="start-direct" class="start-btn" type="button">直接进入第二殿 · 业秤</button>
+        </div>
+        <p class="start-links">
+          <a href="entry/index.html">路线图 · 七站动线</a>
+          <span class="sep">/</span>
+          <a href="prologue/index.html">序厅</a>
+          <span class="sep">/</span>
+          <a href="first-hall/index.html">第一殿</a>
+        </p>
+      </div>
     </div>
     <div id="prompt" class="hidden"></div>
     <div id="toast" class="hidden" aria-live="polite"></div>

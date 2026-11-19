@@ -1,0 +1,167 @@
+{
+  "base": "http://127.0.0.1:5173",
+  "at": "2026-11-19T04:35:56.427Z",
+  "results": [
+    {
+      "file": "prologue-start.png",
+      "path": "/prologue/index.html",
+      "title": "序厅 · 阴司便民司｜还魂路引",
+      "canvas": [
+        1440,
+        900
+      ],
+      "loadingDone": true,
+      "lux": {
+        "total": 9,
+        "mounted": 9,
+        "missing": 0,
+        "assets": [
+          "machine",
+          "ticket",
+          "bench",
+          "folk",
+          "lamp",
+          "pass",
+          "censer",
+          "ledger",
+          "cabinet"
+        ]
+      },
+      "probe": {
+        "step": 0,
+        "observed": 0,
+        "cam": [
+          -0.55,
+          1.62,
+          3.95
+        ],
+        "target": [
+          -0.459,
+          1.596,
+          2.904
+        ],
+        "busy": false
+      }
+    },
+    {
+      "file": "prologue-judge.png",
+      "path": "/prologue/index.html?dlgapproach=1",
+      "title": "APPROACH near=true started=true choice=true dist=2.05",
+      "canvas": [
+        1440,
+        900
+      ],
+      "loadingDone": true,
+      "lux": {
+        "total": 9,
+        "mounted": 9,
+        "missing": 0,
+        "assets": [
+          "machine",
+          "ticket",
+          "bench",
+          "folk",
+          "lamp",
+          "pass",
+          "censer",
+          "ledger",
+          "cabinet"
+        ]
+      },
+      "probe": {
+        "step": 0,
+        "observed": 0,
+        "cam": [
+          0.54,
+          1.58,
+          0.74
+        ],
+        "target": [
+          0.36,
+          1.369,
+          -0.273
+        ],
+        "busy": false
+      }
+    },
+    {
+      "file": "prologue-door.png",
+      "path": "/prologue/index.html?clean=1&cam=0,1.6,-14",
+      "title": "序厅 · 阴司便民司｜还魂路引",
+      "canvas": [
+        1440,
+        900
+      ],
+      "loadingDone": true,
+      "lux": {
+        "total": 9,
+        "mounted": 9,
+        "missing": 0,
+        "assets": [
+          "machine",
+          "ticket",
+          "bench",
+          "folk",
+          "lamp",
+          "pass",
+          "censer",
+          "ledger",
+          "cabinet"
+        ]
+      },
+      "probe": {
+        "step": 0,
+        "observed": 0,
+        "cam": [
+          0,
+          1.6,
+          -14
+        ],
+        "target": [
+          0.048,
+          1.57,
+          -12.952
+        ],
+        "busy": false
+      }
+    },
+    {
+      "file": "first-hall-entry.png",
+      "path": "/first-hall/index.html",
+      "title": "第一殿 · 孽镜台｜还魂路引",
+      "canvas": [
+        1440,
+        900
+      ],
+      "loadingDone": true,
+      "lux": null,
+      "probe": null
+    },
+    {
+      "file": "first-hall-vision.png",
+      "path": "/first-hall/index.html?vision=1",
+      "title": "第一殿 · 孽镜台｜还魂路引",
+      "canvas": [
+        1440,
+        900
+      ],
+      "loadingDone": true,
+      "lux": null,
+      "probe": null
+    },
+    {
+      "file": "first-hall-solved.png",
+      "path": "/first-hall/index.html?solved=1&vision=1",
+      "title": "第一殿 · 孽镜台｜还魂路引",
+      "canvas": [
+        1440,
+        900
+      ],
+      "loadingDone": true,
+      "lux": null,
+      "probe": null
+    }
+  ],
+  "errors": [],
+  "httpErrors": []
+}

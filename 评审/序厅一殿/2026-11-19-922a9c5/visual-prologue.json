@@ -1,0 +1,45 @@
+{
+ "prologue-start": {
+  "sharpness": 0.006433,
+  "contrast": 0.1307,
+  "entropy": 6.442,
+  "colorfulness": 0.0335,
+  "tech": 32.32
+ },
+ "prologue-judge": {
+  "sharpness": 0.011543,
+  "contrast": 0.1329,
+  "entropy": 6.653,
+  "colorfulness": 0.0327,
+  "tech": 26.7
+ },
+ "prologue-door": {
+  "sharpness": 0.001682,
+  "contrast": 0.1236,
+  "entropy": 6.553,
+  "colorfulness": 0.028,
+  "tech": 52.01
+ },
+ "first-hall-entry": {
+  "sharpness": 0.029283,
+  "contrast": 0.1404,
+  "entropy": 6.375,
+  "colorfulness": 0.048,
+  "tech": 20.32
+ },
+ "first-hall-vision": {
+  "sharpness": 0.008458,
+  "contrast": 0.1375,
+  "entropy": 6.321,
+  "colorfulness": 0.0432,
+  "tech": 22.44
+ },
+ "first-hall-solved": {
+  "sharpness": 0.008591,
+  "contrast": 0.1376,
+  "entropy": 6.334,
+  "colorfulness": 0.0433,
+  "tech": 22.4
+ },
+ "_average": 29.36
+}

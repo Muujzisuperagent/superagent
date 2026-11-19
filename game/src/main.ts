@@ -95,6 +95,45 @@ const dragLook = { active: false }
 const lookEngaged = (): boolean => (usePointerLock ? controls.isLocked : true)
 
 const lookEuler = new THREE.Euler(0, 0, 0, 'YXZ')
+
+// ===================== 起点浮层（序厅 → 第一殿 → 第二至第六殿） =====================
+// 序厅与第一殿是队友的独立页面，第二至第六殿是本页连续推进的一局。
+// 这里给一个统一入口：主按钮去序厅，次按钮留在本页直接开局。
+// 规则：
+// 1) 出图/回归模式（?clean=1 / ?shots=1）不弹浮层——脚本要干净画面与自由操作；
+// 2) 从第一殿「入第二殿」进来的（?from=hall1=1）不再拦一次，直接进二殿；
+// 3) 按钮要等 body[data-assets="ready"]（加载遮罩撤除）之后才可点。
+const startOverlay = document.getElementById('start-overlay')
+const startPrologueButton = document.getElementById('start-prologue') as HTMLButtonElement | null
+const startDirectButton = document.getElementById('start-direct') as HTMLButtonElement | null
+const fromHallOne = (previewMode.get('from') ?? '').startsWith('hall1')
+const startOverlayEnabled = Boolean(startOverlay) && !previewMode.has('clean') && !previewMode.has('shots') && !fromHallOne
+
+if (startOverlay) {
+  if (!startOverlayEnabled) {
+    startOverlay.remove()
+  } else {
+    const setStartButtons = (enabled: boolean): void => {
+      if (startPrologueButton) startPrologueButton.disabled = !enabled
+      if (startDirectButton) startDirectButton.disabled = !enabled
+    }
+    setStartButtons(false)
+    // 浮层开着时藏掉底部锁定提示条，避免两层提示叠着说话。
+    document.body.classList.add('start-overlay-open')
+    // 遮罩撤除时派发的 assets-veil-hidden —— 此刻才允许点击起点按钮。
+    window.addEventListener('assets-veil-hidden', () => setStartButtons(true))
+    startPrologueButton?.addEventListener('click', () => {
+      window.location.href = 'prologue/index.html'
+    })
+    startDirectButton?.addEventListener('click', () => {
+      startOverlay?.classList.add('closed')
+      document.body.classList.remove('start-overlay-open')
+      // 按钮点击本身就是用户手势，可以直接请求指针锁；免锁模式（自动化）只关浮层。
+      if (usePointerLock && !won && !controls.isLocked) controls.lock()
+    })
+  }
+}
+
 const moveDir = new THREE.Vector3()
 function applyLook(dx: number, dy: number): void {
   const sensitivity = 0.0022

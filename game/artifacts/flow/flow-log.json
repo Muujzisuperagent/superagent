@@ -1,23 +1,18 @@
 {
   "gate": "G3",
-  "baseUrl": "http://127.0.0.1:5199",
-  "ranAt": "2026-11-17T02:55:54.652Z",
+  "baseUrl": "http://localhost:5173",
+  "ranAt": "2026-11-19T04:35:20.565Z",
   "pageErrors": [],
   "steps": [
     {
-      "name": "锁定鼠标",
+      "name": "点击画面不上锁",
       "ok": true,
-      "detail": "pointerLockElement=true"
+      "detail": "pointerLockElement=false"
     },
     {
-      "name": "Esc 释放鼠标",
+      "name": "免锁提示",
       "ok": true,
-      "detail": "released=true hint=true"
-    },
-    {
-      "name": "释放后重新锁定",
-      "ok": true,
-      "detail": "pointerLockElement=true"
+      "detail": "按住左键拖动 · 环视；WASD 移动，E 交互"
     },
     {
       "name": "四殿取药 danggui",
@@ -112,7 +107,7 @@
     {
       "name": "五殿踩板 9",
       "ok": true,
-      "detail": "最后一步落在九。九块石板同时亮了。"
+      "detail": "九块石板同时亮了。"
     },
     {
       "name": "五殿收证据 D",
@@ -122,12 +117,12 @@
     {
       "name": "五殿收半印⑤",
       "ok": true,
-      "detail": "半印⑤落下。路引浮字：按例应问案由。未问。"
+      "detail": "半印⑤落下。路引浮字：按规矩，本该先问一句案由的，可没人问。"
     },
     {
       "name": "六殿合符",
       "ok": true,
-      "detail": "六印合成。朱字浮出——那是你的笔迹。三条路已亮。"
+      "detail": "六印合成。朱字浮出——那是你的笔迹。前方三条路已经亮了。"
     },
     {
       "name": "结局解锁列表",

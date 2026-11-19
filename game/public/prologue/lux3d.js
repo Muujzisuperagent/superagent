@@ -20,32 +20,38 @@
 
   // fit = [宽, 高, 深]（米）。原始 Lux3D 包围盒互不成比例，一律等比定尺后底部对齐。
   // keepGeom / keepRefs 里的程序化部件不替换外观（它们是动画或线索，仍由引擎控制）。
+  // tint: the Lux3D assets come out warm and saturated. The hall's material
+  // language (paper folk / old elm / wet bluestone) is a cold grey-green
+  // band, so each asset gets a multiply tint that pulls it into that band
+  // while keeping its own texture detail. The paper lantern stays untouched:
+  // it is the hall's only warm-white light source.
   var ASSETS = [
     { key: "machine", url: NEW + "S0-12_ticket_machine_A.glb", host: "machine",
-      fit: [.50, .60, .42], pos: [0, 0, 0], keepRefs: ["crank"], label: "取号机" },
+      fit: [.50, .60, .42], pos: [0, 0, 0], keepRefs: ["crank"], label: "取号机",
+      tint: 0x8d9a92 },
     { key: "ticket", url: NEW + "S0-13_bamboo_tally_A.glb", host: "ticket",
-      fit: [.12, .012, .042], proxySelf: true, label: "竹牌" },
+      fit: [.12, .012, .042], proxySelf: true, label: "竹牌", tint: 0x9aa89c },
     { key: "bench", url: NEW + "S0-07_elm_bench_A.glb", host: "bench",
-      fit: [1.82, .50, .46], label: "榆木长凳" },
+      fit: [1.82, .50, .46], label: "榆木长凳", tint: 0x8c9188 },
     { key: "folk", url: NEW + "S0-37_paper_effigy_A.glb", host: "folk",
-      fit: [.56, 1.82, .20], instances: 5, label: "面壁纸扎人" },
+      fit: [.56, 1.82, .20], instances: 5, label: "面壁纸扎人", tint: 0x8e9c92 },
     { key: "lamp", url: NEW + "S0-15_paper_lantern_A.glb", host: "lamp",
       fit: [.40, .50, .40], keepGeom: ["SphereGeometry"], label: "白纸灯笼" },
     // 路引的「两半可合」是状态不是模型结构，两半 + 半印 + 命中板全部保留；
     // Lux3D 实物挂在木案上，作为同一张牒的可信表面。
     { key: "pass", url: NEW + "S0-21_blank_pass_A.glb", host: "desk",
       fit: [.40, .012, .28], pos: [.86, .95, .24], rotY: -.22,
-      noShell: true, label: "空白路引" },
+      noShell: true, label: "空白路引", tint: 0xa8b0a0 },
     { key: "censer", url: REUSE + "S1-06_censer_A.glb", host: "censer",
       fit: [.30, .28, .28], keepGeom: ["SphereGeometry"], keepRefs: ["stickSegs", "ember"],
-      label: "青铜香炉（复用）" },
+      label: "青铜香炉（复用）", tint: 0x93a49c },
     { key: "ledger", url: REUSE + "S1-09_ledger_volume_A.glb", host: "desk",
       fit: [.34, .16, .28], pos: [-.88, .95, .10], rotY: .34,
-      noShell: true, label: "线装卷册（复用）" },
+      noShell: true, label: "线装卷册（复用）", tint: 0x9aa89c },
     // 柜门原始比例接近方形，拉成 3 m 门扇会变形，改作墙角倚放的旧门板陈设。
     { key: "cabinet", url: REUSE + "S1-08_cabinet_door_A.glb", host: "root",
       fit: [.72, .93, .12], pos: [2.86, 0, -8.4], rotY: -Math.PI / 2 - .12,
-      noShell: true, label: "旧柜门（复用）" }
+      noShell: true, label: "旧柜门（复用）", tint: 0x8d9a92 }
   ];
 
   // 与 scene.js 的 FOLK 表逐项一致：GLB 到位后，五个实例仍是「五个不一样的人」，
@@ -104,7 +110,7 @@
     return wrap;
   }
 
-  function clone(proto) {
+  function clone(proto, tint) {
     var o = proto.clone(true);
     o.traverse(function (n) {
       if (n.isMesh) {
@@ -112,6 +118,8 @@
         if (n.material) {
           n.material = n.material.clone();
           n.material.side = T.DoubleSide;
+          // pull the asset into the hall's cold grey-green value band
+          if (tint) n.material.color.multiply(new T.Color(tint));
         }
       }
     });
@@ -175,7 +183,7 @@
           }
 
           var place = function (target, idx) {
-            var obj = clone(proto);
+            var obj = clone(proto, a.tint);
             var wrap = fitTo(obj, a.fit);
             if (a.pos) wrap.position.set(a.pos[0], a.pos[1], a.pos[2]);
             if (a.rotY) wrap.rotation.y = a.rotY;

@@ -1,0 +1,39 @@
+{
+  "views": {
+    "prologue-start": {
+      "path": "/prologue/index.html",
+      "loadMs": 5869,
+      "fps": 56.4,
+      "drawsPerFrame": null,
+      "triangles": null,
+      "pageErrors": []
+    },
+    "prologue-judge": {
+      "path": "/prologue/index.html?dlgapproach=1",
+      "loadMs": 5292,
+      "fps": 59.6,
+      "drawsPerFrame": null,
+      "triangles": null,
+      "pageErrors": []
+    },
+    "first-hall-entry": {
+      "path": "/first-hall/index.html",
+      "loadMs": 5465,
+      "fps": 33.4,
+      "drawsPerFrame": null,
+      "triangles": null,
+      "pageErrors": []
+    },
+    "first-hall-solved": {
+      "path": "/first-hall/index.html?solved=1&vision=1",
+      "loadMs": 5195,
+      "fps": 50.8,
+      "drawsPerFrame": null,
+      "triangles": null,
+      "pageErrors": []
+    }
+  },
+  "summary": {
+    "pageErrors": []
+  }
+}

@@ -53,6 +53,20 @@ body {
 #objective { max-width: 420px; line-height: 1.6; }
 #inventory { color: #bccdbb; font-size: 12px; }
 
+/* HUD 里的「路线图」入口：HUD 本体 pointer-events:none，单个链接放开点击。 */
+#route-link {
+  pointer-events: auto;
+  align-self: flex-start;
+  margin-top: 2px;
+  color: #8fae9f;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(111, 174, 155, 0.35);
+  padding-bottom: 1px;
+}
+#route-link:hover { color: var(--brass); border-bottom-color: rgba(201, 162, 90, 0.6); }
+
 #crosshair {
   position: fixed;
   left: 50%;
@@ -291,6 +305,112 @@ button.ghost {
   letter-spacing: 0.14em;
   color: rgba(165, 182, 165, 0.72);
 }
+
+/* ===================== 起点浮层 ===================== */
+/* 序厅 → 第一殿 → 第二至第六殿 的统一入口。
+   层级低于 #loading-veil(60)：加载遮罩淡出期间浮层不可见也不可点，
+   body[data-assets="ready"] 之后才淡入并放开按钮。 */
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 7, 7, 0.84);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+
+body[data-assets="ready"] #start-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#start-overlay.closed {
+  display: none;
+}
+
+/* 浮层开着时藏掉底部锁定提示条：两层提示叠着说，玩家读不过来。 */
+body.start-overlay-open #lock-hint {
+  display: none;
+}
+
+.start-card {
+  width: min(520px, 90vw);
+  padding: 32px 30px 22px;
+  text-align: center;
+  border: 1px solid rgba(201, 162, 90, 0.32);
+  background: linear-gradient(160deg, rgba(20, 26, 24, 0.92), rgba(9, 11, 13, 0.94));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), inset 0 0 60px rgba(111, 174, 155, 0.06);
+}
+
+.start-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  color: #7fa898;
+}
+
+.start-title {
+  margin: 12px 0 6px;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--brass);
+  text-shadow: 0 0 26px rgba(201, 162, 90, 0.35);
+}
+
+.start-sub {
+  margin: 0 0 18px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: rgba(233, 228, 216, 0.66);
+}
+
+.start-note {
+  margin: 0 0 22px;
+  font-size: 13px;
+  line-height: 1.9;
+  color: rgba(233, 228, 216, 0.78);
+}
+.start-note b { color: var(--brass); font-weight: 400; }
+
+.start-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.start-btn {
+  padding: 12px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid rgba(233, 228, 216, 0.28);
+  cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+.start-btn:hover:not(:disabled) { filter: brightness(1.1); background: rgba(233, 228, 216, 0.08); }
+.start-btn.primary { border-color: var(--brass); background: var(--brass); color: #14100c; }
+.start-btn.primary:hover:not(:disabled) { background: #d8b26c; }
+/* 资产未就位前不允许点击，避免玩家以为按钮坏了。 */
+#start-overlay button:disabled { opacity: 0.42; cursor: default; }
+
+.start-links {
+  margin: 20px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 228, 216, 0.5);
+}
+.start-links a { color: #8fae9f; text-decoration: none; border-bottom: 1px solid rgba(111, 174, 155, 0.3); }
+.start-links a:hover { color: var(--brass); border-bottom-color: rgba(201, 162, 90, 0.6); }
+.start-links .sep { margin: 0 8px; color: rgba(233, 228, 216, 0.24); }
 
 /* ===================== 声音开关 ===================== */
 #audio-toggle {

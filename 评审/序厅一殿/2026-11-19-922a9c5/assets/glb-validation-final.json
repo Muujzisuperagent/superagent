@@ -1,0 +1,140 @@
+[
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-07_elm_bench_A.glb",
+    "bytes": 378956,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 11428,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-12_ticket_machine_A.glb",
+    "bytes": 557920,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 16690,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-13_bamboo_tally_A.glb",
+    "bytes": 259720,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 7248,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-15_paper_lantern_A.glb",
+    "bytes": 484340,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 12084,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-21_blank_pass_A.glb",
+    "bytes": 492120,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 17002,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-37_paper_effigy_A.glb",
+    "bytes": 662952,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 21318,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/low",
+    "file": "S1-01_karma_mirror_A.glb",
+    "bytes": 2042320,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 21514,
+    "extensionsUsed": [
+      "KHR_materials_specular"
+    ]
+  },
+  {
+    "dir": "game/public/models/low",
+    "file": "S1-05_candlestand_A.glb",
+    "bytes": 1867344,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 19952,
+    "extensionsUsed": [
+      "KHR_materials_specular"
+    ]
+  },
+  {
+    "dir": "game/public/models/low",
+    "file": "S1-06_censer_A.glb",
+    "bytes": 2138676,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 17364,
+    "extensionsUsed": [
+      "KHR_materials_specular"
+    ]
+  },
+  {
+    "dir": "game/public/models/low",
+    "file": "S1-07_banner_A.glb",
+    "bytes": 1804972,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 15800,
+    "extensionsUsed": [
+      "KHR_materials_specular"
+    ]
+  },
+  {
+    "dir": "game/public/models/low",
+    "file": "S1-08_cabinet_door_A.glb",
+    "bytes": 1835816,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 15434,
+    "extensionsUsed": [
+      "KHR_materials_specular"
+    ]
+  },
+  {
+    "dir": "game/public/models/low",
+    "file": "S1-09_ledger_volume_A.glb",
+    "bytes": 1870364,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 18394,
+    "extensionsUsed": [
+      "KHR_materials_specular"
+    ]
+  }
+]

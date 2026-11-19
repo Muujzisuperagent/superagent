@@ -23,12 +23,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--
 #grain{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.055;
   mix-blend-mode:overlay;background-repeat:repeat;background-size:128px 128px}
 
-.topbar{position:fixed;top:20px;left:24px;z-index:5;display:flex;align-items:center;gap:13px;pointer-events:none}
-.seal{width:40px;height:40px;border:1px solid rgba(192,90,65,.72);background:rgba(192,90,65,.08);
-  color:var(--cinnabar);display:grid;place-items:center;border-radius:3px;font:600 20px/1 var(--serif)}
-.topbar h1{margin:0;font:400 21px/1.2 var(--serif);letter-spacing:.1em}
-.topbar h1 em{font:400 10px/1 var(--mono);font-style:normal;letter-spacing:.16em;color:var(--dim);margin-left:9px}
-.topbar p{margin:5px 0 0;font-size:11px;color:var(--dim);letter-spacing:.05em}
+.topbar{position:fixed;top:18px;left:18px;z-index:5;display:flex;align-items:flex-start;gap:12px;
+  pointer-events:none;max-width:min(430px,58vw);padding:11px 16px 11px 14px;
+  background:linear-gradient(90deg,rgba(5,9,8,.9) 0%,rgba(5,9,8,.74) 62%,rgba(5,9,8,0) 100%)}
+.seal{width:34px;height:34px;flex:none;margin-top:2px;border:1px solid rgba(192,90,65,.72);
+  background:rgba(192,90,65,.08);color:var(--cinnabar);display:grid;place-items:center;
+  border-radius:3px;font:600 17px/1 var(--serif)}
+.topbar h1{margin:0;font:400 16px/1.35 var(--serif);letter-spacing:.16em;color:#c9a25a}
+.topbar h1 em{font:400 9px/1 var(--mono);font-style:normal;letter-spacing:.14em;color:var(--dim);margin-left:8px}
+.topbar .goal{margin:6px 0 0;font:400 12px/1.65 var(--serif);letter-spacing:.04em;color:#cfd3c8}
+.topbar .sub{margin:5px 0 0;font:400 10px/1.5 var(--mono);letter-spacing:.1em;color:var(--dim)}
 
 #panel{position:fixed;top:18px;right:18px;bottom:18px;width:306px;z-index:6;
   background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
@@ -76,10 +80,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--
 
 #hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;
   font-size:11px;color:var(--dim);background:rgba(8,11,12,.66);border:1px solid var(--line);
-  border-radius:20px;padding:8px 18px;letter-spacing:.04em;white-space:nowrap;pointer-events:none}
+  border-radius:20px;padding:8px 18px;letter-spacing:.04em;text-align:center;line-height:1.7;
+  max-width:min(66vw,860px);pointer-events:none}
 #showPanel{position:fixed;top:18px;right:18px;z-index:6;width:38px;height:38px;border-radius:8px;
   background:var(--panel);border:1px solid var(--line);color:var(--jade);font-size:17px;
-  cursor:pointer;display:none;place-items:center}
+  cursor:pointer;display:grid;place-items:center}
+#showPanel:hover{border-color:rgba(131,184,166,.5);color:#dff3e8}
 /* ?clean=1 ：隐藏常规 UI，只留场景；照镜画幅仍保留，用于出图 */
 body.clean .topbar,body.clean #panel,body.clean #hint,body.clean #showPanel{display:none!important}
 
@@ -382,13 +388,20 @@ body.clean #rescue{display:none!important}
 #carryIn.on{opacity:1;transform:translate(-50%,0)}
 #carryIn small{display:block;margin-top:4px;font:400 10px/1.6 var(--mono);
   letter-spacing:.08em;color:var(--dim)}
-#toPrologue{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);z-index:15;
-  padding:10px 20px;cursor:pointer;border:1px solid rgba(192,90,65,.5);border-radius:4px;
-  background:rgba(10,17,16,.92);color:#e8b6a7;font:400 13px/1.4 var(--serif);
-  letter-spacing:.1em;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s,visibility .6s,background .15s}
-#toPrologue.on{opacity:1;visibility:visible;pointer-events:auto}
+/* 通关出口：一行两个按钮——回便民司（仅序厅串联进来时出现）/ 入第二殿。
+   第二至第六殿是根游戏同一页连续推进，所以「入第二殿」永远给。 */
+#exitRow{position:fixed;left:50%;bottom:62px;transform:translateX(-50%);z-index:15;
+  display:none;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;max-width:92vw}
+#exitRow.on{display:flex}
+.exit-btn{padding:10px 20px;cursor:pointer;border-radius:4px;
+  background:rgba(10,17,16,.92);font:400 13px/1.4 var(--serif);letter-spacing:.1em;
+  transition:background .15s}
+#toPrologue{display:none;border:1px solid rgba(192,90,65,.5);color:#e8b6a7}
+#toPrologue.on{display:inline-block}
 #toPrologue:hover{background:rgba(192,90,65,.18)}
-body.clean #carryIn,body.clean #toPrologue{display:none!important}
+#toSecondHall{border:1px solid rgba(131,184,166,.55);color:#dff3e8}
+#toSecondHall:hover{background:rgba(131,184,166,.18)}
+body.clean #carryIn,body.clean #exitRow{display:none!important}
 
 /* v7.4：第一殿开场旁白——背景介绍四句，揭幕后自动播，点字幕推进 / 自动定时。
    位置在底部字幕带上方，避开 hint(18) / toPrologue(74) / carryIn(顶部 74)。
@@ -431,13 +444,14 @@ body.clean #intro,body.clean #replayIntro{display:none!important}
   <div class="seal">壹</div>
   <div>
     <h1>第一殿 · 孽镜台 <em>HALL ONE / KARMA MIRROR</em></h1>
-    <p>还魂路引 · 雾里另有一座殿</p>
+    <p class="goal">把五处陈设摆回镜中的样子。镜裂，半印① 落下。</p>
+    <p class="sub">还魂路引 · 雾里另有一座殿</p>
   </div>
 </header>
 
-<button id="showPanel" title="展开面板">☰</button>
+<button id="showPanel" title="展开殿中陈设">☰</button>
 
-<aside id="panel">
+<aside id="panel" class="hide">
   <div class="phead">
     <h2>殿中陈设</h2>
     <p>点殿中的镜子，雾里会浮出这座殿从前的样子。</p>
@@ -460,15 +474,19 @@ body.clean #intro,body.clean #replayIntro{display:none!important}
       <p class="note">6 件证物为 Aholo Lux3D 生成的真实 PBR 资产（<code>S1-xx</code> 规范版，1 unit = 1 m）。墙、地、柱、案、匾、窗棂与全部彩画雕饰为程序化搭建。旧景画幅由离屏渲染定格而成，是<b style="color:var(--jade);font-weight:400">屏幕空间里独立的一幅画</b>，不贴在镜面上，从侧面看也不会穿帮。</p>
       <p class="note"><b style="color:var(--jade);font-weight:400">走动</b>：W / S 前后，A / D 左右（方向键同效），Q / E 降／升视点，按住 Shift 快走，R 回到居中构图。左键拖动转视角、滚轮缩放、右键平移。碰到墙、柱和镜面会自动停住。</p>
       <p class="note"><b style="color:var(--jade);font-weight:400">照镜</b>：点镜子（或右侧按钮），满殿涌雾，旧景在雾里由远及近地显出来。再点画幅 / 镜子 / Esc 收起。<b>按住空格</b>暂时收起雾与画幅看实景，松开回来。画幅按<b>照镜那一瞬的机位</b>定格，先摆好视角再照镜。</p>
+      <p class="note"><b style="color:var(--jade);font-weight:400">动线</b>：序厅 → 第一殿 → <a href="../entry/index.html" style="color:#d7c9a8">第二至第六殿</a>。第二殿业秤起，二、三、四、五、六殿在同一页面里连续推进。</p>
     </div>
   </div>
 </aside>
 
-<div id="hint"><b style="color:var(--jade);font-weight:400">点镜子 · 雾中照见旧景</b> · 空格透视实景 · WASD 走动 · Q/E 升降 · Shift 快走 · <b style="color:#e8b6a7;font-weight:400">画面变黑／卡住：按 R 或双击画面回殿中央</b> · 点物件切换</div>
+<div id="hint"><b style="color:var(--jade);font-weight:400">点镜子 · 雾中照见旧景</b> · 空格透视实景 · WASD 走动 · Q/E 升降 · R 回殿中</div>
 <button id="rescue" title="退出照镜、回到殿中央（快捷键 R）">回殿中 · R</button>
 <div id="carryIn">香还在烧。你从那道自己开的门里走出来，雾里另有一座殿。
   <small>还魂路引 · 承接序厅 · 第一殿</small></div>
-<button id="toPrologue" title="回到序厅 · 阴司便民司">← 回到便民司</button>
+<div id="exitRow">
+  <button id="toPrologue" class="exit-btn" title="回到序厅 · 阴司便民司">← 回到便民司</button>
+  <button id="toSecondHall" class="exit-btn" title="进入第二殿 · 业秤（第二至第六殿连续推进）">入第二殿 · 业秤 →</button>
+</div>
 <div id="intro" title="点字幕继续">
   <div class="intro-who">旁白 · 还魂路引</div>
   <div class="intro-text"></div>
@@ -506,7 +524,7 @@ body.clean #intro,body.clean #replayIntro{display:none!important}
 <script src="vendor/OrbitControls.js"></script>
 <script src="vendor/RoomEnvironment.js"></script>
 <!-- v7.3：带版本号破浏览器缓存，避免预览面板一直拿旧的 app.js / scene.js -->
-<script src="scene.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="scene.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

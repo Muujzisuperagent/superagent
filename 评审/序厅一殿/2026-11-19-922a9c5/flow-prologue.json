@@ -1,0 +1,54 @@
+{
+  "steps": [
+    {
+      "check": "序厅4步教学链",
+      "title": "AUTOPICK machine->1 | ticket->2 | pass->3 | incense->4 FINAL=4"
+    },
+    {
+      "check": "穿门跳转",
+      "url": "http://127.0.0.1:5173/prologue/index.html?walkgate=1",
+      "title": "WALKGATE opened=true veil=on crossed=pos target=first-hall observed=0/9"
+    },
+    {
+      "check": "真实穿门跳转",
+      "url": "http://127.0.0.1:5173/prologue/index.html?step=4&cam=0,1.6,-17&look=0,1.5,-20.5",
+      "title": "序厅 · 阴司便民司｜还魂路引",
+      "note": "未在20s内跳转"
+    },
+    {
+      "check": "第一殿通关态+接续入口",
+      "title": "第一殿 · 孽镜台｜还魂路引",
+      "toast": "镜面「咔」地裂开一道细纹半印① 从镜后落下 · 形已核",
+      "sealText": "半印① 落下。",
+      "buttons": [
+        "☰",
+        "×",
+        "一烛台方位五支烛台 · 90° 步进合",
+        "二经幡顺序六面幡 · 长短与挂序合",
+        "三柜门开合两扇 · 左铰链 pivot合",
+        "四香炉有无案侧 · 显隐合",
+        "五案上卷册朝向三卷 · 0° / 180°合",
+        "重置陈设",
+        "摆成镜中样",
+        "保存画面 PNG",
+        "居中构图",
+        "收起旧景",
+        "回殿中 · R",
+        "← 回到便民司",
+        "入第二殿 · 业秤 →",
+        "◁ 重听旁白"
+      ],
+      "hasSecondHallLink": true,
+      "links": [
+        "../entry/index.html"
+      ]
+    },
+    {
+      "check": "第一殿初始态",
+      "toast": "",
+      "won": "第一殿 · 孽镜台｜还魂路引"
+    }
+  ],
+  "autopick": "AUTOPICK machine->1 | ticket->2 | pass->3 | incense->4 FINAL=4",
+  "pageErrors": []
+}

@@ -1,0 +1,593 @@
+{
+  "ok": true,
+  "meta": {},
+  "verdict": "打回重改（硬门槛）",
+  "passed": false,
+  "total": 63.5,
+  "denominator": 100,
+  "scores": {
+    "A1": 4,
+    "A2": 0,
+    "A4": 1.47,
+    "E1": 2,
+    "E2": 1,
+    "E3": 0,
+    "A3": 1.0,
+    "B1": 3.75,
+    "B2": 2.5,
+    "B3": 2.5,
+    "B4": 3.75,
+    "B5": 2.5,
+    "B6": 2.5,
+    "B7": 3.75,
+    "B8": 3.75,
+    "B9": 2.5,
+    "B10": 2.5,
+    "C1": 5.0,
+    "C2": 5.0,
+    "C3": 3.0,
+    "D1": 3.0,
+    "D2": 2.0,
+    "D3": 1.0,
+    "D4": 1.0,
+    "F1": 1.0,
+    "F2": 3.0
+  },
+  "max": {
+    "A1": 4,
+    "A2": 2,
+    "A3": 4,
+    "A4": 5,
+    "B1": 5,
+    "B2": 5,
+    "B3": 5,
+    "B4": 5,
+    "B5": 5,
+    "B6": 5,
+    "B7": 5,
+    "B8": 5,
+    "B9": 5,
+    "B10": 5,
+    "C1": 5,
+    "C2": 5,
+    "C3": 5,
+    "D1": 3,
+    "D2": 3,
+    "D3": 3,
+    "D4": 1,
+    "E1": 2,
+    "E2": 2,
+    "E3": 1,
+    "F1": 2,
+    "F2": 3
+  },
+  "dimensions": {
+    "A 资产与自动画质": {
+      "score": 6.47,
+      "max": 15,
+      "percent": 43.1
+    },
+    "B 美术十项": {
+      "score": 30.0,
+      "max": 50,
+      "percent": 60.0
+    },
+    "C 逐幕必检清单": {
+      "score": 13.0,
+      "max": 15,
+      "percent": 86.7
+    },
+    "D 可玩流程": {
+      "score": 7.0,
+      "max": 10,
+      "percent": 70.0
+    },
+    "E 性能与稳定": {
+      "score": 3,
+      "max": 5,
+      "percent": 60.0
+    },
+    "F 交付与可复现": {
+      "score": 4.0,
+      "max": 5,
+      "percent": 80.0
+    }
+  },
+  "gates": [
+    {
+      "id": "G0",
+      "name": "构建与单测",
+      "pass": true,
+      "evidence": "build=True, tests=True"
+    },
+    {
+      "id": "G1",
+      "name": "页面启动",
+      "pass": false,
+      "evidence": "canvas=1, pageErrors=0, criticalRequests=6"
+    },
+    {
+      "id": "G2",
+      "name": "三幕截图有效",
+      "pass": true,
+      "evidence": "screens=3, blank=[]"
+    },
+    {
+      "id": "G3",
+      "name": "主流程可达",
+      "pass": true,
+      "evidence": "flow-prologue.json：序厅 4 步真实点击链 AUTOPICK machine->1 | ticket->2 | pass->3 | incense->4 FINAL=4（?probe=1 走 raycaster 命中点击）；walkgate 探针 title=WALKGATE opened=true veil=on crossed=pos target=first-hall；第一殿 solved=1 toast=半印① 从镜后落下·形已核。全程 pageErrors=[]。"
+    },
+    {
+      "id": "G4",
+      "name": "资产合规与不阻塞",
+      "pass": false,
+      "evidence": "gltfErrors=0, glbFailures=6"
+    },
+    {
+      "id": "G5",
+      "name": "性能底线",
+      "pass": true,
+      "evidence": "minFps=64.0, maxDrawsPerFrame=763"
+    }
+  ],
+  "auto": {
+    "A1": {
+      "errors": 0,
+      "warnings": 6
+    },
+    "A2": {
+      "glbFailures": [
+        "http://127.0.0.1:5173/models/prologue/S0-07_elm_bench_A.glb",
+        "http://127.0.0.1:5173/models/prologue/S0-12_ticket_machine_A.glb",
+        "http://127.0.0.1:5173/models/prologue/S0-13_bamboo_tally_A.glb",
+        "http://127.0.0.1:5173/models/prologue/S0-15_paper_lantern_A.glb",
+        "http://127.0.0.1:5173/models/prologue/S0-21_blank_pass_A.glb",
+        "http://127.0.0.1:5173/models/prologue/S0-37_paper_effigy_A.glb"
+      ]
+    },
+    "A4": {
+      "score": 29.36,
+      "mode": "stats",
+      "tech_score": null,
+      "state": "scored"
+    },
+    "E1": {
+      "minFps": 64.0
+    },
+    "E2": {
+      "maxDrawsPerFrame": 763,
+      "maxTotalDrawsPerFrame": 763
+    },
+    "E3": {
+      "maxLoadMs": 6016,
+      "pageErrors": 0,
+      "consoleErrors": 1
+    }
+  },
+  "manual": {
+    "A3": {
+      "raw": 1.0,
+      "points": 1.0,
+      "max": 4,
+      "points_max": 4
+    },
+    "B1": {
+      "raw": 3.0,
+      "points": 3.75,
+      "max": 4,
+      "points_max": 5
+    },
+    "B2": {
+      "raw": 2.0,
+      "points": 2.5,
+      "max": 4,
+      "points_max": 5
+    },
+    "B3": {
+      "raw": 2.0,
+      "points": 2.5,
+      "max": 4,
+      "points_max": 5
+    },
+    "B4": {
+      "raw": 3.0,
+      "points": 3.75,
+      "max": 4,
+      "points_max": 5
+    },
+    "B5": {
+      "raw": 2.0,
+      "points": 2.5,
+      "max": 4,
+      "points_max": 5
+    },
+    "B6": {
+      "raw": 2.0,
+      "points": 2.5,
+      "max": 4,
+      "points_max": 5
+    },
+    "B7": {
+      "raw": 3.0,
+      "points": 3.75,
+      "max": 4,
+      "points_max": 5
+    },
+    "B8": {
+      "raw": 3.0,
+      "points": 3.75,
+      "max": 4,
+      "points_max": 5
+    },
+    "B9": {
+      "raw": 2.0,
+      "points": 2.5,
+      "max": 4,
+      "points_max": 5
+    },
+    "B10": {
+      "raw": 2.0,
+      "points": 2.5,
+      "max": 4,
+      "points_max": 5
+    },
+    "C1": {
+      "raw": 5,
+      "points": 5.0,
+      "max": 5,
+      "points_max": 5
+    },
+    "C2": {
+      "raw": 5,
+      "points": 5.0,
+      "max": 5,
+      "points_max": 5
+    },
+    "C3": {
+      "raw": 3.0,
+      "points": 3.0,
+      "max": 5,
+      "points_max": 5
+    },
+    "D1": {
+      "raw": 3,
+      "points": 3.0,
+      "max": 3,
+      "points_max": 3
+    },
+    "D2": {
+      "raw": 2.0,
+      "points": 2.0,
+      "max": 3,
+      "points_max": 3
+    },
+    "D3": {
+      "raw": 1.0,
+      "points": 1.0,
+      "max": 3,
+      "points_max": 3
+    },
+    "D4": {
+      "raw": 1,
+      "points": 1.0,
+      "max": 1,
+      "points_max": 1
+    },
+    "F1": {
+      "raw": 1.0,
+      "points": 1.0,
+      "max": 2,
+      "points_max": 2
+    },
+    "F2": {
+      "raw": 3,
+      "points": 3.0,
+      "max": 3,
+      "points_max": 3
+    }
+  },
+  "rubric": {
+    "version": "1.0",
+    "commit": "922a9c5",
+    "date": "2026-11-19",
+    "scope_note": "口径扩展：本目录评的是新增验收对象「序厅 + 第一殿」（用户指令：合并后按同一打分机制迭代）。C1=序厅清单、C2=第一殿清单、C3=序厅↔一殿↔二殿衔接清单；A3 逐件对象=序厅 9 件 Lux3D 槽位（3 挂载 + 6 缺失）。基线 commit 922a9c5，采集时工作区干净；评估中途工作区出现匠人乙在改的 entry/入口与 HUD 文件，未纳入本基线评分。",
+    "flow_reachable": {
+      "value": true,
+      "evidence": "flow-prologue.json：序厅 4 步真实点击链 AUTOPICK machine->1 | ticket->2 | pass->3 | incense->4 FINAL=4（?probe=1 走 raycaster 命中点击）；walkgate 探针 title=WALKGATE opened=true veil=on crossed=pos target=first-hall；第一殿 solved=1 toast=半印① 从镜后落下·形已核。全程 pageErrors=[]。"
+    },
+    "criteria": {
+      "A3": {
+        "max": 4,
+        "score": 1,
+        "evidence": "screens/check.json：__lux3dStatus total=9 mounted=3 missing=6；lux3d.js:24-46 源码：machine/ticket/bench/folk/lamp/pass 指向 ../models/prologue/S0-*.glb，全库 find 无 S0-* 文件（仅 public/models/low/ 存在 6 件 S1-*）；3 件复用件（S1-06 香炉/S1-09 账册/S1-08 柜门）已挂载且落位成立（prologue-start.png 右侧香炉在案上、账册成摞）。摇号机在 prologue-start.png 为程序化白盒回退。",
+        "reason": "挂载的 3 件比例/朝向/接触面成立，但 9 槽位缺 6 件，摇号机等主交互物靠程序化回退，属资产硬伤。"
+      },
+      "B1": {
+        "max": 4,
+        "score": 3,
+        "evidence": "prologue-start.png：判官+木案位于中景偏右，长廊纵深把视线引向雾门；左列纸扎人作前景节奏；first-hall-entry.png：孽镜台大圆镜居中对称，前案后柱层次分明。",
+        "reason": "两场景主目标可读、前中后景齐；判官近景（prologue-judge.png）焦点被超大帽檐遮挡、面部扁平，焦点质量未到 4。"
+      },
+      "B2": {
+        "max": 4,
+        "score": 2,
+        "evidence": "prologue-start.png：顶部白灯笼+尽头雾门背光是主光源，暗部尚可读；prologue-judge.png：判官面部无轮廓光，黑帽黑袍吞掉肩线与五官层次，桌案区无任务书要求的低位青白轮廓光。",
+        "reason": "大场景光有来源，但判官近景主体光失败；序厅灯位单一，层次不足。"
+      },
+      "B3": {
+        "max": 4,
+        "score": 2,
+        "evidence": "prologue-start.png：纸扎人糊纸质感、石板地面、木柱木案可区分；prologue-judge.png：判官袍身为近纯黑无暗纹、帽为硬塑料反光，与『糊纸+淡墨』语汇脱节；first-hall-entry.png：青铜镜圈/纸卷/木桌材质区分成立。",
+        "reason": "环境材质可信，但判官主体材质失败（纯黑+塑料高光），拉低整体。"
+      },
+      "B4": {
+        "max": 4,
+        "score": 3,
+        "evidence": "prologue-start.png 与 first-hall-entry.png 同为墨绿+纸色冷调，朱砂仅出现在 HUD 小印与对话强调；prologue-door.png 大面积青灰低饱和，符合阴司情绪。",
+        "reason": "色彩体系统一、情绪成立；判官纯黑块与纯白回退盒（摇号机）是两处色彩噪点，不到 4。"
+      },
+      "B5": {
+        "max": 4,
+        "score": 2,
+        "evidence": "prologue-start.png：廊柱间距、案高、机器与人比例基本可信；prologue-judge.png：判官帽子相对头身比明显过大、坐姿与案面高度关系含糊；纸扎人头身比偏卡通（头大）。",
+        "reason": "空间尺度总体成立，判官与纸扎人两处人物尺度失真。"
+      },
+      "B6": {
+        "max": 4,
+        "score": 2,
+        "evidence": "prologue-start.png：摇号机、竹签、木牌、香炉、纸扎人、生死簿共同构成『阴司便民司』叙事，生活痕迹足；prologue-judge.png：判官帽为西式圆顶礼帽形制，非幞头/乌纱，违反明清阴司衙署时代语汇（场景生图提示词_v3 基调）。",
+        "reason": "场景叙事强，但判官帽制式违约、纸扎人卡通眼珠违反 README『不点睛、空眼窝』要求。"
+      },
+      "B7": {
+        "max": 4,
+        "score": 3,
+        "evidence": "prologue-start.png / first-hall-entry.png：同为冷青绿+纸色+深木，建材语汇（石板/木柱/纸幔）连贯；对照 act4-medicine.png（评审/四五六殿/2026-11-19-922a9c5/screens）：四殿暖棕暖光与序厅冷调形成殿间差异但材质语汇一致。",
+        "reason": "跨场景材质与时代语汇连贯且保留每关差异；判官与摇号机两处形制 outlier 未清，不到 4。"
+      },
+      "B8": {
+        "max": 4,
+        "score": 3,
+        "evidence": "prologue-start.png：底部任务行『先去察边跟判官说「我不认」（走近他就开口）』+WASD/E/R 键位；HUD 显示进度（第 1/4 步）与下一点提示（app.js:132 dbg next=PICKS[step]）；flow-prologue.json AUTOPICK 四步全部命中，说明交互物辨识无歧义。",
+        "reason": "可交互物辨识与路线引导成立；雾门出口在强雾中辨识度一般。"
+      },
+      "B9": {
+        "max": 4,
+        "score": 2,
+        "evidence": "prologue-start.png：序厅 HUD 简洁（左上标题块+底部任务行+右下回廊按钮）；first-hall-entry.png：第一殿右侧『殿中陈设』大面板常驻展开，占画面约 1/4 宽，与序厅及四五六殿（act4-medicine.png 极简 HUD）风格断裂；first-hall-solved.png 反馈明确（半印① toast）。",
+        "reason": "反馈与可读性成立，但第一殿常驻大面板抢镜、跨场景 HUD 不统一。"
+      },
+      "B10": {
+        "max": 4,
+        "score": 2,
+        "evidence": "prologue-judge.png：判官手部无持笔/簿道具、身体剪影僵硬成块；prologue-start.png：摇号机程序化白盒+摇柄浮置感；纸扎人卡通眼珠与五官描边显假（与 README 空眼窝矛盾）；first-hall 三图未发现穿模/悬浮/接缝硬伤。",
+        "reason": "第一殿完成度尚可，序厅人物与回退物件破损明显。"
+      },
+      "C1": {
+        "max": 5,
+        "score": 5,
+        "evidence": "prologue-start.png + flow-prologue.json：教学链 4 步物件（摇号机 machine→竹签 ticket→合牒 pass→香炉 incense）全部在场可点（AUTOPICK 命中）；判官+木案+簿册在场（judge 近景可触发对话，check.json probe dist=2.05）；纸扎人 5 具成列（prologue-start.png 左侧 5 具）；白灯笼+雾门+长廊+任务 HUD 在场。",
+        "reason": "序厅 9 项结构要素全齐；C 只数有没有，回退件质量扣分记 B/A 项。"
+      },
+      "C2": {
+        "max": 5,
+        "score": 5,
+        "evidence": "first-hall-entry.png：孽镜台大圆镜居中；flow-prologue.json buttons 列表：五处差异（烛台方位/经幡顺序/柜门开合/香炉有无/案上卷册）+重置陈设+摆成镜中样+保存PNG+居中构图+回殿中R 全部在场；first-hall-vision.png 照镜显影成立；first-hall-solved.png 半印① toast 落下。",
+        "reason": "第一殿结构要素（镜/五处差异/照镜/半印/旁白/工具）全齐。"
+      },
+      "C3": {
+        "max": 5,
+        "score": 3,
+        "evidence": "flow-prologue.json：序厅→第一殿真实跳转链路（walkgate opened=true veil=on crossed=pos target=first-hall；location.href ../first-hall/?from=prologue=1，app.js:279）；first-hall/app.js:772 有『← 回到便民司』返回序厅；但 922a9c5 基线 first-hall 全文仅此一处 location.href，无『入第二殿』跳根游戏的接续（flow-prologue.json buttons 无该按钮，links=[]）。",
+        "reason": "序厅→一殿双向通，一殿→二殿接续缺失，动线在半印①后断裂。"
+      },
+      "D1": {
+        "max": 3,
+        "score": 3,
+        "evidence": "flow-prologue.json：真实点击 4 步链 FINAL=4；prologue/app.js:548 WRONGPICK 探针证明点错顺序不推进且有提示；判官走近 2.2m 触发对话（check.json probe dist=2.05、prologue-judge.png 对话框+判官崔嵬台词+『我不认』按钮）；穿门过场 veil=on。",
+        "reason": "序厅闭环完整且有剧情反馈。"
+      },
+      "D2": {
+        "max": 3,
+        "score": 2,
+        "evidence": "flow-prologue.json：solved=1 态 toast『镜面「咔」地裂开一道细纹 半印① 从镜后落下·形已核』；五处差异按钮全部显示『合』；重置/摆成镜中样按钮在场（app.js:763 重置收起回厅入口）。未逐处真实点击五处差异。",
+        "reason": "状态与反馈成立、可重置；但五处差异的真实逐处交互与错选反馈未留下过程证据，保守记 2。"
+      },
+      "D3": {
+        "max": 3,
+        "score": 1,
+        "evidence": "flow-prologue.json：半印①落下成功（toast 证据）；但基线 922a9c5 的 first-hall/app.js 无任何指向根游戏（第二殿）的跳转或按钮（grep location.href 仅 772 行 ../prologue/），links=[]。",
+        "reason": "半印①可达但动线到第二殿断裂，按任务要求按现状记录为缺陷、不代改。"
+      },
+      "D4": {
+        "max": 1,
+        "score": 1,
+        "evidence": "prologue-start.png：WASD 走动/点物件操作/E 交互/R 回廊中 键位行+右下『回廊中·R』按钮；first-hall-entry.png：底部键位行（WASD/Q/E/Shift/R/空格）+左下回殿中R；flow-prologue.json 全程 pageErrors=[]，重开/重置入口在场。",
+        "reason": "提示、控制、重置、重开均正常。"
+      },
+      "F1": {
+        "max": 2,
+        "score": 1,
+        "evidence": "序厅/一殿经 Vite dev http://127.0.0.1:5173/prologue/index.html、/first-hall/index.html 可达（本验收全部截图即此路径）；但 922a9c5 基线无统一入口页（public/entry/ 为工作区新增未提交内容，不在基线），玩家需手动拼 URL。",
+        "reason": "单场景可达但缺一键动线入口，基线扣 1。"
+      },
+      "F2": {
+        "max": 3,
+        "score": 3,
+        "evidence": "本目录含 screens/6 图+check.json、flow-prologue.json、perf-prologue.json、visual-prologue.json、assets/low-glb-validation.json、auto.json、rubric.json、report.md；版本号 922a9c5 全程标注；复现命令（npm.cmd test / npm.cmd run build / node.exe tests/prologue-check.mjs --out ...）在报告中。",
+        "reason": "交付证据链完整可复现。"
+      }
+    }
+  },
+  "rework": [
+    {
+      "priority": "P0",
+      "id": "A2",
+      "issue": "0/2 分",
+      "evidence": {
+        "glbFailures": [
+          "http://127.0.0.1:5173/models/prologue/S0-07_elm_bench_A.glb",
+          "http://127.0.0.1:5173/models/prologue/S0-12_ticket_machine_A.glb",
+          "http://127.0.0.1:5173/models/prologue/S0-13_bamboo_tally_A.glb",
+          "http://127.0.0.1:5173/models/prologue/S0-15_paper_lantern_A.glb",
+          "http://127.0.0.1:5173/models/prologue/S0-21_blank_pass_A.glb",
+          "http://127.0.0.1:5173/models/prologue/S0-37_paper_effigy_A.glb"
+        ]
+      },
+      "fix": "game/public/assets/generated/, game/src/scene.ts"
+    },
+    {
+      "priority": "P0",
+      "id": "A3",
+      "issue": "1.0/4 分",
+      "evidence": "screens/check.json：__lux3dStatus total=9 mounted=3 missing=6；lux3d.js:24-46 源码：machine/ticket/bench/folk/lamp/pass 指向 ../models/prologue/S0-*.glb，全库 find 无 S0-* 文件（仅 public/models/low/ 存在 6 件 S1-*）；3 件复用件（S1-06 香炉/S1-09 账册/S1-08 柜门）已挂载且落位成立（prologue-start.png 右侧香炉在案上、账册成摞）。摇号机在 prologue-start.png 为程序化白盒回退。",
+      "fix": "game/src/scene.ts（GLB 尺度/朝向/材质/落位）"
+    },
+    {
+      "priority": "P0",
+      "id": "A4",
+      "issue": "1.47/5 分",
+      "evidence": {
+        "score": 29.36,
+        "mode": "stats",
+        "tech_score": null,
+        "state": "scored"
+      },
+      "fix": "game/src/scene.ts（灯光、材质、雾、清晰度）"
+    },
+    {
+      "priority": "P0",
+      "id": "B10",
+      "issue": "2.5/5 分",
+      "evidence": "prologue-judge.png：判官手部无持笔/簿道具、身体剪影僵硬成块；prologue-start.png：摇号机程序化白盒+摇柄浮置感；纸扎人卡通眼珠与五官描边显假（与 README 空眼窝矛盾）；first-hall 三图未发现穿模/悬浮/接缝硬伤。",
+      "fix": "game/src/scene.ts（穿模、悬浮、接缝、阴影错误）"
+    },
+    {
+      "priority": "P0",
+      "id": "B2",
+      "issue": "2.5/5 分",
+      "evidence": "prologue-start.png：顶部白灯笼+尽头雾门背光是主光源，暗部尚可读；prologue-judge.png：判官面部无轮廓光，黑帽黑袍吞掉肩线与五官层次，桌案区无任务书要求的低位青白轮廓光。",
+      "fix": "game/src/scene.ts（主辅光、暗部信息、雾/辉光）"
+    },
+    {
+      "priority": "P0",
+      "id": "B3",
+      "issue": "2.5/5 分",
+      "evidence": "prologue-start.png：纸扎人糊纸质感、石板地面、木柱木案可区分；prologue-judge.png：判官袍身为近纯黑无暗纹、帽为硬塑料反光，与『糊纸+淡墨』语汇脱节；first-hall-entry.png：青铜镜圈/纸卷/木桌材质区分成立。",
+      "fix": "game/src/scene.ts（石/木/纸/金属的粗糙度与磨损）"
+    },
+    {
+      "priority": "P0",
+      "id": "B5",
+      "issue": "2.5/5 分",
+      "evidence": "prologue-start.png：廊柱间距、案高、机器与人比例基本可信；prologue-judge.png：判官帽子相对头身比明显过大、坐姿与案面高度关系含糊；纸扎人头身比偏卡通（头大）。",
+      "fix": "game/src/scene.ts（建筑/家具/道具比例与遮挡）"
+    },
+    {
+      "priority": "P0",
+      "id": "B6",
+      "issue": "2.5/5 分",
+      "evidence": "prologue-start.png：摇号机、竹签、木牌、香炉、纸扎人、生死簿共同构成『阴司便民司』叙事，生活痕迹足；prologue-judge.png：判官帽为西式圆顶礼帽形制，非幞头/乌纱，违反明清阴司衙署时代语汇（场景生图提示词_v3 基调）。",
+      "fix": "game/src/scene.ts（剧情道具、建筑语汇、生活痕迹）"
+    },
+    {
+      "priority": "P0",
+      "id": "B9",
+      "issue": "2.5/5 分",
+      "evidence": "prologue-start.png：序厅 HUD 简洁（左上标题块+底部任务行+右下回廊按钮）；first-hall-entry.png：第一殿右侧『殿中陈设』大面板常驻展开，占画面约 1/4 宽，与序厅及四五六殿（act4-medicine.png 极简 HUD）风格断裂；first-hall-solved.png 反馈明确（半印① toast）。",
+      "fix": "game/src/main.ts, game/index.html（HUD 可读性与反馈）"
+    },
+    {
+      "priority": "P0",
+      "id": "D3",
+      "issue": "1.0/3 分",
+      "evidence": "flow-prologue.json：半印①落下成功（toast 证据）；但基线 922a9c5 的 first-hall/app.js 无任何指向根游戏（第二殿）的跳转或按钮（grep location.href 仅 772 行 ../prologue/），links=[]。",
+      "fix": "game/src/main.ts, game/src/story.ts（六殿合符与结局）"
+    },
+    {
+      "priority": "P0",
+      "id": "E2",
+      "issue": "1/2 分",
+      "evidence": {
+        "maxDrawsPerFrame": 763,
+        "maxTotalDrawsPerFrame": 763
+      },
+      "fix": "game/src/scene.ts（几何合并、实例化、剔除）"
+    },
+    {
+      "priority": "P0",
+      "id": "E3",
+      "issue": "0/1 分",
+      "evidence": {
+        "maxLoadMs": 6016,
+        "pageErrors": 0,
+        "consoleErrors": 1
+      },
+      "fix": "game/src/main.ts, game/src/scene.ts（资源异步加载）"
+    },
+    {
+      "priority": "P0",
+      "id": "F1",
+      "issue": "1.0/2 分",
+      "evidence": "序厅/一殿经 Vite dev http://127.0.0.1:5173/prologue/index.html、/first-hall/index.html 可达（本验收全部截图即此路径）；但 922a9c5 基线无统一入口页（public/entry/ 为工作区新增未提交内容，不在基线），玩家需手动拼 URL。",
+      "fix": "game/启动密室.bat, game/start-game.ps1, game/README.md"
+    },
+    {
+      "priority": "P0",
+      "id": "G1",
+      "issue": "页面启动",
+      "evidence": "canvas=1, pageErrors=0, criticalRequests=6",
+      "fix": "先修硬门槛，再复评"
+    },
+    {
+      "priority": "P0",
+      "id": "G4",
+      "issue": "资产合规与不阻塞",
+      "evidence": "gltfErrors=0, glbFailures=6",
+      "fix": "先修硬门槛，再复评"
+    },
+    {
+      "priority": "P1",
+      "id": "B1",
+      "issue": "3.75/5 分",
+      "evidence": "prologue-start.png：判官+木案位于中景偏右，长廊纵深把视线引向雾门；左列纸扎人作前景节奏；first-hall-entry.png：孽镜台大圆镜居中对称，前案后柱层次分明。",
+      "fix": "game/src/scene.ts（构图：主目标、前中后景、留白）"
+    },
+    {
+      "priority": "P1",
+      "id": "B4",
+      "issue": "3.75/5 分",
+      "evidence": "prologue-start.png 与 first-hall-entry.png 同为墨绿+纸色冷调，朱砂仅出现在 HUD 小印与对话强调；prologue-door.png 大面积青灰低饱和，符合阴司情绪。",
+      "fix": "game/src/scene.ts（冷暖配比、朱砂点缀、情绪色）"
+    },
+    {
+      "priority": "P1",
+      "id": "B7",
+      "issue": "3.75/5 分",
+      "evidence": "prologue-start.png / first-hall-entry.png：同为冷青绿+纸色+深木，建材语汇（石板/木柱/纸幔）连贯；对照 act4-medicine.png（评审/四五六殿/2026-11-19-922a9c5/screens）：四殿暖棕暖光与序厅冷调形成殿间差异但材质语汇一致。",
+      "fix": "game/src/scene.ts（四五六殿材质与细节密度一致性）"
+    },
+    {
+      "priority": "P1",
+      "id": "B8",
+      "issue": "3.75/5 分",
+      "evidence": "prologue-start.png：底部任务行『先去察边跟判官说「我不认」（走近他就开口）』+WASD/E/R 键位；HUD 显示进度（第 1/4 步）与下一点提示（app.js:132 dbg next=PICKS[step]）；flow-prologue.json AUTOPICK 四步全部命中，说明交互物辨识无歧义。",
+      "fix": "game/src/scene.ts, game/src/main.ts（路线、出口、交互物辨识）"
+    },
+    {
+      "priority": "P1",
+      "id": "C3",
+      "issue": "3.0/5 分",
+      "evidence": "flow-prologue.json：序厅→第一殿真实跳转链路（walkgate opened=true veil=on crossed=pos target=first-hall；location.href ../first-hall/?from=prologue=1，app.js:279）；first-hall/app.js:772 有『← 回到便民司』返回序厅；但 922a9c5 基线 first-hall 全文仅此一处 location.href，无『入第二殿』跳根游戏的接续（flow-prologue.json buttons 无该按钮，links=[]）。",
+      "fix": "game/src/scene.ts（六殿桥拱、亭顶、彼岸花、亡魂）"
+    },
+    {
+      "priority": "P1",
+      "id": "D2",
+      "issue": "2.0/3 分",
+      "evidence": "flow-prologue.json：solved=1 态 toast『镜面「咔」地裂开一道细纹 半印① 从镜后落下·形已核』；五处差异按钮全部显示『合』；重置/摆成镜中样按钮在场（app.js:763 重置收起回厅入口）。未逐处真实点击五处差异。",
+      "fix": "game/src/main.ts, game/src/story.ts（五殿踩板）"
+    }
+  ],
+  "scoredAt": "2026-11-19T08:55:16"
+}

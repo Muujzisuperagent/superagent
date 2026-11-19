@@ -724,9 +724,14 @@
         R.seal && (R.seal.visible = true);
         // v7.3：串联态通关后，把第一枚半印明确接回序厅那条「四十九日 · 六殿半印」的线，
         // 并给出一个可直接点回便民司的入口。非串联态（直接进第一殿）不出现。
-        if (FROM_PROLOGUE) {
-          var toP = $("#toPrologue");
-          if (toP) toP.classList.add("on");
+        // v8.0：无论是否从序厅进来，通关都给「入第二殿 · 业秤」——第二至第六殿
+        // 是根游戏同一页连续推进的一局，从这里直接落到二殿开局。
+        var exitRow = $("#exitRow");
+        if (exitRow) exitRow.classList.add("on");
+        var toP = $("#toPrologue");
+        if (toP) {
+          if (FROM_PROLOGUE) toP.classList.add("on");
+          else toP.classList.remove("on");
         }
         carryTitle("win");
       }
@@ -761,15 +766,21 @@
       Object.assign(H.state, H.SCRAMBLE);
       H.applyState(R, H.state); renderDiffList(); check();
       // v7.3：重置陈设=重新核形，半印未落，先收起回厅入口
-      if (FROM_PROLOGUE) {
-        var tp = $("#toPrologue"); if (tp) tp.classList.remove("on");
-      }
+      // v8.0：出口按钮整行一起收起（入第二殿 / 回便民司）。
+      var exitRow = $("#exitRow"); if (exitRow) exitRow.classList.remove("on");
+      var tp = $("#toPrologue"); if (tp) tp.classList.remove("on");
       toast("殿又被弄乱了", "把五处摆回镜中的样子");
     });
     // v7.3：回序厅。带 from=prologue 回到进来时的状态，序厅从头可玩。
     var toP = $("#toPrologue");
     if (toP) toP.addEventListener("click", function () {
       location.href = "../prologue/";
+    }, false);
+    // v8.0：入第二殿。根游戏第二至第六殿是同一页连续推进，开局即二殿。
+    // 带 from=hall1=1 是为了让根游戏不再弹一次起点浮层，直接进二殿。
+    var toSecond = $("#toSecondHall");
+    if (toSecond) toSecond.addEventListener("click", function () {
+      location.href = "../../?from=hall1=1";
     }, false);
     $("#solve").addEventListener("click", function () {
       Object.assign(H.state, H.TARGET);
@@ -1071,7 +1082,11 @@
                  carryIn: !!$("#carryIn") && $("#carryIn").classList.contains("on"),
                  won: won,
                  toPrologue: !!$("#toPrologue") && $("#toPrologue").classList.contains("on"),
-                 backTarget: "../prologue/" };
+                 exitRow: !!$("#exitRow") && $("#exitRow").classList.contains("on"),
+                 toSecondHall: !!$("#toSecondHall"),
+                 panelHidden: !!$("#panel") && $("#panel").classList.contains("hide"),
+                 backTarget: "../prologue/",
+                 secondTarget: "../../?from=hall1=1" };
       };
       window.__walkProbe = function (n) {
         var before = camera.position.toArray();

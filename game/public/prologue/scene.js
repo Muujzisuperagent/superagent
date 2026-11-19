@@ -41,6 +41,54 @@
   // 「走近触发对话」的距离判定与绕行碰撞，不在这里硬编码第二份。
   var JUDGE_AT = [0.18, 0, -1.28];
 
+  // ---- v31 judge head metrics (shared by the texture and the geometry) ----
+  // Skull 26 cm tall / 18.4 cm wide (v30 used a 34 cm ball, which is why the
+  // head-to-body ratio read as off). The face is a curved spherical shell whose
+  // UVs come from an orthographic x-y projection, so the features keep real
+  // frontal proportions instead of being stretched by the sphere grid -- that
+  // was the root cause of the "big cartoon eyes" read.
+  var JR = .104, JSX = .64, JSY = 1.22, JSZ = .74;   // skull radius / scale
+  var JTH0 = .94, JTH1 = 2.02, JPHI = .80;           // face shell: theta / phi
+  var JYTOP = JR * Math.cos(JTH0) * JSY;             // shell top (world y)
+  var JYBOT = JR * Math.cos(JTH1) * JSY;             // shell bottom (world y)
+  var JFW = 2 * JR * Math.sin(JPHI) * JSX;           // shell width (world x)
+  // world coordinates (metres) -> canvas pixels
+  function jfx(x) { return (x + JFW / 2) / JFW * 512; }
+  function jfy(y) { return (JYTOP - y) / (JYTOP - JYBOT) * 512; }
+
+  // Judge face shell: the front of the skull, UVs laid out by projecting onto
+  // the x-y plane. The shell has real curvature, so the face never reads as
+  // an oval decal pasted onto the head.
+  function judgeFaceShell(eps) {
+    var NT = 18, NP = 22, i, j;
+    var pos = [], uv = [], idx = [];
+    for (i = 0; i <= NT; i++) {
+      var th = JTH0 + (JTH1 - JTH0) * i / NT;
+      for (j = 0; j <= NP; j++) {
+        var ph = -JPHI + 2 * JPHI * j / NP;
+        var st = Math.sin(th), ct = Math.cos(th);
+        var dx = st * Math.sin(ph), dy = ct, dz = st * Math.cos(ph);
+        // position stays in skull space (the shell is a child of the skull and
+        // inherits its scale); the UV uses the scaled world projection.
+        var px = dx * JR, py = dy * JR, pz = dz * JR;
+        pos.push(px * (1 + eps), py * (1 + eps), pz * (1 + eps));
+        // v=1 must land on the canvas TOP (THREE flipY): forehead at v=1,
+        // chin at v=0.
+        uv.push((px * JSX + JFW / 2) / JFW, (py * JSY - JYBOT) / (JYTOP - JYBOT));
+      }
+    }
+    for (i = 0; i < NT; i++) for (j = 0; j < NP; j++) {
+      var a = i * (NP + 1) + j, b = a + 1, c = a + NP + 1, d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+    var g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }
+
   function canvas(size, draw) {
     var c = document.createElement("canvas");
     c.width = c.height = size;
@@ -446,44 +494,27 @@
       // 两颊极淡灰褐晕（不是腮红、不是朱砂）
       softBlob(g, 88, 158, 30, "120,108,96", .10);
       softBlob(g, 168, 158, 30, "120,108,96", .10);
-      // 眉：有弧度的短眉
-      g.strokeStyle = "rgba(44,46,40,.74)"; g.lineWidth = 5; g.lineCap = "round";
-      g.beginPath(); g.moveTo(82, 110); g.quadraticCurveTo(102, 99, 120, 108); g.stroke();
-      g.beginPath(); g.moveTo(136, 108); g.quadraticCurveTo(154, 99, 174, 110); g.stroke();
+      // 眉骨：低对比的糊纸压痕，只一道浅脊，不画成粗黑眉毛
+      g.strokeStyle = "rgba(76,78,68,.20)"; g.lineWidth = 4; g.lineCap = "round";
+      g.beginPath(); g.moveTo(82, 112); g.quadraticCurveTo(102, 104, 120, 110); g.stroke();
+      g.beginPath(); g.moveTo(136, 110); g.quadraticCurveTo(154, 104, 174, 112); g.stroke();
       // 眼：杏仁形眼白 + 上下眼睑 + 瞳（?plainface=1 时留空窝）
-      [[100, 128], [156, 128]].forEach(function (e) {
+      // v31: no pupils -- blank paper eye sockets (README/v3 "not lit")
+      [[100, 130], [156, 130]].forEach(function (e) {
         var x = e[0], y = e[1];
-        g.fillStyle = "rgba(216,218,204,.50)";
-        g.beginPath(); g.ellipse(x, y, 18, 8, 0, 0, Math.PI * 2); g.fill();
-        g.strokeStyle = "rgba(36,38,32,.80)"; g.lineWidth = 3;
-        g.beginPath(); g.moveTo(x - 19, y - 1);
-        g.quadraticCurveTo(x, y - 13, x + 19, y - 1); g.stroke();
-        g.beginPath(); g.moveTo(x - 19, y - 1);
-        g.quadraticCurveTo(x, y + 10, x + 19, y - 1); g.stroke();
-        if (!PLAIN_FACE) {
-          g.fillStyle = "rgba(30,32,27,.90)";
-          g.beginPath(); g.ellipse(x, y, 5.6, 6.2, 0, 0, Math.PI * 2); g.fill();
-          g.fillStyle = "rgba(222,224,210,.55)";
-          g.beginPath(); g.arc(x - 2, y - 2.4, 1.7, 0, Math.PI * 2); g.fill();
-        }
+        softBlob(g, x, y, 17, "62,62,54", .16);
+        softBlob(g, x, y + 5, 11, "88,88,76", .08);
       });
-      // 鼻：鼻梁 + 鼻底弧 + 两个鼻孔暗点
-      g.strokeStyle = "rgba(42,44,38,.60)"; g.lineWidth = 2.6;
-      g.beginPath(); g.moveTo(124, 136); g.lineTo(120, 166); g.stroke();
-      g.beginPath(); g.moveTo(117, 166); g.quadraticCurveTo(128, 173, 139, 166); g.stroke();
-      g.fillStyle = "rgba(38,40,34,.50)";
-      g.beginPath(); g.ellipse(120, 166, 3, 2, 0, 0, Math.PI * 2); g.fill();
-      g.beginPath(); g.ellipse(136, 166, 3, 2, 0, 0, Math.PI * 2); g.fill();
+      // 鼻：只留一道极淡的鼻梁压痕与鼻底柔影，不画鼻孔
+      g.strokeStyle = "rgba(84,86,74,.13)"; g.lineWidth = 2.2;
+      g.beginPath(); g.moveTo(125, 140); g.lineTo(121, 164); g.stroke();
+      softBlob(g, 128, 166, 12, "74,76,66", .09);
       // 嘴：上唇弓 + 下唇，不笑不哭
-      g.strokeStyle = "rgba(38,40,34,.70)"; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(110, 192);
-      g.quadraticCurveTo(118, 186, 128, 190);
-      g.quadraticCurveTo(138, 186, 146, 192); g.stroke();
-      g.beginPath(); g.moveTo(110, 192);
-      g.quadraticCurveTo(128, 202, 146, 192); g.stroke();
+      g.strokeStyle = "rgba(84,86,74,.11)"; g.lineWidth = 2.4;
+      g.beginPath(); g.moveTo(110, 190);
+      g.quadraticCurveTo(128, 186, 146, 190); g.stroke();
       // 脸缘 + 下颌糊纸接缝
-      g.strokeStyle = "rgba(58,60,52,.32)"; g.lineWidth = 2;
-      g.beginPath(); g.ellipse(128, 132, 66, 92, 0, 0, Math.PI * 2); g.stroke();
+      // v31: drop the hard face-outline stroke (read as a pasted paper mask)
       g.strokeStyle = "rgba(62,64,56,.20)"; g.lineWidth = 1.4;
       g.beginPath(); g.moveTo(96, 214); g.lineTo(160, 212); g.stroke();
       for (var w = 0; w < 5; w++) softBlob(g, r() * s, r() * s, 18 + r() * 28, "92,92,80", .05);
@@ -494,6 +525,126 @@
       gr.addColorStop(.76, "rgba(0,0,0,1)");
       gr.addColorStop(1, "rgba(0,0,0,0)");
       g.fillStyle = gr; g.fillRect(0, 0, s, s);
+      g.globalCompositeOperation = "source-over";
+    }, { clamp: true });
+
+    // v31 判官颅骨皮色：与 M.judgeFace2 底色完全一致，
+    // 否则脸壳边缘会出现一圈明显的色差（读成贴上去的面具）。
+    M.judgeSkin = tex(256, function (g, s) {
+      var r = rand(191);
+      g.fillStyle = "#4f5149"; g.fillRect(0, 0, s, s);
+      for (var i = 0; i < 2400; i++) {
+        g.fillStyle = "rgba(34,36,31," + (.02 + r() * .07) + ")";
+        g.fillRect(r() * s, r() * s, 1 + r() * 3, 1);
+      }
+      for (var k = 0; k < 6; k++) softBlob(g, r() * s, r() * s, 18 + r() * 26, "40,42,37", .07);
+    }, { clamp: true });
+
+    // v31 判官脸（窄长清瘦版）：贴在一块球面壳上（θ .88~2.05、φ ±.95），
+    // 五官随颅骨曲面走，不是贴在椭圆上的一张纸片。
+    // 贴图只画五官与皮肤层次：头发 / 鬓角交给 3D 发帽与鬓发纸片，
+    // 否则贴图头发与 3D 发帽互相打架，近景读成锯齿黑块。
+    // 底色与颅骨最终明度一致，避免「白面具贴在深色脸上」。
+    // 坐标用世界尺寸（米），与 jfx / jfy 同一套投影：眼间距 60 mm、
+    // 眉长 64 mm、鼻底 -7 mm、嘴线 -30 mm、颏底 -48 mm。
+    // v31 判官脸（窄长清瘦版）：贴在一块球面壳上（θ .94~2.02、φ ±.80），
+    // 五官随颅骨曲面走，不是贴在椭圆上的一张纸片。
+    // 贴图只画五官与皮肤层次：头发 / 鬓角交给 3D 发帽与鬓发纸片。
+    // 对比度按「近景一眼能读出眉眼」来定：底色压到旧纸灰，墨线分三档
+    // （眼睑最重、颧骨与法令纹居中、胡须最轻），全程不点朱砂、不描脸缘。
+    // 坐标用世界尺寸（米）：眼间距 58 mm、眉长 62 mm、鼻底 -6 mm、
+    // 嘴线 -28 mm、颏底 -46 mm、发际 +50 mm。
+    M.judgeFace2 = tex(512, function (g, s) {
+      var r = rand(353);
+      g.fillStyle = "#4f5149"; g.fillRect(0, 0, s, s);
+      for (var i = 0; i < 4200; i++) {
+        g.fillStyle = "rgba(34,36,31," + (.02 + r() * .08) + ")";
+        g.fillRect(r() * s, r() * s, 1 + r() * 3, 1);
+      }
+      // three value steps: forehead / cheekbone lit, temple + jaw in shadow
+      softBlob(g, jfx(-.028), jfy(.022), 22, "150,155,142", .38);
+      softBlob(g, jfx(.028), jfy(.022), 22, "150,155,142", .38);
+      softBlob(g, jfx(0), jfy(-.036), 36, "18,19,16", .38);
+      softBlob(g, jfx(-.044), jfy(.028), 20, "18,19,16", .34);
+      softBlob(g, jfx(.044), jfy(.028), 20, "18,19,16", .34);
+      // temple hollows: the gaunt "清瘦长者" read
+      softBlob(g, jfx(-.052), jfy(.020), 15, "22,23,20", .26);
+      softBlob(g, jfx(.052), jfy(.020), 15, "22,23,20", .26);
+      // hairline at the top of the shell, inside the canvas
+      // No hairline in the texture: the 乌纱冠 already covers the crown, and
+      // a painted band on the forehead read as a bar across the brow.
+      // eye sockets: the deepest value on the face, so the eyes read first
+      softBlob(g, jfx(-.029), jfy(.020), 16, "16,17,14", .40);
+      softBlob(g, jfx(.029), jfy(.020), 16, "16,17,14", .40);
+      // brows: heavy, slightly angled in toward the temples
+      g.strokeStyle = "rgba(18,19,16,.92)"; g.lineWidth = 4.0; g.lineCap = "round";
+      g.beginPath(); g.moveTo(jfx(-.044), jfy(.029));
+      g.quadraticCurveTo(jfx(-.033), jfy(.037), jfx(-.019), jfy(.029)); g.stroke();
+      g.beginPath(); g.moveTo(jfx(.044), jfy(.029));
+      g.quadraticCurveTo(jfx(.033), jfy(.037), jfx(.019), jfy(.029)); g.stroke();
+      // eyes: downturned lids, a small pupil tucked under the upper lid,
+      // no catchlight -- a calm, tired gaze, not a cartoon stare
+      [-1, 1].forEach(function (sg) {
+        var x = jfx(sg * .029), y = jfy(.016);
+        g.fillStyle = "rgba(150,154,142,.42)";
+        g.beginPath(); g.ellipse(x, y, 13, 4.4, 0, 0, Math.PI * 2); g.fill();
+        // upper lid: the heaviest line on the face
+        g.strokeStyle = "rgba(12,13,11,.95)"; g.lineWidth = 3.2;
+        g.beginPath(); g.moveTo(x - 13, y - 1);
+        g.quadraticCurveTo(x, y - 6, x + 13, y - 1); g.stroke();
+        // lower lid
+        g.strokeStyle = "rgba(28,30,26,.60)"; g.lineWidth = 1.6;
+        g.beginPath(); g.moveTo(x - 11, y + 1);
+        g.quadraticCurveTo(x, y + 4, x + 11, y + 1); g.stroke();
+        // pupil: small, low, half hidden by the upper lid
+        g.fillStyle = "rgba(10,11,9,.92)";
+        g.beginPath(); g.ellipse(x, y + 1.2, 2.8, 2.4, 0, 0, Math.PI * 2); g.fill();
+        // age crease under the eye
+        g.strokeStyle = "rgba(84,86,76,.26)"; g.lineWidth = 1.3;
+        g.beginPath(); g.moveTo(x - 11, y + 6);
+        g.quadraticCurveTo(x, y + 8, x + 11, y + 6); g.stroke();
+      });
+      // nose: straight bridge, one shaded side, narrow tip
+      g.strokeStyle = "rgba(30,32,27,.44)"; g.lineWidth = 1.8;
+      g.beginPath(); g.moveTo(jfx(.002), jfy(.014)); g.lineTo(jfx(.004), jfy(-.006)); g.stroke();
+      g.strokeStyle = "rgba(38,40,35,.38)"; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(jfx(-.006), jfy(-.006));
+      g.quadraticCurveTo(jfx(0), jfy(-.009), jfx(.006), jfy(-.006)); g.stroke();
+      // nasolabial folds: the mid value layer
+      g.strokeStyle = "rgba(30,32,27,.40)"; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(jfx(-.009), jfy(-.010));
+      g.quadraticCurveTo(jfx(-.015), jfy(-.020), jfx(-.011), jfy(-.028)); g.stroke();
+      g.beginPath(); g.moveTo(jfx(.009), jfy(-.010));
+      g.quadraticCurveTo(jfx(.015), jfy(-.020), jfx(.011), jfy(-.028)); g.stroke();
+      // thin lips, straight and unsmiling
+      g.strokeStyle = "rgba(22,23,20,.80)"; g.lineWidth = 2.2;
+      g.beginPath(); g.moveTo(jfx(-.012), jfy(-.029));
+      g.quadraticCurveTo(jfx(0), jfy(-.032), jfx(.012), jfy(-.029)); g.stroke();
+      g.strokeStyle = "rgba(70,72,64,.26)"; g.lineWidth = 1.4;
+      g.beginPath(); g.moveTo(jfx(-.009), jfy(-.033));
+      g.quadraticCurveTo(jfx(0), jfy(-.035), jfx(.009), jfy(-.033)); g.stroke();
+      // eight-shaped moustache: two short strokes from the lip corners
+      g.strokeStyle = "rgba(20,21,18,.72)"; g.lineWidth = 2.6; g.lineCap = "round";
+      g.beginPath(); g.moveTo(jfx(-.009), jfy(-.030));
+      g.quadraticCurveTo(jfx(-.017), jfy(-.034), jfx(-.024), jfy(-.040)); g.stroke();
+      g.beginPath(); g.moveTo(jfx(.009), jfy(-.030));
+      g.quadraticCurveTo(jfx(.017), jfy(-.034), jfx(.024), jfy(-.040)); g.stroke();
+      // beard roots along the jaw: the lightest layer, only a hint
+      g.strokeStyle = "rgba(26,28,24,.34)"; g.lineWidth = 2.2;
+      for (var k = 0; k < 9; k++) {
+        var bx = jfx(-.030 + k * .0075 + (r() - .5) * .003);
+        g.beginPath(); g.moveTo(bx, jfy(-.039));
+        g.quadraticCurveTo(bx + (r() - .5) * 4, jfy(-.043), bx + (r() - .5) * 6, jfy(-.046));
+        g.stroke();
+      }
+      // soft elliptical fade on the shell's own uv bounds, so the face melts
+      // into the skull instead of showing a rectangular edge
+      g.globalCompositeOperation = "destination-in";
+      var gr2 = g.createRadialGradient(256, jfy(.008), 140, 256, jfy(.008), 250);
+      gr2.addColorStop(0, "rgba(0,0,0,1)");
+      gr2.addColorStop(.60, "rgba(0,0,0,1)");
+      gr2.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = gr2; g.fillRect(0, 0, s, s);
       g.globalCompositeOperation = "source-over";
     }, { clamp: true });
 
@@ -621,7 +772,9 @@
     // 乌纱：近黑的墨青，细横纱纹；不是纯黑块
     M.judgeHat = tex(128, function (g, s) {
       var r = rand(331);
-      g.fillStyle = "#232a27"; g.fillRect(0, 0, s, s);
+      // Matte black gauze, but a value step above the surrounding dark so
+      // the cap still reads as cloth in the dim corridor instead of a hole.
+      g.fillStyle = "#2d3531"; g.fillRect(0, 0, s, s);
       g.strokeStyle = "rgba(120,138,130,.13)"; g.lineWidth = 1;
       for (var y = 0; y < s; y += 4) {
         g.beginPath(); g.moveTo(0, y); g.lineTo(s, y); g.stroke();
@@ -828,7 +981,19 @@
         side: T.DoubleSide }),
       judgeFace: new T.MeshStandardMaterial({ map: M.judgeFace, roughness: 1,
         side: T.DoubleSide, transparent: true, depthWrite: false }),
-      judgeSkin: new T.MeshStandardMaterial({ map: M.folkPlain, color: 0xd8d8c8,
+      // v31: narrow gaunt face on a curved shell. Pure diffuse paper, all the
+      // modelling comes from the texture -- no plastic highlight anywhere.
+      judgeFace2: new T.MeshStandardMaterial({ map: M.judgeFace2, roughness: 1,
+        side: T.DoubleSide, transparent: true, depthWrite: false }),
+      // cap edge: a very thin lighter rim so the matte black gauze still
+      // reads as fabric instead of a hole in the picture
+      judgeHatEdge: new T.MeshStandardMaterial({ map: M.folkCloth, color: 0x6d766d,
+        roughness: .96, side: T.DoubleSide }),
+      // hairpin: dark matte metal, NOT bright silver (a bright rod read as
+      // an antenna in the v28/v30 shots)
+      judgePin: new T.MeshStandardMaterial({ color: 0x39423c, roughness: .62,
+        metalness: .10, side: T.DoubleSide }),
+      judgeSkin: new T.MeshStandardMaterial({ map: M.judgeSkin, color: 0xffffff,
         roughness: 1, side: T.DoubleSide }),
       // v28 实拍修正：领口/书页第一版太亮，读成两条白斜挎带 + 白托盘。
       // 全部压到只比墨青袍亮 10~20%，靠纹理与明度差读层次，不靠高光。
@@ -839,7 +1004,7 @@
       judgeInner:  new T.MeshStandardMaterial({ map: M.folkCloth, color: 0x8b968b,
                     roughness: 1, side: T.DoubleSide }),
       // 长须要灰白：不能用墨发贴图（map × color 会乘成近黑），改用中性糊纸纹提亮
-      judgeBeard:  new T.MeshStandardMaterial({ map: M.folkCloth, color: 0x848e82,
+      judgeBeard:  new T.MeshStandardMaterial({ map: M.folkCloth, color: 0x3a4038,
                     roughness: 1, side: T.DoubleSide }),
       judgeSilver: new T.MeshStandardMaterial({ color: 0x657168, roughness: .52,
                     metalness: .08, side: T.DoubleSide }),
@@ -1425,14 +1590,20 @@
     // 明显低于站立版 2.0，也低于面壁纸扎人 1.75。右手搭案、左手托簿。
     function buildJudgeV29() {
       var judge = new T.Group();
+      var judgeForeL = null, judgeForeR = null;   // forearms, for held props
       judge.position.set(JUDGE_AT[0], 0, JUDGE_AT[2]);
-      judge.rotation.y = .24;      // 朝 +z 略偏右，迎着从长凳绕过来的玩家
+      // Turned a little toward the desk (which is on his right) while still
+      // facing the approaching player: the far shot then reads "an official
+      // working at the counter" instead of "a person on a stool".
+      judge.rotation.y = .42;
       root.add(judge);
 
       // 四棱柱方袖：先在几何空间转 45° 再压进深，正面才是平直宽袖
       function slv(rt, rb, h, mat, parent, yy) {
-        var geo = new T.CylinderGeometry(rt, rb, h, 4, 1, true);
-        geo.rotateY(Math.PI / 4); geo.scale(1, 1, .46);
+        // six-sided prism, slightly flattened: a sleeve reads as cloth with
+        // a few soft planes instead of a flat board
+        var geo = new T.CylinderGeometry(rt, rb, h, 6, 1, true);
+        geo.rotateY(Math.PI / 6); geo.scale(1, 1, .74);
         var m = new T.Mesh(geo, mat); m.position.y = yy; parent.add(m); return m;
       }
 
@@ -1465,105 +1636,163 @@
         box(.126, .009, .208, MAT.judgeEdge, sg * .135, .013, .492, judge);
       });
 
-      // ③ 袍摆铺膝（v30）：v29 的完整锥台 + 亮色下摆圈在实拍里读成一把硬边圆伞，
-      //    这里收窄摆幅、去掉亮边，只留一道极窄暗绣，再压五道纵向衣褶。
-      var lap = new T.Mesh(new T.CylinderGeometry(.225, .425, .470, 14, 1, true), MAT.judgeRobe);
-      lap.scale.set(1, 1, .78); lap.position.set(0, .525, .150); judge.add(lap);
-      var lapBand = new T.Mesh(new T.CylinderGeometry(.420, .428, .016, 14, 1, true), MAT.judgeBrocade);
-      lapBand.scale.set(1, 1, .78); lapBand.position.set(0, .300, .150); judge.add(lapBand);
-      [-.26, -.13, 0, .13, .26].forEach(function (px) {
-        var fold = plane(.012, .400, MAT.judgeEdge, px, .520,
-          .445 - Math.abs(px) * .10, judge);
-        fold.rotation.x = -.14; fold.rotation.z = px * .20;
+      // (3) robe hem / knee apron / torso  -- v31
+      // v30 read as one black blob: the hem was a hard cone, the shoulders
+      // were floating quads that looked like epaulettes, and nothing had
+      // value separation. Now: layered deep grey-green robe, a separate knee
+      // apron, and a rounded shoulder yoke merged into the torso.
+      var lap = new T.Mesh(new T.CylinderGeometry(.215, .400, .430, 16, 1, true),
+        MAT.judgeRobe);
+      lap.scale.set(1, 1, .80); lap.position.set(0, .510, .140); judge.add(lap);
+      // hem rim: a narrow darker band, not a bright ring
+      var lapBand = new T.Mesh(new T.CylinderGeometry(.398, .404, .014, 16, 1, true),
+        MAT.judgeEdge);
+      lapBand.scale.set(1, 1, .80); lapBand.position.set(0, .298, .140); judge.add(lapBand);
+      // Vertical folds lie ON the hem cone: at |x| the cone surface is at
+      // z = .140 + .400 * sqrt(1 - (px/.400)^2) * .80. The v30 build put
+      // them at z=.445, i.e. 30 cm in front of the knees, which read as a
+      // row of bars floating over the robe.
+      [-.25, -.125, 0, .125, .25].forEach(function (px) {
+        var r = .400, surf = .140 + r * Math.sqrt(Math.max(0, 1 - (px / r) * (px / r))) * .80;
+        var fold = plane(.016, .360, MAT.judgeEdge, px, .500, surf + .004, judge);
+        fold.rotation.x = -.16; fold.rotation.z = px * .22;
       });
-      // 躯干：从髋 .50 到肩 1.06
-      var torso = new T.Mesh(new T.CylinderGeometry(.205, .235, .560, 12, 1, true), MAT.judgeRobe);
-      torso.scale.set(1, 1, .68); torso.position.set(0, .780, -.040); judge.add(torso);
+      // knee apron (bi jin): a separate layer over the knees, one value up
+      var apron = new T.Mesh(new T.CylinderGeometry(.300, .318, .190, 14, 1, true),
+        MAT.judgeInner);
+      apron.scale.set(1, 1, .82); apron.position.set(0, .600, .165); judge.add(apron);
+      var apronRim = new T.Mesh(new T.CylinderGeometry(.316, .320, .012, 14, 1, true),
+        MAT.judgeBrocade);
+      apronRim.scale.set(1, 1, .82); apronRim.position.set(0, .510, .165); judge.add(apronRim);
+      // torso: hips .50 -> shoulder 1.05, wide at the waist and narrow at the
+      // chest so the shoulders read as sloping
+      var torso = new T.Mesh(new T.CylinderGeometry(.190, .225, .545, 14, 1, true),
+        MAT.judgeRobe);
+      torso.scale.set(1, 1, .70); torso.position.set(0, .775, -.035); judge.add(torso);
+      // Shoulder mass: a real rounded shoulder line that merges into the
+      // torso. The previous version was a shallow 79-degree cap -- 49 cm wide
+      // and only 10 cm thick -- which read as a flat board laid across the
+      // shoulders from the far shot.
+      var yoke = new T.Mesh(new T.SphereGeometry(.205, 20, 16,
+        0, Math.PI * 2, 0, Math.PI * .74), MAT.judgeRobe);
+      yoke.scale.set(1, .86, .78);
+      yoke.position.set(0, 1.000, -.034);
+      judge.add(yoke);
+      // collar band around the neck, sitting on the yoke
+      var collar = new T.Mesh(new T.CylinderGeometry(.086, .100, .052, 14, 1, true),
+        MAT.judgeInner);
+      collar.scale.set(1, 1, .82);
+      collar.position.set(0, 1.058, -.020);
+      judge.add(collar);
+      // 交领右衽：两片薄襟贴着躯干表面压出 Y 字右衽。
+      // v30 的襟片浮在胸外 8 cm，近景读成两条白斜挎带。
+      // 交领右衽: two overlapping bands only. The v30 build used five
+      // separate pieces (inner / outer / trim / centre seam / neck lining),
+      // all at high contrast -- from the front they read as a row of bars
+      // across the chest.
+      // inner collar (light, shows at the neck)
+      paperStrip([[-.046, 1.072], [.046, 1.072], [.032, 1.020], [-.032, 1.020]],
+        .088, MAT.judgePage, judge);
+      // left band, tucked under
+      paperStrip([[-.140, 1.044], [-.066, 1.062], [-.052, .828], [-.108, .820]],
+        .082, MAT.judgeInner, judge);
+      // right band, crossing over (右衽) with its own darker trim edge
+      paperStrip([[.146, 1.044], [.070, 1.064], [.020, .766], [-.026, .758]],
+        .090, MAT.judgeBand, judge);
+      paperStrip([[.070, 1.064], [.086, 1.058], [.036, .760], [.020, .766]],
+        .093, MAT.judgeEdge, judge);
 
-      // ④ 云肩四瓣如意弧：外缘深、内面暗银云纹
-      var cape = [
-        [-.100, 1.105], [.100, 1.105], [.245, 1.070], [.345, .975],
-        [.285, .890], [.195, .920], [.105, .845], [-.105, .845],
-        [-.195, .920], [-.285, .890], [-.345, .975], [-.245, 1.070]
-      ];
-      paperStrip(cape, .180, MAT.judgeEdge, judge);
-      paperStrip(cape.map(function (p) {
-        return [p[0] * .88, .850 + (p[1] - .850) * .88];
-      }), .186, MAT.judgeCloud, judge);
-
-      // ⑤ 交领右衽：三片斜襟交叠成 Y 字，缘边再压一道回纹；里衣再露一层
-      // v30：内襟原来一路斜到 .700，和外衽在胸前交叉成 X，实拍读成束带 / 铠甲。
-      // 收短到胸口 .858，让交叠点上移，下方只留外衽一条斜线 —— Y 字右衽。
-      paperStrip([[-.285, 1.065], [-.120, 1.088], [.020, .858], [-.060, .846]],
-        .190, MAT.judgeInner, judge);
-      paperStrip([[.285, 1.065], [.120, 1.088], [-.075, .724], [.060, .712]],
-        .197, MAT.judgeBand, judge);
-      paperStrip([[.120, 1.088], [.150, 1.081], [-.045, .718], [-.075, .724]],
-        .204, MAT.judgeBrocade, judge);
-      paperStrip([[-.032, .720], [.032, .720], [.040, .600], [-.040, .600]],
-        .202, MAT.judgeEdge, judge);
-      paperStrip([[-.085, 1.090], [.085, 1.090], [.060, 1.010], [-.060, 1.010]],
-        .188, MAT.judgePage, judge);
 
       // ⑥ 犀角带 + 暗银带扣 + 续平绪垂带
-      box(.565, .095, .030, MAT.judgeBand, 0, .620, .180, judge);
-      box(.565, .012, .034, MAT.judgeEdge, 0, .672, .182, judge);
-      box(.565, .012, .034, MAT.judgeEdge, 0, .568, .182, judge);
-      box(.100, .100, .034, MAT.judgeSilver, 0, .620, .200, judge);
-      box(.030, .030, .038, MAT.judgeEdge, 0, .620, .220, judge);
+      // The torso front surface at belt height is z ~ .106 (radius .2016 x
+      // z-scale .70, offset -.035). The v30 build put the belt at z=.180 --
+      // 8 cm in front of the body -- so the belt and its hanging straps read
+      // as a row of bars floating across the chest.
+      box(.565, .095, .030, MAT.judgeBand, 0, .620, .104, judge);
+      box(.565, .012, .034, MAT.judgeEdge, 0, .672, .106, judge);
+      box(.565, .012, .034, MAT.judgeEdge, 0, .568, .106, judge);
+      box(.100, .100, .034, MAT.judgeSilver, 0, .620, .124, judge);
+      box(.030, .030, .038, MAT.judgeEdge, 0, .620, .144, judge);
       [-1, 1].forEach(function (sg) {
         var rb = paperStrip([[-.036, 0], [.036, 0], [.028, -.340], [-.020, -.320]],
-          .190, MAT.judgeInner, judge, sg * .075, .560);
+          .112, MAT.judgeInner, judge, sg * .075, .560);
         rb.rotation.z = sg * .08;
-        box(.010, .340, .008, MAT.judgeBrocade, sg * .075, .390, .196, judge)
+        box(.010, .340, .008, MAT.judgeBrocade, sg * .075, .390, .118, judge)
           .rotation.z = sg * .08;
       });
 
       // ⑦ 腰侧小挂件：印匣 / 竹牌串 / 小铃（动漫判官腰间那点「人间玩意」）
-      box(.072, .090, .042, MAT.judgeBook, -.300, .568, .112, judge);
-      box(.082, .012, .048, MAT.judgeEdge, -.300, .618, .112, judge);
+      box(.072, .090, .042, MAT.judgeBook, -.272, .568, .090, judge);
+      box(.082, .012, .048, MAT.judgeEdge, -.272, .618, .090, judge);
       [-1, 1].forEach(function (sg) {
-        box(.020, .072, .008, MAT.bamboo, -.300 + sg * .018, .488, .122, judge);
+        box(.020, .072, .008, MAT.bamboo, -.272 + sg * .018, .488, .100, judge);
       });
       var bell = new T.Mesh(new T.SphereGeometry(.021, 8, 6), MAT.judgeSilver);
-      bell.position.set(.300, .538, .112); judge.add(bell);
+      bell.position.set(.272, .538, .090); judge.add(bell);
 
-      // ⑧ 双臂：肘搁案沿、前臂前抬，左手托簿右手执笔
+      // (8) arms: heavy wide sleeves, elbows on the desk, forearms forward
+      // v30's sleeves were thin tubes with a bright cuff band (read as
+      // plastic arm cuffs). Now: wider tapered sleeve, a folded outer cuff
+      // with real cloth weight, and a hollow dark inner mouth.
       [-1, 1].forEach(function (sg) {
         var arm = new T.Group();
-        arm.position.set(sg * .255, 1.010, .010);
-        arm.rotation.z = sg * .12;
+        arm.position.set(sg * .250, 1.000, .010);
+        arm.rotation.z = sg * .13;
+        arm.rotation.y = sg * .24;   // the sleeve turns away from the chest
         judge.add(arm);
-        slv(.082, .112, .240, MAT.judgeRobe, arm, .120);
-        var sh = paperStrip([[-.090, .250], [.090, .250], [.112, .200], [-.112, .205]],
-          .048, MAT.judgeRobe, arm);
-        sh.rotation.z = sg * .16;
-        slv(.112, .116, .024, MAT.judgeBrocade, arm, .002);
+        // Sleeve: the upper part hangs DOWN from the shoulder joint and
+        // continues into the forearm sleeve, so the whole arm reads as one
+        // wide han sleeve. The v30 build centred this cylinder ABOVE the
+        // shoulder, which planted a flat slab beside the head.
+        slv(.094, .118, .155, MAT.judgeRobe, arm, -.072);
+        // shoulder cap: a rounded hill melting into the yoke
+        var cap = new T.Mesh(new T.SphereGeometry(.088, 12, 10,
+          0, Math.PI * 2, 0, Math.PI * .54), MAT.judgeRobe);
+        cap.scale.set(1.06, .72, .86);
+        cap.position.set(0, .012, 0);
+        arm.add(cap);
+        slv(.120, .126, .022, MAT.judgeBrocade, arm, -.148);
         var elbow = new T.Group();
-        elbow.rotation.x = sg < 0 ? -.66 : -.82;   // 前臂搭向案面
+        elbow.rotation.x = sg < 0 ? -.72 : -.88;   // forearms rest on the desk
         elbow.rotation.z = -sg * .10;
         arm.add(elbow);
-        slv(.116, .142, .255, MAT.judgeRobe, elbow, -.128);
-        box(.180, .010, .010, MAT.judgeBand, 0, .040, .066, elbow);
-        slv(.144, .150, .026, MAT.judgeBrocade, elbow, -.266);
-        slv(.150, .154, .026, MAT.judgeEdge, elbow, -.292);
-        var hollow = new T.Mesh(new T.PlaneGeometry(.24, .24), MAT.folkHollow);
+        slv(.112, .134, .240, MAT.judgeRobe, elbow, -.120);
+        // sleeve drape: a narrow soft fold hugging the outside of the sleeve
+        var drape = plane(.076, .140, MAT.judgeEdge, .010, -.150, .058, elbow);
+        drape.rotation.z = sg * .07;
+        // cuff: outer fold + inner dark mouth
+        slv(.144, .150, .032, MAT.judgeBrocade, elbow, -.262);
+        slv(.150, .156, .030, MAT.judgeEdge, elbow, -.290);
+        var hollow = new T.Mesh(new T.PlaneGeometry(.26, .26), MAT.folkHollow);
         hollow.rotation.x = -Math.PI / 2; hollow.scale.y = .46;
         hollow.position.y = -.312; elbow.add(hollow);
-        var hand = new T.Mesh(new T.SphereGeometry(.046, 10, 8), MAT.judgeSkin);
-        hand.position.set(0, -.298, .052);
-        hand.scale.set(.92, .78, .62);
+        // hand: an old clerk's hand, thin and slightly hooked
+        var hand = new T.Mesh(new T.SphereGeometry(.044, 10, 8), MAT.judgeSkin);
+        hand.position.set(0, -.296, .050);
+        hand.scale.set(.88, .74, .60);
         elbow.add(hand);
-        if (sg > 0) {   // 右袖口一点飞墨，不糊满整只袖子
+        // a couple of finger ridges so the hand isn't a smooth ball
+        [-1, 0, 1].forEach(function (k) {
+          var fg = new T.Mesh(new T.SphereGeometry(.011, 6, 5), MAT.judgeSkin);
+          fg.position.set(k * .026, -.322, .078);
+          fg.scale.set(1, 1.5, .7);
+          elbow.add(fg);
+        });
+        if (sg > 0) {   // one splash of ink on the right cuff
           var ink = new T.Mesh(new T.PlaneGeometry(.170, .130), MAT.judgeInk);
           ink.position.set(0, -.170, .074); elbow.add(ink);
         }
+        // keep the forearms so the props can be held in the right hands
+        if (sg < 0) judgeForeL = elbow; else judgeForeR = elbow;
       });
 
-      // ⑨ 生死簿：摊在膝前；包角 / 书口页纹 / 订线 / 只留模糊笔痕的签条
+
+      // (9) register of life and death: open on the desk edge in front of
+      // the knees, pressed down by the LEFT hand. v30 parked it flat on the
+      // lap where the near shot could not read "the judge is writing".
       var book = new T.Group();
-      book.position.set(-.300, .815, .330);
-      book.rotation.set(-.52, .16, .12);
+      book.position.set(-.135, .700, .300);
+      book.rotation.set(-1.02, .22, .10);
       judge.add(book);
       box(.285, .028, .210, MAT.judgeBook, 0, 0, 0, book);
       box(.262, .018, .192, MAT.judgePage, 0, .017, 0, book);
@@ -1576,11 +1805,13 @@
       });
       box(.052, .004, .088, MAT.judgePage, .080, .024, -.020, book);
 
-      // ⑩ 朱笔：竹节笔杆 + 笔斗 + 笔毫 + 一点朱砂笔尖
+
+      // (10) vermilion brush: held in the RIGHT hand, tip pointing down at the
+      // register -- the one small spot of cinnabar in the whole hall.
       var brush = new T.Group();
-      brush.position.set(.340, .955, .320);
-      brush.rotation.set(-.20, 0, -.62);
-      judge.add(brush);
+      brush.position.set(.010, -.300, .092);
+      brush.rotation.set(.62, 0, -.26);
+      judgeForeR.add(brush);
       cyl(.011, .013, .300, MAT.woodDark, 0, .105, 0, brush, 8);
       [.030, .150].forEach(function (yy) {
         cyl(.014, .014, .010, MAT.judgeEdge, 0, yy, 0, brush, 8);
@@ -1589,96 +1820,147 @@
       cyl(.020, .002, .078, MAT.folkHair, 0, -.080, 0, brush, 8);
       cyl(.004, .004, .020, MAT.cinnabar, 0, -.127, 0, brush, 8);
 
-      // ⑪ 颈 + 头 + 耳 + 发 + 脸片（沿用 v28 修好的五官与 ?plainface=1 开关）
-      var jneck = cyl(.056, .068, .105, MAT.judgeSkin, 0, 1.085, 0, judge, 10);
-      jneck.scale.z = .78;
-      var jhead = new T.Mesh(new T.SphereGeometry(.148, 14, 12), MAT.judgeSkin);
-      jhead.position.set(0, 1.275, .018);
-      jhead.scale.set(.93, 1.16, .82);
-      jhead.rotation.y = -.10;
+
+      // (11) v31 neck + skull + ears + face shell
+      // The skull is now 26 cm tall / 18.4 cm wide (was a 34 cm ball -> the
+      // "head-to-body ratio is off" note). The face is a curved spherical shell
+      // whose UVs come from an orthographic x-y projection, so the features
+      // keep real frontal proportions instead of being stretched by the sphere
+      // grid -- that was the root cause of the "big cartoon eyes" read.
+      var jneck = cyl(.052, .062, .120, MAT.judgeSkin, 0, 1.070, 0, judge, 10);
+      jneck.scale.z = .76;
+      var jhead = new T.Mesh(new T.SphereGeometry(JR, 18, 14), MAT.judgeSkin);
+      jhead.position.set(0, 1.245, .012);
+      jhead.scale.set(JSX, JSY, JSZ);
+      jhead.rotation.y = -.10;      // 3/4 presentation
+      jhead.rotation.x = .085;      // slight forward tilt (reading the register)
       judge.add(jhead);
-      [-1, 1].forEach(function (sg) {   // v29 新增：耳朵
-        var ear = new T.Mesh(new T.SphereGeometry(.029, 8, 6), MAT.judgeSkin);
-        ear.position.set(sg * .136, -.012, .006);
-        ear.scale.set(.52, 1, .60);
+      // ears: thin pressed-paper ears, tucked back so they don't stick out
+      [-1, 1].forEach(function (sg) {
+        var ear = new T.Mesh(new T.SphereGeometry(.022, 8, 6), MAT.judgeSkin);
+        ear.position.set(sg * .090, -.008, .002);
+        ear.scale.set(.42, 1.05, .62);
         jhead.add(ear);
       });
-      var jhair = new T.Mesh(new T.SphereGeometry(.146, 14, 10,
-        0, Math.PI * 2, 0, Math.PI * .27), MAT.folkHair);
-      jhead.add(jhair);
+      // No separate hair cap: the 乌纱冠 already covers the crown, and a
+      // second cap underneath pushed a dark band with spikes down over the
+      // forehead. Only the sideburns stay, as thin strands.
+      // hair: a thin band at the forehead plus the sideburns. The 乌纱冠
+      // covers the crown, but a completely bare forehead turned the skull
+      // into a smooth egg.
+      var hairline = plane(.116, .030, MAT.folkHair, 0, .056, .030, jhead);
+      hairline.rotation.x = .26;
       [-1, 1].forEach(function (sg) {
-        var tuft = plane(.050, .130, MAT.folkHair, sg * .128, .046, -.010, jhead);
-        tuft.rotation.z = sg * .22; tuft.rotation.y = sg * .48;
-        var wisp = plane(.016, .115, MAT.folkHair, sg * .156, .014, -.005, jhead);
-        wisp.rotation.z = sg * .46;
-        var wisp2 = plane(.010, .088, MAT.folkHair, sg * .166, -.030, -.020, jhead);
-        wisp2.rotation.z = sg * .58;
+        var wisp = plane(.010, .078, MAT.folkHair, sg * .086, .006, -.002, jhead);
+        wisp.rotation.z = sg * .34;
+        var wisp2 = plane(.006, .050, MAT.folkHair, sg * .092, -.022, -.010, jhead);
+        wisp2.rotation.z = sg * .44;
       });
-      var jfs = new T.Shape(), jr = rand(353);
-      for (var ai = 0; ai <= 30; ai++) {
-        var th = ai / 30 * Math.PI * 2, jj = 1 + (jr() - .5) * .045;
-        // v30：脸片比头壳正面还大时，近景会读成一张独立的白面具；
-        // 收到头宽以内并贴回球面，五官仍是 v28 定稿那套长眉细目 / 平直薄唇。
-        var px = Math.cos(th) * .108 * jj, py = Math.sin(th) * .144 * jj;
-        if (ai === 0) jfs.moveTo(px, py); else jfs.lineTo(px, py);
-      }
-      jfs.closePath();
-      var jface = new T.Mesh(normalizeUV(new T.ShapeGeometry(jfs, 3)), MAT.judgeFace);
-      jface.position.z = .156;
+      // face shell: curved, world-projected UVs (M.judgeFace2)
+      var jface = new T.Mesh(judgeFaceShell(.010), MAT.judgeFace2);
       jhead.add(jface);
 
-      // ⑫ 绕腮长须：从颌下 1.15 接到胸前，绝不盖住眉眼嘴（v28 踩过的坑）
-      paperStrip([[-.022, 1.150], [.022, 1.150], [.030, .985],
-                  [.010, .885], [-.010, .885], [-.030, .985]],
-        .185, MAT.judgeBeard, judge);
+      // (12) beard: eight-shaped moustache roots on the face + long beard strips
+      // Grey-black, low contrast, never covering brow / eye / mouth.
+      // Long beard: ONE continuous mass from the jaw down to the chest.
+      // The v29~v30 build assembled it from four separate narrow strips
+      // (3-4 cm wide, hard edges), which read as a row of bars on the chest.
+      // A single tapering shape reads as hair with weight.
+      paperStrip([
+        [-.078, 1.150], [.078, 1.150],
+        [.058, 1.036], [.036, .930], [.020, .836],
+        [-.020, .836], [-.036, .930], [-.058, 1.036]
+      ], .116, MAT.judgeBeard, judge);
+      // a soft parting line down the middle of the beard
+      paperStrip([[-.006, 1.132], [.006, 1.132], [.004, .850], [-.004, .850]],
+        .118, MAT.judgeEdge, judge);
+      // eight-shaped moustache: two wisps at the lip corners
       [-1, 1].forEach(function (sg) {
-        paperStrip([[sg * .030, 1.145], [sg * .048, 1.140],
-                    [sg * .064, .960], [sg * .044, .930]], .184, MAT.judgeBeard, judge);
-        paperStrip([[sg * .118, 1.170], [sg * .084, 1.156], [sg * .106, 1.020],
-                    [sg * .166, .900], [sg * .192, .920], [sg * .146, 1.034]],
-          .183, MAT.judgeBeard, judge);
-        paperStrip([[sg * .138, 1.152], [sg * .154, 1.145],
-                    [sg * .224, .998], [sg * .206, .984]], .181, MAT.judgeBeard, judge);
+        paperStrip([[sg * .030, 1.142], [sg * .052, 1.136],
+                    [sg * .070, 1.000], [sg * .046, .966]], .096, MAT.judgeBeard, judge);
+        // a stray strand drifting off the jaw
+        paperStrip([[sg * .092, 1.140], [sg * .106, 1.134],
+                    [sg * .152, 1.000], [sg * .140, .988]], .092, MAT.judgeBeard, judge);
       });
 
-      // ⑬ 垂缨冠（v30）：v29 那 5 层方盒在实拍里读成一叠黑台阶，改成
-      //    圆帽筒 + 薄帽檐 + 圆收帽顶 + 横向展脚幞头。展脚是中式文官最识别的剪影，
-      //    横簪只露两点暗银簪头（v28 踩过「亮白天线」的坑），垂缨软带从檐侧垂到肩。
-      var hatBrim = new T.Mesh(new T.CylinderGeometry(.212, .212, .026, 12), MAT.judgeHat);
-      hatBrim.scale.set(1, 1, .80); hatBrim.position.set(0, 1.446, -.012); judge.add(hatBrim);
-      var hatEdge = new T.Mesh(new T.CylinderGeometry(.220, .220, .010, 12, 1, true), MAT.judgeBrocade);
-      hatEdge.scale.set(1, 1, .80); hatEdge.position.set(0, 1.432, -.012); judge.add(hatEdge);
-      var hatBody = new T.Mesh(new T.CylinderGeometry(.146, .162, .155, 12, 1, true), MAT.judgeHat);
-      hatBody.scale.set(1, 1, .82); hatBody.position.set(0, 1.532, -.012); judge.add(hatBody);
-      var hatTop = new T.Mesh(new T.SphereGeometry(.152, 12, 8,
-        0, Math.PI * 2, 0, Math.PI * .5), MAT.judgeHat);
-      hatTop.scale.set(.96, .42, .80); hatTop.position.set(0, 1.608, -.012); judge.add(hatTop);
-      var hatBand = new T.Mesh(new T.CylinderGeometry(.164, .164, .018, 12, 1, true), MAT.judgeBrocade);
-      hatBand.scale.set(1, 1, .82); hatBand.position.set(0, 1.474, -.012); judge.add(hatBand);
-      var pin = cyl(.006, .006, .390, MAT.judgeSilver, 0, 1.540, -.030, judge, 8);
-      pin.rotation.z = Math.PI / 2;
+      // (13) 幞头 / 乌纱 (cap).
+      // v30 read as a western bowler: a wide flat disc brim + a round dome +
+      // a long silver rod straight through the head. Now: a soft rounded crown
+      // that hugs the skull (never wider than the head), a narrow tucked edge
+      // (NOT a brim), two short flat straight 展脚 wings leaving the BACK of
+      // the crown, and a dark hairpin almost swallowed by the crown.
+      var hatG = new T.Group();
+      hatG.position.set(0, 1.352, -.010);
+      hatG.rotation.x = -.10;          // crown leans back
+      judge.add(hatG);
+      // crown: a soft rounded 乌纱 cap that sits ON the skull. Its widest
+      // point matches the head, so the silhouette never reads as a bowler
+      // hat perched on top of a ball.
+      var crown = new T.Mesh(new T.SphereGeometry(.096, 20, 16,
+        0, Math.PI * 2, 0, Math.PI * .52), MAT.judgeHat);
+      crown.scale.set(1.02, .94, 1.05);
+      crown.position.set(0, -.030, -.006);
+      hatG.add(crown);
+      // the soft fold of a 乌纱 crown: a raised ridge over the top running
+      // front to back, plus a slight peak at the back -- a plain hemisphere
+      // reads as a knitted beanie
+      var ridge = new T.Mesh(new T.SphereGeometry(.097, 14, 12,
+        0, Math.PI * 2, 0, Math.PI * .30), MAT.judgeHat);
+      ridge.scale.set(.26, 1.0, 1.10);
+      ridge.position.set(0, -.028, -.014);
+      hatG.add(ridge);
+      var peak = new T.Mesh(new T.SphereGeometry(.048, 12, 10,
+        0, Math.PI * 2, 0, Math.PI * .62), MAT.judgeHat);
+      peak.scale.set(1.05, .78, 1.10);
+      peak.position.set(0, .012, -.042);
+      hatG.add(peak);
+      // the turned-up lower rim of the cap: a thin band that sits just above
+      // the hairline, never a flat brim wider than the head
+      var edge = new T.Mesh(new T.CylinderGeometry(.092, .090, .012, 18, 1, true),
+        MAT.judgeHatEdge);
+      edge.scale.set(1.00, 1, 1.00);
+      edge.position.set(0, -.022, -.006);
+      hatG.add(edge);
+      // 展脚: two short flat straight wings leaving the back of the crown
       [-1, 1].forEach(function (sg) {
-        var tip = new T.Mesh(new T.SphereGeometry(.012, 8, 6), MAT.judgeSilver);
-        tip.position.set(sg * .200, 1.540, -.030); judge.add(tip);
-        // 展脚：短、薄、后移并上翘，从帽后两侧伸出；v30 第一版又长又平，
-        // 正面读成一根横穿过头的黑杆，这里收成中式幞头的两片翅。
-        var wing = box(.230, .018, .048, MAT.judgeHat, sg * .292, 1.478, -.125, judge);
-        wing.rotation.z = -sg * .13;
-        var wingEdge = box(.218, .005, .038, MAT.judgeBrocade, sg * .292, 1.465, -.125, judge);
-        wingEdge.rotation.z = -sg * .13;
-        // 垂缨软带：从帽檐侧垂到肩，末端外撇（《西游记》「头顶乌纱飘软带」）
-        paperStrip([[sg * .172, 1.442], [sg * .132, 1.438], [sg * .146, 1.190],
-                    [sg * .206, 1.070], [sg * .232, 1.088], [sg * .190, 1.206]],
-          .050, MAT.judgeHat, judge);
-        paperStrip([[sg * .208, 1.078], [sg * .226, 1.074],
-                    [sg * .240, .996], [sg * .224, .992]], .046, MAT.judgeEdge, judge);
+        var wing = box(.092, .011, .026, MAT.judgeHat, sg * .078, -.028, -.094, hatG);
+        wing.rotation.z = -sg * .11;
+        wing.rotation.y = sg * .46;
+        var wingEdge = box(.086, .004, .018, MAT.judgeHatEdge, sg * .078, -.035, -.094, hatG);
+        wingEdge.rotation.z = -sg * .11;
+        wingEdge.rotation.y = sg * .46;
       });
+      // hairpin: short and dark, almost entirely swallowed by the crown
+      var pin = cyl(.0045, .0045, .080, MAT.judgePin, 0, .022, .022, hatG, 8);
+      pin.rotation.z = Math.PI / 2;
+      // soft tassels from the back of the crown
+      [-1, 1].forEach(function (sg) {
+        paperStrip([[sg * .036, -.020], [sg * .052, -.024], [sg * .044, -.150],
+                    [sg * .062, -.166], [sg * .058, -.142], [sg * .038, -.134]],
+          -.050, MAT.judgeHat, hatG);
+      });
+
 
       // 脚下纸灰 + 脸前冷白补光 + 未走近时一点极淡的呼吸微光（图形引导，非文字）
       groundPlane(.82, .64, MAT.folkAsh, 0, 0, judge).position.y = .014;
-      var jlight = new T.PointLight(0xbcd8cf, .55, 3.2, 2);
-      jlight.position.set(JUDGE_AT[0] + .42, 1.60, JUDGE_AT[2] + .72);
+      // v31: the desk-side LOW cold light. The hall lantern is far away,
+      // so without this the face and the robe folds sink into one
+      // black mass. Low and from the desk side, same cyan-white
+      // family as the lantern -- no warm yellow anywhere.
+      var jlight = new T.PointLight(0xc4ded6, .34, 3.0, 2);
+      jlight.position.set(JUDGE_AT[0] + .30, 1.24, JUDGE_AT[2] + .78);
       scene.add(jlight);
+      // rim light from the desk side, below the face: separates the
+      // cheek, the beard and the shoulder line from the background
+      var jrim = new T.PointLight(0xa8ccc4, .66, 2.4, 2);
+      jrim.position.set(JUDGE_AT[0] + .58, 1.02, JUDGE_AT[2] + .30);
+      scene.add(jrim);
+      // a very soft top light so the cap crown and the shoulder slope read
+      var jtop = new T.PointLight(0xbcd8cf, .22, 1.9, 2);
+      jtop.position.set(JUDGE_AT[0] - .16, 1.86, JUDGE_AT[2] + .34);
+      scene.add(jtop);
+      // a faint breathing glow before the player walks up (graphic guidance,
+      // not text) -- app.js drives its opacity
       var jglow = new T.Sprite(new T.SpriteMaterial({ map: M.glow, transparent: true,
         depthWrite: false, blending: T.AdditiveBlending, opacity: .10 }));
       jglow.position.set(0, 1.00, .24);
@@ -2102,7 +2384,11 @@
     // ——— 环境与补光：没有太阳天空，光像从地底渗出来 ———
     // 没有太阳和天空。环境光只够看清轮廓，亮部只来自窗外渗进来的冷白与灯笼，
     // 四周才压得住「一大片死暗、光不知从哪来」的阴司感。
-    scene.add(new T.AmbientLight(0x66716d, .42));
+    // v31: hemisphere light instead of a flat ambient, matching the light
+    // language of the four-five-six halls (cool sky / dark ground). The hall
+    // is a fog corridor, so the ground bounce stays almost black.
+    scene.add(new T.HemisphereLight(0x8fa39b, 0x161d1a, .62));
+    scene.add(new T.AmbientLight(0x66716d, .14));
     var floorGlow = new T.PointLight(0x9fb8b0, .40, 12, 2);
     floorGlow.position.set(-.4, .22, -5.5); scene.add(floorGlow);
     var backGlow = new T.PointLight(0xdceae4, .30, 13, 2);
@@ -2315,7 +2601,7 @@
 
     applyStep(0, true);
 
-    return {
+    var api = {
       root: root, pickMeshes: pickMeshes, refs: refs, judgeAt: JUDGE_AT,
       get step() { return step; },
       get observedCount() { return Object.keys(observed).length; },
@@ -2325,6 +2611,10 @@
       update: update, reset: reset,
       layout: LAYOUT
     };
+    // Debug handle for the visual-review tooling (scene dumps / close-ups).
+    // Read-only: nothing in the game loop reads it.
+    window.__prologueScene = api;
+    return api;
   }
 
   window.PrologueScene = { LAYOUT: LAYOUT, PICKS: PICKS, OBSERVE: OBSERVE, build: build };
