@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\judge-rework\\round2\\t9\\prologue-start.png",
+      "sha256": "e28534ab5ecb78ad11fcc01e239ce6cef0501641a4be691c5a3de0ae17040434",
+      "scene": "序厅",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.450968,
+      "luma_std_srgb": 0.187091,
+      "near_black_pct_luma_lt_0_05": 0.0521,
+      "near_white_pct_luma_gt_0_95": 0.0224,
+      "saturation_hsv_mean": 0.171088,
+      "high_saturation_pct_gt_0_8": 0.0008,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 39.4643,
+        "深木": 29.6829,
+        "烛黄": 0.0002,
+        "朱砂": 0.0055,
+        "宣纸": 18.3381,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 87.491,
+      "red_family_candidate_pct": 0.0055,
+      "review_notes": []
+    }
+  ]
+}

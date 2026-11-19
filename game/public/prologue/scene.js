@@ -39,42 +39,131 @@
   var OBSERVE_TOTAL = 9;
   // v29：判官改坐姿，坐在木案左侧、伸手可及桌沿。这个坐标同时给 app.js 做
   // 「走近触发对话」的距离判定与绕行碰撞，不在这里硬编码第二份。
-  var JUDGE_AT = [0.18, 0, -1.28];
+  var JUDGE_AT = [0.18, 0, -1.55];
 
   // ---- v31 judge head metrics (shared by the texture and the geometry) ----
-  // Skull 26 cm tall / 18.4 cm wide (v30 used a 34 cm ball, which is why the
-  // head-to-body ratio read as off). The face is a curved spherical shell whose
-  // UVs come from an orthographic x-y projection, so the features keep real
-  // frontal proportions instead of being stretched by the sphere grid -- that
-  // was the root cause of the "big cartoon eyes" read.
-  var JR = .104, JSX = .64, JSY = 1.22, JSZ = .74;   // skull radius / scale
-  var JTH0 = .94, JTH1 = 2.02, JPHI = .80;           // face shell: theta / phi
-  var JYTOP = JR * Math.cos(JTH0) * JSY;             // shell top (world y)
-  var JYBOT = JR * Math.cos(JTH1) * JSY;             // shell bottom (world y)
-  var JFW = 2 * JR * Math.sin(JPHI) * JSX;           // shell width (world x)
+  // Skull 23 cm tall / 14.4 cm wide (v30 used a 34 cm ball, which is why the
+  // head-to-body ratio read as off).
+  var JR = .104, JSX = .69, JSY = 1.10, JSZ = .78;   // skull radius / scale
+  var JTH0 = .86, JTH1 = 2.04, JPHI = .88;           // face shell: theta / phi
+
+  // Bony shaping: the skull is not a ball. Vertex displacement pulls the
+  // temples in, flares the cheekbones, narrows the jaw, pushes the chin
+  // forward and raises the brow ridge -- that is what makes a face read as
+  // " gaunt elder" instead of "smooth egg". The face shell is generated from
+  // the SAME function, so the texture always sits exactly on the bone.
+  function judgeSkull(th, ph, out) {
+    var st = Math.sin(th), ct = Math.cos(th);
+    var x = st * Math.sin(ph), y = ct, z = st * Math.cos(ph);
+    var fz = Math.max(0, z);          // 1 at the face, 0 at the back
+    var t = y;                          // +1 crown, -1 chin
+    // jaw: narrow the lower skull, wide at the cheeks
+    var jaw = t < 0 ? 1 + t * .30 : 1;
+    // cheekbone: a soft bulge at eye/cheek height, front only
+    var cheek = Math.exp(-Math.pow((t - .02) / .30, 2)) * fz * .085;
+    // brow ridge: a raised band above the eyes
+    var brow = Math.exp(-Math.pow((t - .30) / .11, 2)) * fz * .045;
+    // chin: push forward and slightly down
+    var chin = Math.exp(-Math.pow((t + .78) / .20, 2)) * fz * .075;
+    // temple: pull the sides of the skull in above the cheekbones
+    var temple = Math.exp(-Math.pow((t - .48) / .22, 2)) * .055;
+    x *= jaw - temple * (1 - fz * .35);
+    y += (brow - chin * .12) * .55;
+    z += (cheek + brow + chin) * .34;
+    // local skull coordinates: the parent group's scale is applied once,
+    // so the shell and the skull stay on exactly the same surface
+    out[0] = x * JR;
+    out[1] = y * JR;
+    out[2] = z * JR;
+    return out;
+  }
+
+  // local skull point -> world point (after the parent scale)
+  function judgeSkullWorld(th, ph, out) {
+    var p = judgeSkull(th, ph, [0, 0, 0]);
+    out[0] = p[0] * JSX; out[1] = p[1] * JSY; out[2] = p[2] * JSZ;
+    return out;
+  }
+
+  // Face-shell bounds, measured from the real displaced surface so the
+  // texture canvas and the geometry always agree.
+  var JB = (function () {
+    var p = [0, 0, 0], x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (var i = 0; i <= 20; i++) {
+      var th = JTH0 + (JTH1 - JTH0) * i / 20;
+      for (var j = 0; j <= 20; j++) {
+        var ph = -JPHI + 2 * JPHI * j / 20;
+        judgeSkullWorld(th, ph, p);
+        if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0];
+        if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1];
+      }
+    }
+    return { x0: x0, x1: x1, y0: y0, y1: y1,
+             w: x1 - x0, h: y1 - y0 };
+  })();
   // world coordinates (metres) -> canvas pixels
-  function jfx(x) { return (x + JFW / 2) / JFW * 512; }
-  function jfy(y) { return (JYTOP - y) / (JYTOP - JYBOT) * 512; }
+  function jfx(x) { return (x - JB.x0) / JB.w * 512; }
+  function jfy(y) { return (JB.y1 - y) / JB.h * 512; }
+  // Shell surface position at a given polar angle, on the face centre line.
+  // Feature placement is by ANATOMY (which theta), not by hand-typed world
+  // metres: the first v31 pass put the eyes 17 mm too low and the mouth
+  // 25 mm too low, leaving a blank forehead and bunching everything onto
+  // the chin.
+  function jy(th) {
+    var p = judgeSkullWorld(th, 0, [0, 0, 0]);
+    return p[1];
+  }
+  function jxAt(th, ph) {
+    var p = judgeSkullWorld(th, ph, [0, 0, 0]);
+    return p[0];
+  }
+  // millimetres -> canvas pixels, so features can be authored at real size
+  function jmm(mm) { return mm / 1000 / JB.w * 512; }
 
   // Judge face shell: the front of the skull, UVs laid out by projecting onto
   // the x-y plane. The shell has real curvature, so the face never reads as
   // an oval decal pasted onto the head.
   function judgeFaceShell(eps) {
-    var NT = 18, NP = 22, i, j;
-    var pos = [], uv = [], idx = [];
+    var NT = 20, NP = 24, i, j;
+    var pos = [], uv = [], idx = [], p = [0, 0, 0];
     for (i = 0; i <= NT; i++) {
       var th = JTH0 + (JTH1 - JTH0) * i / NT;
       for (j = 0; j <= NP; j++) {
         var ph = -JPHI + 2 * JPHI * j / NP;
-        var st = Math.sin(th), ct = Math.cos(th);
-        var dx = st * Math.sin(ph), dy = ct, dz = st * Math.cos(ph);
-        // position stays in skull space (the shell is a child of the skull and
-        // inherits its scale); the UV uses the scaled world projection.
-        var px = dx * JR, py = dy * JR, pz = dz * JR;
-        pos.push(px * (1 + eps), py * (1 + eps), pz * (1 + eps));
-        // v=1 must land on the canvas TOP (THREE flipY): forehead at v=1,
-        // chin at v=0.
-        uv.push((px * JSX + JFW / 2) / JFW, (py * JSY - JYBOT) / (JYTOP - JYBOT));
+        judgeSkull(th, ph, p);
+        pos.push(p[0] * (1 + eps), p[1] * (1 + eps), p[2] * (1 + eps));
+        // world projection for the UV. With THREE's flipY (on by default)
+        // uv.y=1 samples the canvas TOP row, so world y (top of skull) must
+        // map to uv.y=1 -- not 0. Getting this backwards mirrors the whole
+        // face vertically.
+        judgeSkullWorld(th, ph, p);
+        uv.push((p[0] - JB.x0) / JB.w, (p[1] - JB.y0) / JB.h);
+      }
+    }
+    for (i = 0; i < NT; i++) for (j = 0; j < NP; j++) {
+      var a = i * (NP + 1) + j, b = a + 1, c = a + NP + 1, d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+    var g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  // The whole skull, displaced with the same bone-shaping function so the
+  // face shell and the head are one continuous surface.
+  function judgeSkullGeometry() {
+    var NT = 26, NP = 30, i, j;
+    var pos = [], uv = [], idx = [], p = [0, 0, 0];
+    for (i = 0; i <= NT; i++) {
+      var th = Math.PI * i / NT;
+      for (j = 0; j <= NP; j++) {
+        var ph = 2 * Math.PI * j / NP;
+        judgeSkull(th, ph, p);
+        pos.push(p[0], p[1], p[2]);
+        uv.push(j / NP, 1 - i / NT);
       }
     }
     for (i = 0; i < NT; i++) for (j = 0; j < NP; j++) {
@@ -125,15 +214,15 @@
     // 青灰石板：偏灰白、错缝铺、水渍与磨损
     M.stone = tex(512, function (g, s) {
       var r = rand(7), bw = s / 4, bh = s / 4;
-      g.fillStyle = "#3b4442"; g.fillRect(0, 0, s, s);
+      g.fillStyle = "#3a444a"; g.fillRect(0, 0, s, s);
       for (var row = 0; row < 4; row++) for (var col = -1; col <= 4; col++) {
         var ox = (row % 2) ? bw * .5 : 0, x = col * bw + ox, y = row * bh;
-        var v = 58 + Math.floor(r() * 20);
-        g.fillStyle = "rgb(" + v + "," + (v + 7) + "," + (v + 5) + ")";
+        var v = 54 + Math.floor(r() * 18);
+        g.fillStyle = "rgb(" + v + "," + (v + 8) + "," + (v + 13) + ")";
         g.fillRect(x + 2, y + 2, bw - 4, bh - 4);
-        g.strokeStyle = "rgba(178,196,188,.10)"; g.lineWidth = 1;
+        g.strokeStyle = "rgba(178,186,196,.16)"; g.lineWidth = 1;
         g.strokeRect(x + 5, y + 5, bw - 10, bh - 10);
-        g.strokeStyle = "rgba(10,17,16,.48)"; g.lineWidth = 2;
+        g.strokeStyle = "rgba(40,44,52,.42)"; g.lineWidth = 2;
         g.strokeRect(x + 1, y + 1, bw - 2, bh - 2);
         for (var k = 0; k < 3; k++) {
           g.strokeStyle = "rgba(12,20,19," + (.08 + r() * .14) + ")";
@@ -157,10 +246,10 @@
     // 深色老榆木
     M.wood = tex(512, function (g, s) {
       var r = rand(19);
-      g.fillStyle = "#2b2721"; g.fillRect(0, 0, s, s);
+      g.fillStyle = "#352c23"; g.fillRect(0, 0, s, s);
       for (var i = 0; i < 170; i++) {
         var y = r() * s, a = .04 + r() * .10;
-        g.strokeStyle = "rgba(150,126,92," + a + ")";
+        g.strokeStyle = "rgba(150,128,96," + a + ")";
         g.lineWidth = .5 + r() * 2.2;
         g.beginPath(); g.moveTo(0, y);
         for (var x = 0; x <= s; x += 32) g.lineTo(x, y + Math.sin(x * .017 + i) * (1 + r() * 2));
@@ -176,14 +265,14 @@
     // 石墙（上部）
     M.wall = tex(512, function (g, s) {
       var r = rand(31);
-      g.fillStyle = "#404a47"; g.fillRect(0, 0, s, s);
+      g.fillStyle = "#5a5c52"; g.fillRect(0, 0, s, s);
       for (var i = 0; i < 2600; i++) {
-        var v = 48 + Math.floor(r() * 42);
-        g.fillStyle = "rgba(" + v + "," + (v + 8) + "," + (v + 5) + "," + (.10 + r() * .3) + ")";
+        var v = 78 + Math.floor(r() * 30);
+        g.fillStyle = "rgba(" + v + "," + (v + 2) + "," + (v - 8) + "," + (.10 + r() * .3) + ")";
         g.fillRect(r() * s, r() * s, 1 + r() * 7, 1 + r() * 4);
       }
       for (var k = 0; k < 22; k++) {
-        softBlob(g, r() * s, r() * s, 22 + r() * 60, "18,28,26", .10);
+        softBlob(g, r() * s, r() * s, 22 + r() * 60, "34,38,34", .16);
       }
     }, { repeat: [1, 5] });
 
@@ -554,97 +643,148 @@
     // （眼睑最重、颧骨与法令纹居中、胡须最轻），全程不点朱砂、不描脸缘。
     // 坐标用世界尺寸（米）：眼间距 58 mm、眉长 62 mm、鼻底 -6 mm、
     // 嘴线 -28 mm、颏底 -46 mm、发际 +50 mm。
+    // v31 round-2 判官脸：按真人毫米排布。
+    // 画布覆盖整张脸（实测 ~100 mm 宽），所以尺寸一律走 jmm(mm)：
+    // 眼宽 27、眼距 62、瞳 5.5、眉长 22、嘴宽 38、鼻长 46 mm。
+    // 三档灰墨（不使用近黑描边）：眼睑最重、颧骨与法令纹居中、胡须最轻。
     M.judgeFace2 = tex(512, function (g, s) {
       var r = rand(353);
-      g.fillStyle = "#4f5149"; g.fillRect(0, 0, s, s);
+      // skin base: identical value to the skull, so the shell edge is invisible
+      g.fillStyle = "#4b4d45"; g.fillRect(0, 0, s, s);
       for (var i = 0; i < 4200; i++) {
-        g.fillStyle = "rgba(34,36,31," + (.02 + r() * .08) + ")";
+        g.fillStyle = "rgba(30,32,27," + (.02 + r() * .07) + ")";
         g.fillRect(r() * s, r() * s, 1 + r() * 3, 1);
       }
-      // three value steps: forehead / cheekbone lit, temple + jaw in shadow
-      softBlob(g, jfx(-.028), jfy(.022), 22, "150,155,142", .38);
-      softBlob(g, jfx(.028), jfy(.022), 22, "150,155,142", .38);
-      softBlob(g, jfx(0), jfy(-.036), 36, "18,19,16", .38);
-      softBlob(g, jfx(-.044), jfy(.028), 20, "18,19,16", .34);
-      softBlob(g, jfx(.044), jfy(.028), 20, "18,19,16", .34);
-      // temple hollows: the gaunt "清瘦长者" read
-      softBlob(g, jfx(-.052), jfy(.020), 15, "22,23,20", .26);
-      softBlob(g, jfx(.052), jfy(.020), 15, "22,23,20", .26);
-      // hairline at the top of the shell, inside the canvas
-      // No hairline in the texture: the 乌纱冠 already covers the crown, and
-      // a painted band on the forehead read as a bar across the brow.
-      // eye sockets: the deepest value on the face, so the eyes read first
-      softBlob(g, jfx(-.029), jfy(.020), 16, "16,17,14", .40);
-      softBlob(g, jfx(.029), jfy(.020), 16, "16,17,14", .40);
-      // brows: heavy, slightly angled in toward the temples
-      g.strokeStyle = "rgba(18,19,16,.92)"; g.lineWidth = 4.0; g.lineCap = "round";
-      g.beginPath(); g.moveTo(jfx(-.044), jfy(.029));
-      g.quadraticCurveTo(jfx(-.033), jfy(.037), jfx(-.019), jfy(.029)); g.stroke();
-      g.beginPath(); g.moveTo(jfx(.044), jfy(.029));
-      g.quadraticCurveTo(jfx(.033), jfy(.037), jfx(.019), jfy(.029)); g.stroke();
-      // eyes: downturned lids, a small pupil tucked under the upper lid,
-      // no catchlight -- a calm, tired gaze, not a cartoon stare
+      // --- value layer 1: lit forehead + cheekbones -------------------
+      softBlob(g, jfx(-.030), jfy(.026), jmm(26), "146,150,138", .34);
+      softBlob(g, jfx(.030), jfy(.026), jmm(26), "146,150,138", .34);
+      softBlob(g, jfx(0), jfy(.046), jmm(30), "140,144,132", .20);
+      // --- value layer 2: sunken temples + jaw shadow ------------------
+      softBlob(g, jfx(-.046), jfy(.022), jmm(22), "26,28,24", .32);
+      softBlob(g, jfx(.046), jfy(.022), jmm(22), "26,28,24", .32);
+      softBlob(g, jfx(0), jfy(-.040), jmm(34), "26,28,24", .30);
+      softBlob(g, jfx(-.030), jfy(-.030), jmm(20), "30,32,27", .20);
+      softBlob(g, jfx(.030), jfy(-.030), jmm(20), "30,32,27", .20);
+      // --- feature placement, by anatomy ------------------------------
+      // theta: brow 1.22 / eye 1.35 / nose bridge 1.40 / nose base 1.62 /
+      //        mouth 1.78 / moustache 1.84 / beard root 1.98 / chin 2.04
+      var TH_BROW = 1.22, TH_EYE = 1.35, TH_NOSE_TOP = 1.40, TH_NOSE_BOT = 1.62;
+      var TH_MOUTH = 1.78, TH_MOU = 1.84, TH_BEARD = 1.98;
+      // --- eye sockets: the deepest value, so the eyes read first --------
+      softBlob(g, jfx(jxAt(TH_EYE, -.42)), jfy(jy(TH_EYE)), jmm(13), "30,32,27", .40);
+      softBlob(g, jfx(jxAt(TH_EYE, .42)), jfy(jy(TH_EYE)), jmm(13), "30,32,27", .40);
+      // --- brows: nearly level, slightly arched at the outer third ------
+      // A downward inner end reads as anger, which this character must not
+      // have; he is calm and procedural, not hostile.
+      g.strokeStyle = "rgba(34,36,30,.66)"; g.lineWidth = jmm(3.2); g.lineCap = "round";
       [-1, 1].forEach(function (sg) {
-        var x = jfx(sg * .029), y = jfy(.016);
-        g.fillStyle = "rgba(150,154,142,.42)";
-        g.beginPath(); g.ellipse(x, y, 13, 4.4, 0, 0, Math.PI * 2); g.fill();
-        // upper lid: the heaviest line on the face
-        g.strokeStyle = "rgba(12,13,11,.95)"; g.lineWidth = 3.2;
-        g.beginPath(); g.moveTo(x - 13, y - 1);
-        g.quadraticCurveTo(x, y - 6, x + 13, y - 1); g.stroke();
-        // lower lid
-        g.strokeStyle = "rgba(28,30,26,.60)"; g.lineWidth = 1.6;
-        g.beginPath(); g.moveTo(x - 11, y + 1);
-        g.quadraticCurveTo(x, y + 4, x + 11, y + 1); g.stroke();
-        // pupil: small, low, half hidden by the upper lid
-        g.fillStyle = "rgba(10,11,9,.92)";
-        g.beginPath(); g.ellipse(x, y + 1.2, 2.8, 2.4, 0, 0, Math.PI * 2); g.fill();
-        // age crease under the eye
-        g.strokeStyle = "rgba(84,86,76,.26)"; g.lineWidth = 1.3;
-        g.beginPath(); g.moveTo(x - 11, y + 6);
-        g.quadraticCurveTo(x, y + 8, x + 11, y + 6); g.stroke();
+        g.beginPath();
+        g.moveTo(jfx(sg * jxAt(TH_BROW, .78)), jfy(jy(TH_BROW - .02)));
+        g.quadraticCurveTo(jfx(sg * jxAt(TH_BROW, .45)), jfy(jy(TH_BROW + .03)),
+          jfx(sg * jxAt(TH_BROW, .18)), jfy(jy(TH_BROW - .01)));
+        g.stroke();
       });
-      // nose: straight bridge, one shaded side, narrow tip
-      g.strokeStyle = "rgba(30,32,27,.44)"; g.lineWidth = 1.8;
-      g.beginPath(); g.moveTo(jfx(.002), jfy(.014)); g.lineTo(jfx(.004), jfy(-.006)); g.stroke();
-      g.strokeStyle = "rgba(38,40,35,.38)"; g.lineWidth = 1.5;
-      g.beginPath(); g.moveTo(jfx(-.006), jfy(-.006));
-      g.quadraticCurveTo(jfx(0), jfy(-.009), jfx(.006), jfy(-.006)); g.stroke();
-      // nasolabial folds: the mid value layer
-      g.strokeStyle = "rgba(30,32,27,.40)"; g.lineWidth = 1.5;
-      g.beginPath(); g.moveTo(jfx(-.009), jfy(-.010));
-      g.quadraticCurveTo(jfx(-.015), jfy(-.020), jfx(-.011), jfy(-.028)); g.stroke();
-      g.beginPath(); g.moveTo(jfx(.009), jfy(-.010));
-      g.quadraticCurveTo(jfx(.015), jfy(-.020), jfx(.011), jfy(-.028)); g.stroke();
-      // thin lips, straight and unsmiling
-      g.strokeStyle = "rgba(22,23,20,.80)"; g.lineWidth = 2.2;
-      g.beginPath(); g.moveTo(jfx(-.012), jfy(-.029));
-      g.quadraticCurveTo(jfx(0), jfy(-.032), jfx(.012), jfy(-.029)); g.stroke();
-      g.strokeStyle = "rgba(70,72,64,.26)"; g.lineWidth = 1.4;
-      g.beginPath(); g.moveTo(jfx(-.009), jfy(-.033));
-      g.quadraticCurveTo(jfx(0), jfy(-.035), jfx(.009), jfy(-.033)); g.stroke();
-      // eight-shaped moustache: two short strokes from the lip corners
-      g.strokeStyle = "rgba(20,21,18,.72)"; g.lineWidth = 2.6; g.lineCap = "round";
-      g.beginPath(); g.moveTo(jfx(-.009), jfy(-.030));
-      g.quadraticCurveTo(jfx(-.017), jfy(-.034), jfx(-.024), jfy(-.040)); g.stroke();
-      g.beginPath(); g.moveTo(jfx(.009), jfy(-.030));
-      g.quadraticCurveTo(jfx(.017), jfy(-.034), jfx(.024), jfy(-.040)); g.stroke();
-      // beard roots along the jaw: the lightest layer, only a hint
-      g.strokeStyle = "rgba(26,28,24,.34)"; g.lineWidth = 2.2;
-      for (var k = 0; k < 9; k++) {
-        var bx = jfx(-.030 + k * .0075 + (r() - .5) * .003);
-        g.beginPath(); g.moveTo(bx, jfy(-.039));
-        g.quadraticCurveTo(bx + (r() - .5) * 4, jfy(-.043), bx + (r() - .5) * 6, jfy(-.046));
+      // --- eyes: narrow, downturned, calm and tired ---------------------
+      [-1, 1].forEach(function (sg) {
+        var x = jfx(sg * jxAt(TH_EYE, .42)), y = jfy(jy(TH_EYE));
+        // sclera: barely lighter than skin, no white
+        g.fillStyle = "rgba(150,154,142,.30)";
+        g.beginPath(); g.ellipse(x, y, jmm(13.5), jmm(4.2), 0, 0, Math.PI * 2); g.fill();
+        // upper lid: the heaviest line on the face
+        g.strokeStyle = "rgba(28,30,25,.86)"; g.lineWidth = jmm(2.6);
+        g.beginPath(); g.moveTo(x - jmm(13.5), y - jmm(.6));
+        g.quadraticCurveTo(x, y - jmm(4.6), x + jmm(13.5), y - jmm(.8)); g.stroke();
+        // lower lid
+        g.strokeStyle = "rgba(46,48,42,.52)"; g.lineWidth = jmm(1.3);
+        g.beginPath(); g.moveTo(x - jmm(12), y + jmm(.8));
+        g.quadraticCurveTo(x, y + jmm(3.4), x + jmm(12), y + jmm(.8)); g.stroke();
+        // pupil: small, low, half hidden under the upper lid
+        g.fillStyle = "rgba(20,22,18,.84)";
+        g.beginPath(); g.ellipse(x, y + jmm(.6), jmm(2.7), jmm(2.3), 0, 0, Math.PI * 2); g.fill();
+        // age crease under the eye
+        g.strokeStyle = "rgba(84,86,76,.22)"; g.lineWidth = jmm(1.1);
+        g.beginPath(); g.moveTo(x - jmm(12), y + jmm(5.4));
+        g.quadraticCurveTo(x, y + jmm(7.2), x + jmm(12), y + jmm(5.4)); g.stroke();
+      });
+      // --- nose: straight bridge, one shaded side, narrow tip -----------
+      g.strokeStyle = "rgba(44,46,40,.38)"; g.lineWidth = jmm(1.7);
+      g.beginPath();
+      g.moveTo(jfx(jxAt(TH_NOSE_TOP, .06)), jfy(jy(TH_NOSE_TOP)));
+      g.lineTo(jfx(jxAt(TH_NOSE_BOT, .10)), jfy(jy(TH_NOSE_BOT)));
+      g.stroke();
+      g.strokeStyle = "rgba(52,54,48,.32)"; g.lineWidth = jmm(1.4);
+      g.beginPath();
+      g.moveTo(jfx(jxAt(TH_NOSE_BOT, -.16)), jfy(jy(TH_NOSE_BOT)));
+      g.quadraticCurveTo(jfx(0), jfy(jy(TH_NOSE_BOT + .03)),
+        jfx(jxAt(TH_NOSE_BOT, .16)), jfy(jy(TH_NOSE_BOT)));
+      g.stroke();
+      // nostril hints
+      g.fillStyle = "rgba(40,42,37,.30)";
+      [-1, 1].forEach(function (sg) {
+        g.beginPath();
+        g.ellipse(jfx(sg * jxAt(TH_NOSE_BOT, .17)), jfy(jy(TH_NOSE_BOT - .02)),
+          jmm(1.2), jmm(.9), 0, 0, Math.PI * 2);
+        g.fill();
+      });
+      // --- nasolabial folds: mid value layer --------------------------
+      g.strokeStyle = "rgba(40,42,37,.34)"; g.lineWidth = jmm(1.4);
+      [-1, 1].forEach(function (sg) {
+        g.beginPath();
+        g.moveTo(jfx(sg * jxAt(TH_NOSE_BOT, .30)), jfy(jy(TH_NOSE_BOT - .03)));
+        g.quadraticCurveTo(jfx(sg * jxAt(TH_MOUTH - .06, .30)), jfy(jy(TH_MOUTH - .02)),
+          jfx(sg * jxAt(TH_MOUTH, .24)), jfy(jy(TH_MOUTH)));
+        g.stroke();
+      });
+      // --- thin lips, straight and unsmiling --------------------------
+      // The middle sits LOWER than the corners: a raised middle reads as a
+      // smile, which is wrong for this character.
+      g.strokeStyle = "rgba(34,36,31,.68)"; g.lineWidth = jmm(2.0);
+      g.beginPath();
+      g.moveTo(jfx(jxAt(TH_MOUTH, .40)), jfy(jy(TH_MOUTH)));
+      g.quadraticCurveTo(jfx(0), jfy(jy(TH_MOUTH - .028)),
+        jfx(jxAt(TH_MOUTH, .40)), jfy(jy(TH_MOUTH)));
+      g.stroke();
+      g.strokeStyle = "rgba(78,80,70,.24)"; g.lineWidth = jmm(1.3);
+      g.beginPath();
+      g.moveTo(jfx(jxAt(TH_MOUTH, .32)), jfy(jy(TH_MOUTH - .026)));
+      g.quadraticCurveTo(jfx(0), jfy(jy(TH_MOUTH - .05)),
+        jfx(jxAt(TH_MOUTH, .32)), jfy(jy(TH_MOUTH - .026)));
+      g.stroke();
+      // --- eight-shaped moustache: two short strokes from the lip corners -
+      g.strokeStyle = "rgba(30,32,27,.62)"; g.lineWidth = jmm(2.6); g.lineCap = "round";
+      [-1, 1].forEach(function (sg) {
+        g.beginPath();
+        g.moveTo(jfx(sg * jxAt(TH_MOU, .16)), jfy(jy(TH_MOU)));
+        g.quadraticCurveTo(jfx(sg * jxAt(TH_MOU, .40)), jfy(jy(TH_MOU + .03)),
+          jfx(sg * jxAt(TH_MOU, .58)), jfy(jy(TH_MOU + .07)));
+        g.stroke();
+      });
+      // --- beard roots along the jaw: the lightest layer ---------------
+      g.strokeStyle = "rgba(38,40,35,.26)"; g.lineWidth = jmm(2.0);
+      for (var k = 0; k < 11; k++) {
+        var bx = jfx(jxAt(TH_BEARD, -.62 + k * .124));
+        g.beginPath();
+        g.moveTo(bx, jfy(jy(TH_BEARD)));
+        g.quadraticCurveTo(bx + (r() - .5) * 3, jfy(jy(TH_BEARD + .04)),
+          bx + (r() - .5) * 5, jfy(jy(TH_BEARD + .08)));
         g.stroke();
       }
-      // soft elliptical fade on the shell's own uv bounds, so the face melts
-      // into the skull instead of showing a rectangular edge
+      // --- edge fade: the shell melts into the skull -------------------
+      // A radial fade alone leaves a visible rectangle where the shell ends,
+      // so the fade is driven by the shell's own uv bounds instead.
       g.globalCompositeOperation = "destination-in";
-      var gr2 = g.createRadialGradient(256, jfy(.008), 140, 256, jfy(.008), 250);
-      gr2.addColorStop(0, "rgba(0,0,0,1)");
-      gr2.addColorStop(.60, "rgba(0,0,0,1)");
-      gr2.addColorStop(1, "rgba(0,0,0,0)");
-      g.fillStyle = gr2; g.fillRect(0, 0, s, s);
+      var grad = g.createLinearGradient(0, 0, 512, 0);
+      grad.addColorStop(0, "rgba(0,0,0,0)");
+      grad.addColorStop(.10, "rgba(0,0,0,1)");
+      grad.addColorStop(.90, "rgba(0,0,0,1)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = grad; g.fillRect(0, 0, s, s);
+      var grad2 = g.createLinearGradient(0, 0, 0, 512);
+      grad2.addColorStop(0, "rgba(0,0,0,0)");
+      grad2.addColorStop(.07, "rgba(0,0,0,1)");
+      grad2.addColorStop(.93, "rgba(0,0,0,1)");
+      grad2.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = grad2; g.fillRect(0, 0, s, s);
       g.globalCompositeOperation = "source-over";
     }, { clamp: true });
 
@@ -936,8 +1076,8 @@
       stone: new T.MeshStandardMaterial({ map: M.stone, roughness: .94, metalness: .02 }),
       wall: new T.MeshStandardMaterial({ map: M.wall, roughness: .96, metalness: 0 }),
       wood: new T.MeshStandardMaterial({ map: M.wood, roughness: .88, metalness: .02 }),
-      woodDark: new T.MeshStandardMaterial({ color: 0x211e1a, roughness: .92 }),
-      ceiling: new T.MeshStandardMaterial({ color: 0x070a09, roughness: 1 }),
+      woodDark: new T.MeshStandardMaterial({ color: 0x2a2119, roughness: .92 }),
+      ceiling: new T.MeshStandardMaterial({ color: 0x12100d, roughness: 1 }),
       paper: new T.MeshStandardMaterial({ map: M.paper, roughness: 1, side: T.DoubleSide }),
       windowPaper: new T.MeshStandardMaterial({ map: M.windowPaper, roughness: 1,
                                                transparent: true, opacity: .96, side: T.DoubleSide }),
@@ -1022,6 +1162,10 @@
                                            emissive: 0x1a2420, emissiveIntensity: .12 }),
       bronzeDark: new T.MeshStandardMaterial({ color: 0x5a6a62, roughness: .70, metalness: .10,
                                                emissive: 0x141c19, emissiveIntensity: .30 }),
+      // 摇柄等「要被手摸到」的活动铜件：不发亮、不吃高光，避免在冷光下
+      // 读成一根白杆。哑光暗铜，近看仍是金属。
+      crankBrass: new T.MeshStandardMaterial({ color: 0x2f3b35, roughness: .88, metalness: .04,
+                                               emissive: 0x101614, emissiveIntensity: .10 }),
       ember: new T.MeshBasicMaterial({ color: 0xc8f2e6 }),
       lampPaper: new T.MeshStandardMaterial({ map: M.paper, color: 0xdfe4d9, roughness: 1,
                                               emissive: 0x86b8a8, emissiveIntensity: .46,
@@ -1588,15 +1732,15 @@
     // 生死簿包角订线、耳与三缕鬓丝、案上文房。仍全部锁在灰白旧纸 / 青灰冷调。
     // 坐姿：椅面 .48、大腿水平、小腿垂直、袍摆铺膝；肩 1.06、头 1.28、帽顶 1.63，
     // 明显低于站立版 2.0，也低于面壁纸扎人 1.75。右手搭案、左手托簿。
-    function buildJudgeV29() {
+    // 程序化判官 = 兜底身体。位置与朝向由外壳 judgeShell 承载：
+    // Lux3D GLB 挂进同一个外壳，两套坐标系完全一致，切换不用重算机位。
+    function buildJudgeV29(parent) {
       var judge = new T.Group();
       var judgeForeL = null, judgeForeR = null;   // forearms, for held props
-      judge.position.set(JUDGE_AT[0], 0, JUDGE_AT[2]);
       // Turned a little toward the desk (which is on his right) while still
       // facing the approaching player: the far shot then reads "an official
       // working at the counter" instead of "a person on a stool".
-      judge.rotation.y = .42;
-      root.add(judge);
+      parent.add(judge);
 
       // 四棱柱方袖：先在几何空间转 45° 再压进深，正面才是平直宽袖
       function slv(rt, rb, h, mat, parent, yy) {
@@ -1829,9 +1973,11 @@
       // grid -- that was the root cause of the "big cartoon eyes" read.
       var jneck = cyl(.052, .062, .120, MAT.judgeSkin, 0, 1.070, 0, judge, 10);
       jneck.scale.z = .76;
-      var jhead = new T.Mesh(new T.SphereGeometry(JR, 18, 14), MAT.judgeSkin);
+      // The skull uses the same bone-shaping function as the face shell, so
+      // the face and the head are one continuous surface.
+      var jhead = new T.Mesh(judgeSkullGeometry(), MAT.judgeSkin);
       jhead.position.set(0, 1.245, .012);
-      jhead.scale.set(JSX, JSY, JSZ);
+      jhead.scale.set(1, 1, 1);
       jhead.rotation.y = -.10;      // 3/4 presentation
       jhead.rotation.x = .085;      // slight forward tilt (reading the register)
       judge.add(jhead);
@@ -1923,12 +2069,12 @@
       hatG.add(edge);
       // 展脚: two short flat straight wings leaving the back of the crown
       [-1, 1].forEach(function (sg) {
-        var wing = box(.092, .011, .026, MAT.judgeHat, sg * .078, -.028, -.094, hatG);
-        wing.rotation.z = -sg * .11;
-        wing.rotation.y = sg * .46;
-        var wingEdge = box(.086, .004, .018, MAT.judgeHatEdge, sg * .078, -.035, -.094, hatG);
-        wingEdge.rotation.z = -sg * .11;
-        wingEdge.rotation.y = sg * .46;
+        var wing = box(.104, .010, .024, MAT.judgeHat, sg * .086, -.026, -.086, hatG);
+        wing.rotation.z = -sg * .07;
+        wing.rotation.y = sg * .54;
+        var wingEdge = box(.098, .004, .017, MAT.judgeHatEdge, sg * .086, -.032, -.086, hatG);
+        wingEdge.rotation.z = -sg * .07;
+        wingEdge.rotation.y = sg * .54;
       });
       // hairpin: short and dark, almost entirely swallowed by the crown
       var pin = cyl(.0045, .0045, .080, MAT.judgePin, 0, .022, .022, hatG, 8);
@@ -1943,38 +2089,53 @@
 
       // 脚下纸灰 + 脸前冷白补光 + 未走近时一点极淡的呼吸微光（图形引导，非文字）
       groundPlane(.82, .64, MAT.folkAsh, 0, 0, judge).position.y = .014;
-      // v31: the desk-side LOW cold light. The hall lantern is far away,
-      // so without this the face and the robe folds sink into one
-      // black mass. Low and from the desk side, same cyan-white
-      // family as the lantern -- no warm yellow anywhere.
-      var jlight = new T.PointLight(0xc4ded6, .34, 3.0, 2);
-      jlight.position.set(JUDGE_AT[0] + .30, 1.24, JUDGE_AT[2] + .78);
+      return judge;
+    }
+
+    // v36：判官 = 外壳 judgeShell（位置 / 朝向 / 呼吸微光 / 三盏冷光）
+    //        + 可选 Lux3D 整身 GLB（默认 B1 立像，?judge=seated 走 A1 坐像）
+    //        + 程序化 v29 身体（GLB 到位后隐藏；GLB 缺失时继续兜底可玩）。
+    var NO_JUDGE = /nojudge=1/.test(window.location.search);
+    var V28_JUDGE = /v28judge=1/.test(window.location.search);
+    var JUDGE_STYLE = /judge=seated/.test(window.location.search) ? "seated" : "standing";
+    var judgeShell = null;
+    if (!NO_JUDGE) {
+      judgeShell = new T.Group();
+      judgeShell.position.set(JUDGE_AT[0], 0, JUDGE_AT[2]);
+      judgeShell.rotation.y = .42;
+      root.add(judgeShell);
+      // 判官三盏冷光：只照人，不照亮整条廊。立像 / 坐像机位高度不同，
+      // 灯高按造型取，避免立像的脸落在光斑之外。
+      var judgeStanding = !V28_JUDGE && JUDGE_STYLE === "standing";
+      var jlight = new T.PointLight(0xc4ded6, .40, judgeStanding ? 3.6 : 3.2, 2);
+      jlight.position.set(JUDGE_AT[0] + .30, judgeStanding ? 1.62 : 1.24,
+        JUDGE_AT[2] + (judgeStanding ? .96 : .78));
       scene.add(jlight);
-      // rim light from the desk side, below the face: separates the
-      // cheek, the beard and the shoulder line from the background
-      var jrim = new T.PointLight(0xa8ccc4, .66, 2.4, 2);
-      jrim.position.set(JUDGE_AT[0] + .58, 1.02, JUDGE_AT[2] + .30);
+      var jrim = new T.PointLight(0xa8ccc4, .78, judgeStanding ? 2.9 : 2.6, 2);
+      jrim.position.set(JUDGE_AT[0] + .58, judgeStanding ? 1.42 : 1.02,
+        JUDGE_AT[2] + .30);
       scene.add(jrim);
-      // a very soft top light so the cap crown and the shoulder slope read
-      var jtop = new T.PointLight(0xbcd8cf, .22, 1.9, 2);
-      jtop.position.set(JUDGE_AT[0] - .16, 1.86, JUDGE_AT[2] + .34);
+      var jtop = new T.PointLight(0xbcd8cf, .26, judgeStanding ? 2.3 : 2.0, 2);
+      jtop.position.set(JUDGE_AT[0] - .16, judgeStanding ? 2.02 : 1.86,
+        JUDGE_AT[2] + .34);
       scene.add(jtop);
       // a faint breathing glow before the player walks up (graphic guidance,
       // not text) -- app.js drives its opacity
-      var jglow = new T.Sprite(new T.SpriteMaterial({ map: M.glow, transparent: true,
-        depthWrite: false, blending: T.AdditiveBlending, opacity: .10 }));
-      jglow.position.set(0, 1.00, .24);
-      jglow.scale.set(.85, .85, 1);
-      judge.add(jglow);
-      refs.judgeGlow = jglow;
-
-      mark(judge, "judge");
-      refs.judge = judge;
+      if (!V28_JUDGE) {
+        var jglow = new T.Sprite(new T.SpriteMaterial({ map: M.glow, transparent: true,
+          depthWrite: false, blending: T.AdditiveBlending, opacity: .10 }));
+        jglow.position.set(0, judgeStanding ? 1.20 : 1.00, .24);
+        jglow.scale.set(.85, .85, 1);
+        judgeShell.add(jglow);
+        refs.judgeGlow = jglow;
+      }
+      mark(judgeShell, "judge");
+      refs.judge = judgeShell;
     }
-
-    var NO_JUDGE = /nojudge=1/.test(window.location.search);
-    var V28_JUDGE = /v28judge=1/.test(window.location.search);
-    if (!NO_JUDGE && !V28_JUDGE) buildJudgeV29();
+    if (!NO_JUDGE && !V28_JUDGE) {
+      // 程序化兜底身体：GLB 挂上后由 lux3d.js 隐藏（refs.judgeProc）。
+      refs.judgeProc = buildJudgeV29(judgeShell);
+    }
     // ?v28judge=1：回到 v28 站立版做造型对照（默认不执行）
     if (!NO_JUDGE && V28_JUDGE) {
       var judge = new T.Group();
@@ -2234,21 +2395,28 @@
     // 不带深木纹贴图：贴图会再乘一次暗色，背光处仍是一个纯黑盒子
     var machineWood = new T.MeshStandardMaterial({ map: M.wood, color: 0xffffff,
       roughness: .92, emissive: 0x2a2e29, emissiveIntensity: .32 });
+    // The player walks down the corridor from +z, so the machine's FRONT is
+    // +z. The old build put the ticket slot at z=-.205 (facing away) and the
+    // crank on the +x side, so from every player camera the crank was
+    // invisible -- the prop read as a plain cupboard.
     var machine = new T.Group(); machine.position.set(-.42, .94, -.02); desk.add(machine);
-    box(.48, .56, .40, machineWood, 0, .28, 0, machine);
-    box(.50, .045, .42, MAT.woodDark, 0, .575, 0, machine);
-    box(.34, .035, .03, MAT.bronzeDark, 0, .20, -.205, machine);
-    box(.22, .012, .012, MAT.bronze, 0, .36, -.208, machine);
-    var crank = new T.Group(); crank.position.set(.30, .34, 0); machine.add(crank);
-    cyl(.022, .022, .21, MAT.bronze, .10, 0, 0, crank).rotation.z = Math.PI / 2;
-    var arm = box(.030, .26, .030, MAT.bronze, .21, .11, 0, crank);
-    arm.rotation.z = -.12;
-    var knob = new T.Mesh(new T.SphereGeometry(.055, 10, 8), MAT.bronze);
-    knob.position.set(.245, .235, 0); crank.add(knob);
+    box(.44, .50, .40, machineWood, 0, .25, 0, machine);
+    box(.46, .045, .42, MAT.woodDark, 0, .515, 0, machine);
+    // ticket slot on the front face
+    box(.32, .032, .03, MAT.bronzeDark, 0, .15, .205, machine);
+    box(.20, .011, .012, MAT.bronze, 0, .29, .208, machine);
+    // 摇柄：铜轴 + 曲臂 + 球头，全部收在机身宽度内，正面可读。
+    // v36 之前这根横轴伸出机身右侧 5.5 cm，高光下读成一根「白色球头横杆」，
+    // 和木铜机身撞色 —— 现在收进正面，并换成不发亮的暗铜。
+    var crank = new T.Group(); crank.position.set(.115, .20, .205); machine.add(crank);
+    cyl(.016, .016, .12, MAT.crankBrass, .045, 0, 0, crank).rotation.z = Math.PI / 2;
+    var arm = box(.022, .17, .022, MAT.crankBrass, .09, .07, 0, crank);
+    var knob = new T.Mesh(new T.SphereGeometry(.038, 10, 8), MAT.crankBrass);
+    knob.position.set(.09, .155, 0); crank.add(knob);
     refs.crank = crank;
     mark(machine, "machine");
     glowAt("machine", 1.10, 1.55, -1.07, .72);
-    var machineLight = new T.PointLight(0xa8c8bc, .38, 3.0, 2);
+    var machineLight = new T.PointLight(0xa8c8bc, .30, 3.0, 2);
     machineLight.position.set(1.10, 1.62, -1.07); scene.add(machineLight);
 
     // ——— 地上散落十几枚竹牌 ———
@@ -2387,8 +2555,12 @@
     // v31: hemisphere light instead of a flat ambient, matching the light
     // language of the four-five-six halls (cool sky / dark ground). The hall
     // is a fog corridor, so the ground bounce stays almost black.
-    scene.add(new T.HemisphereLight(0x8fa39b, 0x161d1a, .62));
-    scene.add(new T.AmbientLight(0x66716d, .14));
+    // Cold, but no longer so dim that every surface falls into the black
+    // bin: the sky term is cold paper white and the ground bounce is old
+    // paper grey, so the hall reads as 灰白与旧纸色 while all the light
+    // stays in the cyan-white family (no warm fire anywhere).
+    scene.add(new T.HemisphereLight(0x8fa39b, 0x1c231f, .62));
+    scene.add(new T.AmbientLight(0x5c6760, .16));
     var floorGlow = new T.PointLight(0x9fb8b0, .40, 12, 2);
     floorGlow.position.set(-.4, .22, -5.5); scene.add(floorGlow);
     var backGlow = new T.PointLight(0xdceae4, .30, 13, 2);
@@ -2396,8 +2568,11 @@
     // 门口一小片贴地冷光，让那串湿脚印读得出来（不是阳光，像从地底渗出来）
     var footLight = new T.PointLight(0xa9c6bd, .34, 4.6, 2);
     footLight.position.set(-.1, .38, 3.25); scene.add(footLight);
-    scene.fog = new T.Fog(0x98a6a0, 8.5, 27.0);
-    scene.background = new T.Color(0x8b9994);
+    // Fog and background in the old-paper grey family: the v3 brief for
+    // this hall is "灰白与旧纸色为主调", and the previous grey-teal fog
+    // pushed every distant surface into the blue-slate bucket.
+    scene.fog = new T.Fog(0x6f7a72, 8.5, 27.0);
+    scene.background = new T.Color(0x74807a);
 
     // ——— 状态与动画 ———
     var step = 0;                 // 0..4（4 = 门已开）
@@ -2589,6 +2764,7 @@
     // 文件不存在时整层静默跳过，程序化占位继续可玩。
     refs.luxHosts = {
       machine: machine,   // 取号机外壳（refs.crank 摇柄保留，仍由引擎转）
+      judge: judgeShell,  // 判官外壳：Lux3D 整身 GLB 挂这里，程序化身体做兜底
       desk: desk,         // 案上卷册（复用 S1-09）+ 路引实物（S0-21）
       bench: bench,       // 旧榆木长凳
       folk: folkGroup,    // 面壁无点睛纸扎人 ×5 实例

@@ -1,0 +1,37 @@
+{
+  "source": "Aholo Lux3D G1-Turbo + PBR",
+  "assets": [
+    {
+      "key": "JUDGE-A1_seated",
+      "label": "判官坐像 A1",
+      "taskId": 8405481,
+      "status": "downloaded",
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/1e50476b0f95466c8fbf04cfdef89fb4/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 9276768
+    },
+    {
+      "key": "JUDGE-A2_seated",
+      "label": "判官坐像 A2",
+      "taskId": 8405488,
+      "status": "downloaded",
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/9e5dc2922a984416bfb90fcb21cc3def/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 10844588
+    },
+    {
+      "key": "JUDGE-B1_standing",
+      "label": "判官立像 B1",
+      "taskId": 8405495,
+      "status": "downloaded",
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/44a6ac6fd8ab49348d463fa76c4e0239/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 11306844
+    },
+    {
+      "key": "JUDGE-B2_standing",
+      "label": "判官立像 B2",
+      "taskId": 8405509,
+      "status": "downloaded",
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/e901bc333e494a58969da48bbe313117/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 11210768
+    }
+  ]
+}

@@ -1,6 +1,14 @@
 [
   {
     "dir": "game/public/models/prologue",
+    "file": "JUDGE-A2_seated.glb",
+    "bytes": 10844588,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 54822
+  },
+  {
+    "dir": "game/public/models/prologue",
     "file": "S0-07_elm_bench_A.glb",
     "bytes": 378956,
     "errors": 0,
@@ -14,10 +22,10 @@
   {
     "dir": "game/public/models/prologue",
     "file": "S0-12_ticket_machine_A.glb",
-    "bytes": 557920,
+    "bytes": 554872,
     "errors": 0,
     "warnings": 0,
-    "triangles": 16690,
+    "triangles": 17186,
     "extensionsUsed": [
       "EXT_texture_webp",
       "KHR_mesh_quantization"
@@ -50,10 +58,10 @@
   {
     "dir": "game/public/models/prologue",
     "file": "S0-21_blank_pass_A.glb",
-    "bytes": 492120,
+    "bytes": 452004,
     "errors": 0,
     "warnings": 0,
-    "triangles": 17002,
+    "triangles": 17080,
     "extensionsUsed": [
       "EXT_texture_webp",
       "KHR_mesh_quantization"
@@ -66,6 +74,30 @@
     "errors": 0,
     "warnings": 0,
     "triangles": 21318,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-41_judge_standing_A.glb",
+    "bytes": 1512080,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 60920,
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ]
+  },
+  {
+    "dir": "game/public/models/prologue",
+    "file": "S0-42_judge_seated_A.glb",
+    "bytes": 1383500,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 53110,
     "extensionsUsed": [
       "EXT_texture_webp",
       "KHR_mesh_quantization"

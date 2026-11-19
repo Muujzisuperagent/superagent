@@ -4,11 +4,11 @@
     {
       "key": "S0-12_ticket_machine_A",
       "label": "取号机",
-      "taskId": 8386320,
+      "taskId": 8398879,
       "worldId": null,
-      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/d2d777a3ccdd4500a44a4c57f3a4a889/results/tex_mesh/attempt-1/tex_mesh.glb",
-      "bytes": 557920,
-      "sha256": "4ee514e69fa94ba2c82e959ab2150a0f20946b3de5b043e5ef8204a086f52d9a"
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/48d2082f32cc4333acb2ea05a0771888/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 554872,
+      "sha256": "d146d9e9ff4f70c9c5bd5d43d7be9e154fd065b102834712bc66bb72c86f5b21"
     },
     {
       "key": "S0-13_bamboo_tally_A",
@@ -22,9 +22,9 @@
     {
       "key": "S0-07_elm_bench_A",
       "label": "榆木长凳",
-      "taskId": 8386327,
+      "taskId": 8398889,
       "worldId": null,
-      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/c450c7e1fe294a7fbd74be44b97945e5/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/46bb5f5b66d8488da16565f8c2161c1f/results/tex_mesh/attempt-1/tex_mesh.glb",
       "bytes": 378956,
       "sha256": "f828d33e38fb9c39a6c18ad0cb965f5cbbf9ed6c2f78a1de8cbcbea9c9eb1956"
     },
@@ -49,12 +49,12 @@
     {
       "key": "S0-21_blank_pass_A",
       "label": "空白路引",
-      "taskId": 8386821,
+      "taskId": 8398893,
       "worldId": null,
-      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/f2b614931b554761a118bbaa1d93dccf/results/tex_mesh/attempt-1/tex_mesh.glb",
-      "bytes": 492120,
-      "sha256": "c7edc010c5437fc3abfd83b157a607818c136338ba1657c4c0d3ba1255e07827"
+      "glbUrl": "https://qhsmodel.kujiale.com/genesis3d/inference/20261119/62f0fe9ff8d64f4f80f9b93b5a9bbe1a/results/tex_mesh/attempt-1/tex_mesh.glb",
+      "bytes": 452004,
+      "sha256": "375597c4a228c1e137738f2ab4a6779964eb3c4499ab75163688873d4bb647a5"
     }
   ],
-  "note": "序厅六件 S0 资产：先生成 G1-Turbo + PBR，再用 gltf-transform optimize --compress quantize --texture-compress webp --texture-size 1024 压到网页可用体积"
+  "note": "序厅六件 S0 资产：Aholo Lux3D G1-Turbo + PBR 生成，gltf-transform optimize --compress quantize --texture-compress webp --texture-size 1024 压到网页可用体积"
 }
