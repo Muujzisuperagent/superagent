@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\first-hall-entry.png",
+      "sha256": "857f2919a510c6f59891095852b9d40f2a74019e457ea7aecc88d6a01e55085d",
+      "scene": "一殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.154956,
+      "luma_std_srgb": 0.140399,
+      "near_black_pct_luma_lt_0_05": 14.1877,
+      "near_white_pct_luma_gt_0_95": 0.0002,
+      "saturation_hsv_mean": 0.325637,
+      "high_saturation_pct_gt_0_8": 4.834,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 13.6978,
+        "深木": 70.8216,
+        "烛黄": 0.0,
+        "朱砂": 0.0326,
+        "宣纸": 1.4573,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 86.0093,
+      "red_family_candidate_pct": 0.0326,
+      "review_notes": []
+    },
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\first-hall-vision.png",
+      "sha256": "8b0c0e96f88e3ba86ba7e72ed80bad1a5ed25eca3984aa3085e043f814526945",
+      "scene": "一殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.156811,
+      "luma_std_srgb": 0.137377,
+      "near_black_pct_luma_lt_0_05": 14.7862,
+      "near_white_pct_luma_gt_0_95": 0.1144,
+      "saturation_hsv_mean": 0.340379,
+      "high_saturation_pct_gt_0_8": 0.0002,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 18.4923,
+        "深木": 73.6374,
+        "烛黄": 0.0,
+        "朱砂": 0.0184,
+        "宣纸": 0.7058,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 92.8539,
+      "red_family_candidate_pct": 0.0184,
+      "review_notes": []
+    },
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\first-hall-solved.png",
+      "sha256": "ccdbdfbbb87d92a2ae71704f99a14482d3b0e121da43ce5323c66eb3281723e5",
+      "scene": "一殿",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.155887,
+      "luma_std_srgb": 0.136055,
+      "near_black_pct_luma_lt_0_05": 14.789,
+      "near_white_pct_luma_gt_0_95": 0.1204,
+      "saturation_hsv_mean": 0.34258,
+      "high_saturation_pct_gt_0_8": 0.0002,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 18.1162,
+        "深木": 74.1035,
+        "烛黄": 0.0,
+        "朱砂": 0.0184,
+        "宣纸": 0.6794,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 92.9175,
+      "red_family_candidate_pct": 0.0184,
+      "review_notes": []
+    }
+  ]
+}
