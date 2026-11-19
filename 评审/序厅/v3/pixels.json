@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\dd1e02e\\prologue-start.png",
+      "sha256": "ce368b6ef4317971a0160f1bbf00eae68141d7ae64cf8b6da0abafb6793494c7",
+      "scene": "序厅",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.234218,
+      "luma_std_srgb": 0.113645,
+      "near_black_pct_luma_lt_0_05": 0.456,
+      "near_white_pct_luma_gt_0_95": 0.0002,
+      "saturation_hsv_mean": 0.19924,
+      "high_saturation_pct_gt_0_8": 0.0012,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 22.8574,
+        "深木": 72.5099,
+        "烛黄": 0.0002,
+        "朱砂": 0.0064,
+        "宣纸": 0.2217,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 95.5956,
+      "red_family_candidate_pct": 0.0064,
+      "review_notes": []
+    },
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\dd1e02e\\prologue-judge.png",
+      "sha256": "f7a61c3ca5bed93e5c10a092c988efc50bdbc0ef408cac768e939cddc3722cbd",
+      "scene": "序厅",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.228508,
+      "luma_std_srgb": 0.13599,
+      "near_black_pct_luma_lt_0_05": 1.0778,
+      "near_white_pct_luma_gt_0_95": 0.0,
+      "saturation_hsv_mean": 0.196518,
+      "high_saturation_pct_gt_0_8": 0.0012,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 20.682,
+        "深木": 73.8767,
+        "烛黄": 0.0,
+        "朱砂": 0.0135,
+        "宣纸": 0.5203,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 95.0925,
+      "red_family_candidate_pct": 0.0135,
+      "review_notes": []
+    },
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\dd1e02e\\prologue-door.png",
+      "sha256": "1528d41adeac33fac187ec535f6ea84d51b035de853c222513c7420c9a19dce4",
+      "scene": "序厅",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.236074,
+      "luma_std_srgb": 0.116626,
+      "near_black_pct_luma_lt_0_05": 0.1698,
+      "near_white_pct_luma_gt_0_95": 0.0,
+      "saturation_hsv_mean": 0.182947,
+      "high_saturation_pct_gt_0_8": 0.0,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 31.5708,
+        "深木": 66.9459,
+        "烛黄": 0.0,
+        "朱砂": 0.0,
+        "宣纸": 0.2039,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 98.7207,
+      "red_family_candidate_pct": 0.0,
+      "review_notes": []
+    }
+  ]
+}
