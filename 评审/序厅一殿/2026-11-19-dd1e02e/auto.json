@@ -1,0 +1,124 @@
+{
+  "scope_note": "序厅+第一殿复评（commit dd1e02e，工作区干净）。口径扩展沿用 评审/序厅一殿/2026-11-19-922a9c5/report.md 的声明。G0 沿用本轮 run_auto 全仓结果。capture.views 取三张主截图；prologue-door / first-hall-vision / first-hall-solved 指标在 perf-prologue.json 与 visual-prologue.json。本轮 __lux3dStatus mounted=10/10 missing=0（screens/check.json），prologue-check.mjs ERRORS 与 HTTP>=400 均空。draws 口径：序厅渲染无后期 pass，FBO 跟踪无法分离主 pass，759 即单帧全部 WebGL draw calls（含阴影 pass），与 G5『主 pass ≤800』同口径。",
+  "build": {
+    "ok": true,
+    "tests_ok": true
+  },
+  "assets": {
+    "fileCount": 14,
+    "errorFiles": [],
+    "totalErrors": 0,
+    "totalWarnings": 6,
+    "totalTriangles": 363272,
+    "dir": "game/public/models/prologue + game/public/models/low",
+    "summary": {
+      "totalErrors": 0,
+      "totalWarnings": 6
+    },
+    "prologue_glb": [
+      {
+        "file": "S0-07_elm_bench_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 11428
+      },
+      {
+        "file": "S0-12_ticket_machine_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 17186
+      },
+      {
+        "file": "S0-13_bamboo_tally_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 7248
+      },
+      {
+        "file": "S0-15_paper_lantern_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 12084
+      },
+      {
+        "file": "S0-21_blank_pass_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 17080
+      },
+      {
+        "file": "S0-37_paper_effigy_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 21318
+      },
+      {
+        "file": "S0-41_judge_standing_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 60920
+      },
+      {
+        "file": "S0-42_judge_seated_A.glb",
+        "errors": 0,
+        "warnings": 0,
+        "triangles": 53110
+      }
+    ],
+    "low_glb_warnings_note": "6 件 S1-* 各 1 warning（复用件，本轮校验 0 error）",
+    "lux_mount": {
+      "total": 10,
+      "mounted": 10,
+      "missing": 0,
+      "evidence": "screens/check.json __lux3dStatus（judge/machine/ticket/bench/folk/lamp/pass/censer/ledger/cabinet）"
+    }
+  },
+  "capture": {
+    "baseUrl": "http://127.0.0.1:5173",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "views": {
+      "prologue-start": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\序厅一殿\\2026-11-19-dd1e02e\\screens\\prologue-start.png",
+        "loadMs": 5952,
+        "fps": 60.3,
+        "drawsPerFrame": 759,
+        "mainDrawsPerFrame": 759,
+        "pageErrors": [],
+        "consoleErrors": []
+      },
+      "prologue-judge": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\序厅一殿\\2026-11-19-dd1e02e\\screens\\prologue-judge.png",
+        "loadMs": 5361,
+        "fps": 60.3,
+        "drawsPerFrame": 759,
+        "mainDrawsPerFrame": 759,
+        "pageErrors": [],
+        "consoleErrors": []
+      },
+      "first-hall-entry": {
+        "screenshot": "D:\\群核科技黑客松\\评审\\序厅一殿\\2026-11-19-dd1e02e\\screens\\first-hall-entry.png",
+        "loadMs": 5442,
+        "fps": 60.3,
+        "drawsPerFrame": 332,
+        "mainDrawsPerFrame": 332,
+        "pageErrors": [],
+        "consoleErrors": []
+      }
+    },
+    "summary": {
+      "canvas": 1,
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": []
+    }
+  },
+  "visual": {
+    "metric_mode": "stats",
+    "b1": 29.08,
+    "blank_views": [],
+    "detail": "visual-prologue.json：六图轻量像素口径归一均值 29.08（pyiqa 不可用）；序厅 luma 0.2342/0.2284/0.2361（暗调恢复达标），一殿 0.1533-0.1681"
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "file": "S0-07_elm_bench_A.glb",
+    "dir": "prologue",
+    "bytes": 378956,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 11428,
+    "vertices": 6818
+  },
+  {
+    "file": "S0-12_ticket_machine_A.glb",
+    "dir": "prologue",
+    "bytes": 554872,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 17186,
+    "vertices": 14004
+  },
+  {
+    "file": "S0-13_bamboo_tally_A.glb",
+    "dir": "prologue",
+    "bytes": 259720,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 7248,
+    "vertices": 4330
+  },
+  {
+    "file": "S0-15_paper_lantern_A.glb",
+    "dir": "prologue",
+    "bytes": 484340,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 12084,
+    "vertices": 9423
+  },
+  {
+    "file": "S0-21_blank_pass_A.glb",
+    "dir": "prologue",
+    "bytes": 452004,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 17080,
+    "vertices": 11491
+  },
+  {
+    "file": "S0-37_paper_effigy_A.glb",
+    "dir": "prologue",
+    "bytes": 662952,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 21318,
+    "vertices": 16757
+  },
+  {
+    "file": "S0-41_judge_standing_A.glb",
+    "dir": "prologue",
+    "bytes": 1512080,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 60920,
+    "vertices": 45570
+  },
+  {
+    "file": "S0-42_judge_seated_A.glb",
+    "dir": "prologue",
+    "bytes": 1383500,
+    "errors": 0,
+    "warnings": 0,
+    "triangles": 53110,
+    "vertices": 41809
+  },
+  {
+    "file": "S1-01_karma_mirror_A.glb",
+    "dir": "low",
+    "bytes": 2042320,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 21514,
+    "vertices": 8839
+  },
+  {
+    "file": "S1-05_candlestand_A.glb",
+    "dir": "low",
+    "bytes": 1867344,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 19952,
+    "vertices": 8728
+  },
+  {
+    "file": "S1-06_censer_A.glb",
+    "dir": "low",
+    "bytes": 2138676,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 17364,
+    "vertices": 8334
+  },
+  {
+    "file": "S1-07_banner_A.glb",
+    "dir": "low",
+    "bytes": 1804972,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 15800,
+    "vertices": 4628
+  },
+  {
+    "file": "S1-08_cabinet_door_A.glb",
+    "dir": "low",
+    "bytes": 1835816,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 15434,
+    "vertices": 5679
+  },
+  {
+    "file": "S1-09_ledger_volume_A.glb",
+    "dir": "low",
+    "bytes": 1870364,
+    "errors": 0,
+    "warnings": 1,
+    "triangles": 18394,
+    "vertices": 8057
+  }
+]
