@@ -645,7 +645,9 @@
       // 自测：把相机放到判官斜前方约 2.05 m（仍在 APPROACH_R 内），
       // dump-dom 不用等 rAF 就能读到触发结果；第 18 张实拍也用这个参数。
       // v30：1.52 m 时脸贴满整个画面，拉远并下移视线，让坐姿与案桌一起进画。
-      camera.position.set(J[0] + .36, 1.58, J[2] + 2.02);
+      // v37：机位左移 0.28 m、后退 0.08 m（dist 2.05→2.11，仍在 APPROACH_R 内），
+      // 判官落到画面右三分线、主案右缘不再裁切，对话 UI 不再压住伏案的手部。
+      camera.position.set(J[0] - .28, 1.58, J[2] + 2.10);
       aimAt(new T.Vector3(J[0], 1.16, J[2]));
       keepInside();
       checkApproach();

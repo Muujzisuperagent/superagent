@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "method": "Full resolution; alpha-weighted; sRGB/D65 assumed; nearest CIELAB DeltaE76 <=20",
+  "limits": "Heuristic pixel statistics, not material identification, aesthetic score, exposure measurement or performance proof",
+  "results": [
+    {
+      "image": "D:\\群核科技黑客松\\game\\artifacts\\prologue\\dd1e02e-fix1\\prologue-start.png",
+      "sha256": "52487263bba94762d9ba04dd0293851edf39f8a3bc73f4e4c74e6cc7866f0b09",
+      "scene": "序厅",
+      "width": 1440,
+      "height": 900,
+      "aspect_ratio": 1.6,
+      "visible_pixel_equivalent": 1296000.0,
+      "transparent_pixel_pct": 0.0,
+      "luma_mean_srgb": 0.235886,
+      "luma_std_srgb": 0.116068,
+      "near_black_pct_luma_lt_0_05": 0.4528,
+      "near_white_pct_luma_gt_0_95": 0.0002,
+      "saturation_hsv_mean": 0.198411,
+      "high_saturation_pct_gt_0_8": 0.0012,
+      "palette_nearest_within_delta_e_20_pct": {
+        "青灰石": 23.0349,
+        "深木": 72.1231,
+        "烛黄": 0.0002,
+        "朱砂": 0.0064,
+        "宣纸": 0.3139,
+        "彼岸红": 0.0
+      },
+      "palette_coverage_pct": 95.4785,
+      "red_family_candidate_pct": 0.0064,
+      "review_notes": []
+    }
+  ]
+}

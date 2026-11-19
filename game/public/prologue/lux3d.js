@@ -54,7 +54,7 @@
     // AABB of the source model (arms out) is squashed back to body width.
     { key: "folk", url: NEW + "S0-37_paper_effigy_A.glb", host: "folk",
       fit: [.56, 1.75, .40], axis: [1, 1], instances: 5, label: "面壁纸扎人",
-      tint: 0xa8a894, squash: [.56, 1.75, .40] },
+      tint: 0xd9d2bf, squash: [.56, 1.75, .40] },
     { key: "lamp", url: NEW + "S0-15_paper_lantern_A.glb", host: "lamp",
       fit: [.40, .50, .40], keepGeom: ["SphereGeometry"], label: "白纸灯笼" },
     // 路引的「两半可合」是状态不是模型结构，两半 + 半印 + 命中板全部保留；

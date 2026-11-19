@@ -1167,7 +1167,7 @@
       crankBrass: new T.MeshStandardMaterial({ color: 0x2f3b35, roughness: .88, metalness: .04,
                                                emissive: 0x101614, emissiveIntensity: .10 }),
       ember: new T.MeshBasicMaterial({ color: 0xc8f2e6 }),
-      lampPaper: new T.MeshStandardMaterial({ map: M.paper, color: 0xdfe4d9, roughness: 1,
+      lampPaper: new T.MeshStandardMaterial({ map: M.paper, color: 0xe2d9c4, roughness: 1,
                                               emissive: 0x86b8a8, emissiveIntensity: .46,
                                               transparent: true, opacity: .94, side: T.DoubleSide }),
       fog: new T.MeshBasicMaterial({ map: M.fog, transparent: true, opacity: .9,
