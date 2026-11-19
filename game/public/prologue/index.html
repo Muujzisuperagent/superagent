@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>序厅 · 阴司便民司｜还魂路引</title>
+<style>
+:root{
+  --bg:#0b0f0e; --panel:rgba(18,23,21,.92); --line:rgba(186,200,190,.18);
+  --ink:#e8e6da; --dim:#929c96; --jade:#a8c9bb; --cinnabar:#b8573e;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --serif:"Songti SC","STSong","SimSun",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+
+/* 冷灰白暗角 + 轻微胶片颗粒。不用无限 CSS 动画：无头截图 / 软渲染会被拖死，
+   雾的「翻涌」交给 3D 雾幕的 UV 偏移（出图模式冻结为静止）。 */
+#grade{position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse 78% 72% at 50% 46%,
+    rgba(0,0,0,0) 40%,rgba(10,16,15,.20) 76%,rgba(6,11,10,.62) 100%)}
+#grain{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.055;
+  mix-blend-mode:overlay;background:repeating-linear-gradient(0deg,
+    rgba(255,255,255,.035) 0 1px,transparent 1px 3px),
+  repeating-linear-gradient(90deg,rgba(0,0,0,.03) 0 1px,transparent 1px 4px)}
+#fogVeil{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.30;
+  background:radial-gradient(ellipse 60% 46% at 76% 42%,rgba(224,234,229,.34),transparent 78%),
+             radial-gradient(ellipse 72% 52% at 50% 92%,rgba(206,218,213,.20),transparent 82%),
+             linear-gradient(0deg,rgba(214,224,219,.14),transparent 38%)}
+
+.topbar{position:fixed;top:20px;left:24px;z-index:5;display:flex;align-items:center;gap:13px;pointer-events:none}
+.seal{width:40px;height:40px;border:1px solid rgba(184,87,62,.72);background:rgba(184,87,62,.08);
+  color:var(--cinnabar);display:grid;place-items:center;border-radius:3px;font:600 20px/1 var(--serif)}
+.topbar h1{margin:0;font:400 21px/1.2 var(--serif);letter-spacing:.1em}
+.topbar h1 em{font:400 10px/1 var(--mono);font-style:normal;letter-spacing:.16em;color:var(--dim);margin-left:9px}
+.topbar p{margin:5px 0 0;font-size:11px;color:var(--dim);letter-spacing:.05em}
+
+#showPanel{position:fixed;top:20px;right:20px;z-index:8;width:34px;height:34px;
+  border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--dim);
+  cursor:pointer;font-size:15px;line-height:1}
+#showPanel:hover{color:var(--jade);border-color:var(--jade)}
+#panel{position:fixed;top:18px;right:18px;bottom:18px;width:300px;z-index:7;
+  background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:9px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 18px 60px rgba(0,0,0,.55)}
+#panel.hide{display:none}
+.phead{flex:0 0 auto;padding:15px 16px 12px;border-bottom:1px solid var(--line)}
+.phead h2{margin:0;font:400 14px/1.3 var(--serif);letter-spacing:.08em}
+.phead p{margin:6px 0 0;font-size:11px;line-height:1.6;color:var(--dim)}
+#collapse{float:right;margin-top:-26px;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer}
+.pbody{flex:1;overflow-y:auto;padding:14px 16px 18px}
+.lab{font-size:10px;letter-spacing:.14em;color:var(--dim);margin:0 0 9px}
+.btns{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}
+.btn{flex:1 1 46%;padding:8px 6px;border:1px solid var(--line);border-radius:5px;
+  background:rgba(255,255,255,.025);color:var(--ink);font-size:11px;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--jade);background:rgba(168,201,187,.09)}
+.btn.wide{flex:1 1 100%}
+.meta{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.meta dl{display:grid;grid-template-columns:52px 1fr;gap:5px 8px;margin:0 0 12px;font-size:10px;line-height:1.5}
+.meta dt{color:var(--dim)}
+.meta dd{margin:0;color:var(--ink)}
+.note{font-size:10px;line-height:1.75;color:var(--dim);margin:0 0 8px}
+
+/* 图形 HUD：只有槽位与灯格，不出现任何教程文字 */
+#hud{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:6;
+  display:flex;align-items:center;gap:20px;padding:9px 16px;border-radius:30px;
+  background:rgba(14,19,18,.62);border:1px solid rgba(186,200,190,.13);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.slots{display:flex;gap:11px}
+.slot{width:30px;height:30px;border:1px solid rgba(186,200,190,.20);border-radius:5px;
+  display:grid;place-items:center;position:relative;transition:.35s}
+.slot i{display:block;position:relative;opacity:.30;transition:.35s}
+.slot.on{border-color:rgba(176,222,206,.72);background:rgba(168,201,187,.10);
+  box-shadow:0 0 14px rgba(168,201,187,.22)}
+.slot.on i{opacity:1}
+.ic-ticket{width:15px;height:6px;background:#b8a575;border-radius:1px}
+.ic-ticket::after{content:"";position:absolute;left:3px;top:2px;width:9px;height:1px;background:#8c3f30}
+.ic-pass{width:16px;height:12px;border:1px solid #cfc7ae;border-radius:1px}
+.ic-pass::after{content:"";position:absolute;left:7px;top:-1px;width:1px;height:12px;background:#cfc7ae}
+.slot.on .ic-pass::after{background:#b8573e}
+.ic-incense{width:1px;height:17px;background:#cfc7ae}
+.ic-incense::after{content:"";position:absolute;left:-2px;top:-3px;width:5px;height:5px;
+  border-radius:50%;background:#c8f2e6;box-shadow:0 0 7px #a8e6d3}
+.ic-door{width:16px;height:15px;border:1px solid #cfc7ae;border-radius:1px}
+.ic-door::after{content:"";position:absolute;left:7px;top:0;width:1px;height:15px;background:#cfc7ae}
+.lamps{display:flex;gap:5px;padding-left:16px;border-left:1px solid rgba(186,200,190,.14)}
+.lamp{width:7px;height:7px;border:1px solid rgba(186,200,190,.28);border-radius:1px;transition:.35s}
+.lamp.on{background:#c8f2e6;border-color:#c8f2e6;box-shadow:0 0 8px rgba(168,230,210,.6)}
+#hud.done{border-color:rgba(184,87,62,.5);box-shadow:0 0 22px rgba(184,87,62,.16)}
+
+#hint{position:fixed;left:24px;bottom:24px;z-index:5;font-size:10.5px;color:var(--dim);
+  letter-spacing:.04em;pointer-events:none;text-shadow:0 1px 6px #000}
+#hint b{color:var(--jade);font-weight:400}
+#rescue{position:fixed;right:20px;bottom:20px;z-index:20;cursor:pointer;
+  padding:8px 13px;border:1px solid rgba(168,201,187,.5);border-radius:20px;
+  background:rgba(14,19,18,.82);color:var(--jade);font-size:11px;letter-spacing:.06em}
+#rescue:hover{background:rgba(168,201,187,.18);color:#e2f6ec}
+#toast{position:fixed;left:50%;top:74px;transform:translate(-50%,-8px);z-index:12;
+  padding:9px 18px;border:1px solid var(--line);border-radius:22px;
+  background:rgba(14,19,18,.88);color:var(--ink);font:400 12px/1.5 var(--serif);
+  letter-spacing:.06em;opacity:0;pointer-events:none;transition:.35s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+#loading{position:fixed;inset:0;z-index:50;display:grid;place-items:center;
+  background:#080c0b;color:var(--ink);text-align:center;transition:opacity .5s;cursor:pointer}
+#loading.done{opacity:0;pointer-events:none;display:none!important}
+
+/* v31 厅间过场：门开后点门，冷白雾漫上来再切进第一殿。只有打通教学链才会出现，
+   不影响 ?clean=1 的 18 张定稿图；?nogate=1 可回到「门只是观察点」的旧行为。 */
+#gate{position:fixed;inset:0;z-index:48;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(ellipse 62% 58% at 50% 50%,rgba(224,235,229,.22),rgba(8,13,12,.97) 82%),#080c0b;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .75s ease,visibility .75s}
+#gate.on{opacity:1;visibility:visible;pointer-events:auto;cursor:wait}
+#gate .gm{position:absolute;inset:-18%;pointer-events:none;
+  background:radial-gradient(ellipse at 26% 38%,rgba(206,228,218,.34),transparent 62%),
+             radial-gradient(ellipse at 78% 66%,rgba(178,208,196,.28),transparent 64%),
+             radial-gradient(ellipse at 50% 92%,rgba(210,226,219,.20),transparent 60%);
+  animation:gateDrift 3.6s ease-in-out infinite alternate}
+#gate .gc{position:relative;text-align:center;padding:0 22px}
+#gate .gc b{display:block;font:400 18px/1.9 var(--serif);letter-spacing:.20em;color:#e6eade;
+  text-shadow:0 2px 18px #000}
+#gate .gc small{display:block;margin-top:10px;font:400 10px/1.8 var(--mono);
+  letter-spacing:.14em;color:var(--dim)}
+@keyframes gateDrift{from{transform:translate3d(-2%,1%,0) scale(1.02)}to{transform:translate3d(2%,-1%,0) scale(1.12)}}
+#loadTitle{font:400 20px/1.4 var(--serif);letter-spacing:.16em;margin-top:16px}
+#loadTxt{font-size:11px;color:var(--dim);margin-top:8px;letter-spacing:.1em}
+.ring{width:26px;height:26px;margin:0 auto;border:1px solid rgba(168,201,187,.25);
+  border-top-color:var(--jade);border-radius:50%;animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 出图模式：只留画面，所有 UI 与提示全部隐藏 */
+body.clean .topbar,body.clean #showPanel,body.clean #panel,body.clean #hud,
+body.clean #hint,body.clean #rescue,body.clean #toast,body.clean #loading{display:none!important}
+body.clean #fogVeil{opacity:.24}
+body.clean #gate{display:none!important}
+
+@media(max-width:820px){
+  .topbar{top:12px;left:12px}.topbar h1{font-size:16px}.seal{width:32px;height:32px;font-size:16px}
+  #panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;height:44vh}
+  #hint{display:none}#hud{bottom:12px;gap:10px;padding:7px 10px}
+}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="fogVeil"></div>
+<div id="grade"></div>
+<div id="grain"></div>
+
+<header class="topbar">
+  <div class="seal">序</div>
+  <div>
+    <h1>序厅 · 阴司便民司 <em>PROLOGUE / THE WAITING HALL</em></h1>
+    <p>还魂路引 · 醒来时，号已经叫过了</p>
+  </div>
+</header>
+
+<button id="showPanel" title="展开规格说明">☰</button>
+
+<aside id="panel" class="hide">
+  <div class="phead">
+    <h2>序厅规格</h2>
+    <p>教学关。<b style="color:var(--jade);font-weight:400">走到案边判官跟前</b>才会开口；<b style="color:var(--jade);font-weight:400">点判官重听 · T 卷宗</b>，右下可随时关掉对白。</p>
+    <button id="collapse" title="收起">×</button>
+  </div>
+  <div class="pbody">
+    <div class="lab">场景规格</div>
+    <dl id="meta" style="display:grid;grid-template-columns:52px 1fr;gap:5px 8px;margin:0 0 12px;font-size:10px;line-height:1.5"></dl>
+    <p class="note"><b style="color:var(--jade);font-weight:400">依据</b>：队友《场景生图提示词 v3 · 恐怖版》「1｜序厅」【本场】+ 连贯锁 + 负面词。空间、主色、光源、纸扎人、湿脚印、贴地香烟全部按提示词；S0 清单只借编号与尺寸，不采纳与负面词冲突的「可读须知」「角色实体」「低位暖光」。</p>
+    <p class="note"><b style="color:var(--jade);font-weight:400">场景内不写清晰文字</b>：水牌 / 匾额只留模糊笔痕；剧本台词一律走 DOM 字幕，不往墙面、生死簿上贴可读的字。无经幡、无暖黄火焰（灯笼与香头都是青白冷火）。业秤留给二殿。<br><b style="color:var(--cinnabar);font-weight:400">v28 与 v3 的一处冲突</b>：按 mina 要求加了判官崔珏这位可对话的角色实体，并沿用 v26 的「看得见人脸」。<code>?nojudge=1</code> 可完全移除判官、<code>?plainface=1</code> 去掉瞳孔，回到 v3 严格版；v3 原文未改动。<br><b style="color:var(--jade);font-weight:400">v29 造型</b>：判官改坐在案侧官帽椅上，补垂缨冠横簪、暗绣回纹、袖口飞墨、腰侧印匣、簿册装帧与案上文房；<code>?v28judge=1</code> 可回到站立版对照。<br><b style="color:var(--jade);font-weight:400">v30 精修</b>：幞头换圆帽筒 + 短展脚，去掉腿部圆端盖、袍摆亮边与脸片硬椭圆描边，交领收成 Y 字，判官机位整体拉远。</p>
+    <p class="note"><b style="color:var(--jade);font-weight:400">走动</b>：W / S 前后，A / D 左右，Q / E 升降，Shift 快走，R 回长凳前；左键转视角、滚轮缩放，右键平移已禁用，相机锁在廊内。</p>
+    <p class="note"><b style="color:var(--jade);font-weight:400">对白与交互</b>：<b style="color:var(--jade);font-weight:400">走近案边判官约 2.2 m 自动触发</b>对话（不再一开局就开口），<b style="color:var(--jade);font-weight:400">「我不认」是唯一选项</b>（没有「认」）；走开再回来可再听。点判官本人也能对谈，<b style="color:var(--jade);font-weight:400">F</b> 重唤申辩，点击 / 空格推进，<b style="color:var(--jade);font-weight:400">T</b> 开卷宗，Esc 收起。9 处可点观察点各有一句剧本 / v3 台词。<code>?noapproach=1</code> 回到一开局开口，<code>?nodlg=1</code> 回纯无字版。</p>
+    <div class="btns">
+      <button class="btn" id="viewFront">回廊中</button>
+      <button class="btn" id="shot">保存 PNG</button>
+      <button class="btn" id="reset">重置教学</button>
+      <button class="btn" id="solve">直接通关（内部复核）</button>
+    </div>
+  </div>
+</aside>
+
+<div id="hud">
+  <div class="slots">
+    <div class="slot" id="slot0"><i class="ic-ticket"></i></div>
+    <div class="slot" id="slot1"><i class="ic-pass"></i></div>
+    <div class="slot" id="slot2"><i class="ic-incense"></i></div>
+    <div class="slot" id="slot3"><i class="ic-door"></i></div>
+  </div>
+  <div class="lamps">
+    <span class="lamp" id="lamp0"></span><span class="lamp" id="lamp1"></span>
+    <span class="lamp" id="lamp2"></span><span class="lamp" id="lamp3"></span>
+    <span class="lamp" id="lamp4"></span><span class="lamp" id="lamp5"></span>
+    <span class="lamp" id="lamp6"></span><span class="lamp" id="lamp7"></span>
+    <span class="lamp" id="lamp8"></span>
+  </div>
+</div>
+
+<div id="hint"><b>W A S D</b> 走到案边判官跟前 · 左键转视角 · <b>点他重听</b> · <b>「我不认」申辩</b> · <b>T 卷宗</b> · <b>R 回廊中</b></div>
+<button id="rescue" title="回到长凳前（快捷键 R）">回廊中 · R</button>
+<div id="toast"></div>
+
+<div id="loading"><div><div class="ring"></div><div id="loadTitle">序厅 · 阴司便民司</div><div id="loadTxt">准备中…</div></div></div>
+<div id="gate"><div class="gm"></div><div class="gc">
+  <b>门后没有天光，只有雾，和一座殿。</b>
+  <small>还魂路引 · 第一殿 · 孽镜台</small>
+</div></div>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<!-- Aholo Lux3D 生成资产：GLB 放在 ../models/prologue/ 与 ../models/low/；
+     文件缺失时接入层静默跳过，程序化占位照常可玩（但那不是合规交付态） -->
+<script src="vendor/GLTFLoader.js"></script>
+<script src="lux3d.js?v=35"></script>
+<!-- 带版本号破缓存，避免预览面板一直拿旧脚本 -->
+<script src="scene.js?v=35"></script>
+<!-- 剧本对白层：非阻断字幕 / 唯一「我不认」申辩 / 卷宗；?nodlg=1 | clean | probe 全部关闭 -->
+<script src="dialogue.js?v=35"></script>
+<script src="app.js?v=35"></script>
+</body>
+</html>

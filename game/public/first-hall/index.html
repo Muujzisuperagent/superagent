@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>第一殿 · 孽镜台｜还魂路引</title>
+<style>
+:root{
+  --bg:#080b0c; --panel:rgba(14,19,20,.9); --line:rgba(150,178,166,.2);
+  --ink:#e6e4da; --dim:#8c9691; --jade:#83b8a6; --cinnabar:#c05a41;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --serif:"Songti SC","STSong","SimSun",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+/* 画面调色：暗角 + 轻微胶片颗粒 */
+#grade{position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse 76% 70% at 50% 46%,
+    rgba(0,0,0,0) 44%,rgba(2,5,6,.26) 78%,rgba(1,3,4,.60) 100%)}
+#grain{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.055;
+  mix-blend-mode:overlay;background-repeat:repeat;background-size:128px 128px}
+
+.topbar{position:fixed;top:20px;left:24px;z-index:5;display:flex;align-items:center;gap:13px;pointer-events:none}
+.seal{width:40px;height:40px;border:1px solid rgba(192,90,65,.72);background:rgba(192,90,65,.08);
+  color:var(--cinnabar);display:grid;place-items:center;border-radius:3px;font:600 20px/1 var(--serif)}
+.topbar h1{margin:0;font:400 21px/1.2 var(--serif);letter-spacing:.1em}
+.topbar h1 em{font:400 10px/1 var(--mono);font-style:normal;letter-spacing:.16em;color:var(--dim);margin-left:9px}
+.topbar p{margin:5px 0 0;font-size:11px;color:var(--dim);letter-spacing:.05em}
+
+#panel{position:fixed;top:18px;right:18px;bottom:18px;width:306px;z-index:6;
+  background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:9px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 18px 60px rgba(0,0,0,.55)}
+#panel.hide{display:none}
+.phead{flex:0 0 auto;padding:15px 16px 12px;border-bottom:1px solid var(--line)}
+.phead h2{margin:0;font:400 14px/1.3 var(--serif);letter-spacing:.08em}
+.phead p{margin:6px 0 0;font-size:11px;line-height:1.6;color:var(--dim)}
+.pbody{flex:1;overflow-y:auto;padding:14px 16px 18px}
+.pbody::-webkit-scrollbar{width:6px}
+.pbody::-webkit-scrollbar-thumb{background:rgba(131,184,166,.24);border-radius:3px}
+
+.lab{font-size:10px;letter-spacing:.14em;color:var(--dim);margin:0 0 9px}
+.diff{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:6px;
+  padding:9px 10px;margin-bottom:7px;color:var(--ink);font-size:12px;cursor:pointer;transition:.15s}
+.diff:hover{background:rgba(131,184,166,.09);border-color:rgba(131,184,166,.4)}
+.diff .no{font:400 11px/1 var(--mono);color:var(--jade);flex:0 0 18px}
+.diff .txt{flex:1;line-height:1.4}
+.diff .txt small{display:block;font-size:10px;color:var(--dim);margin-top:2px}
+.diff .st{flex:0 0 auto;font-size:10px;padding:3px 7px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);color:var(--dim);white-space:nowrap}
+.diff.ok .st{color:#bfe6d2;border-color:rgba(131,184,166,.5);background:rgba(131,184,166,.12)}
+.diff.ok{border-color:rgba(131,184,166,.32)}
+
+#verdict{margin:12px 0 4px;padding:10px 11px;border-radius:6px;font-size:11px;line-height:1.65;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--dim)}
+#verdict.win{background:rgba(131,184,166,.1);border-color:rgba(131,184,166,.45);color:#cfeade}
+
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.btn{background:rgba(255,255,255,.035);border:1px solid var(--line);color:var(--ink);
+  border-radius:5px;padding:9px 4px;font-size:11px;cursor:pointer;transition:.15s;letter-spacing:.03em}
+.btn:hover{background:rgba(131,184,166,.14);border-color:rgba(131,184,166,.45)}
+.btn.wide{grid-column:1/-1}
+.btn.primary{border-color:rgba(192,90,65,.5);color:#e8b6a7}
+.btn.on{background:rgba(131,184,166,.2);border-color:var(--jade);color:#dff3e8}
+
+.meta{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.meta dl{margin:0;font-size:11px}
+.meta dl>div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}
+.meta dt{color:var(--dim)}
+.meta dd{margin:0;text-align:right;font-family:var(--mono);font-size:10px;word-break:break-all}
+.note{font-size:10px;line-height:1.7;color:var(--dim);margin:12px 0 0}
+
+#hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;
+  font-size:11px;color:var(--dim);background:rgba(8,11,12,.66);border:1px solid var(--line);
+  border-radius:20px;padding:8px 18px;letter-spacing:.04em;white-space:nowrap;pointer-events:none}
+#showPanel{position:fixed;top:18px;right:18px;z-index:6;width:38px;height:38px;border-radius:8px;
+  background:var(--panel);border:1px solid var(--line);color:var(--jade);font-size:17px;
+  cursor:pointer;display:none;place-items:center}
+/* ?clean=1 ：隐藏常规 UI，只留场景；照镜画幅仍保留，用于出图 */
+body.clean .topbar,body.clean #panel,body.clean #hint,body.clean #showPanel{display:none!important}
+
+/* ── 默认无提示：镜中画面不圈东西、不列对照、不报差几处、不给答案按钮 ──
+   ?hints=1 才恢复圈／对照／状态／答案按钮，供内部复核与验收出图。 */
+body:not(.hints) #visionMarkers,
+body:not(.hints) #visionCompare,
+body:not(.hints) #diffList,
+body:not(.hints) #solve,
+body:not(.hints) .pbody>.lab{display:none!important}
+body:not(.hints) #viewFront{grid-column:1/-1}
+
+/* ── 照镜：穿越级满屏雾 + 雾里推近的旧景画幅（屏幕空间，不贴在镜面几何上） ──
+   --mistA / --mistB / --edgeMask / --fogTex / --moteTex / --rippleTex 由 app.js
+   程序化生成后注入，零外部图片、零生成积分。 */
+#visionLayer{position:fixed;inset:0;z-index:8;pointer-events:none;display:none;
+  transition:opacity .2s ease,visibility .2s ease}
+body.vision #visionLayer{display:block}
+/* 空格透视：只隐藏不 display:none，否则显影动画会被重播一次 */
+body.vision.peek #visionLayer{opacity:0;visibility:hidden}
+
+/* 「现在」退到雾后：压暗 + 冷色，画幅在其上不受影响 */
+#visionDim{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 72% 68% at 50% 48%,rgba(8,20,19,.08) 0%,
+      rgba(4,11,12,.64) 62%,rgba(2,6,7,.90) 100%),
+    linear-gradient(180deg,rgba(30,58,52,.24),rgba(2,6,7,.34));
+  opacity:0;animation:dimIn 1.6s ease-out forwards}
+/* 满屏浓雾：从中心炸开后铺满视野，之后缓慢翻涌 */
+#visionFog{position:absolute;inset:-14%;z-index:1;pointer-events:none;
+  background-image:var(--fogTex),var(--mistA),var(--mistB),
+    radial-gradient(ellipse 72% 64% at 50% 50%,rgba(150,200,182,.22),
+      rgba(120,170,152,.08) 56%,transparent 80%),
+    linear-gradient(to bottom,rgba(122,164,148,.26),rgba(88,126,114,.20) 45%,
+      rgba(116,158,142,.28));
+  background-size:cover,140% 140%,164% 164%,100% 100%,100% 100%;
+  background-position:center,10% 20%,90% 80%,center,center;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat;
+  /* 真·雾墙：用 normal 混合把「现在」遮进雾里，而不是只给画面加一层亮纱 */
+  opacity:0;
+  animation:fogSurge 2.2s cubic-bezier(.18,.7,.25,1) forwards,
+           mistFlow 42s linear 2.2s infinite alternate}
+/* 时空涟漪：一圈圈从镜心荡开，像穿过一层水 */
+#visionRipple{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:var(--rippleTex);background-size:100% 100%;background-repeat:no-repeat;
+  mix-blend-mode:screen;opacity:0;
+  animation:rippleOut 2.6s cubic-bezier(.12,.6,.2,1) forwards}
+/* 雾中浮尘 / 冷烬：慢慢向上飘 */
+#visionMotes{position:absolute;inset:-10%;z-index:3;pointer-events:none;
+  background-image:var(--moteTex);background-size:420px 420px;background-repeat:repeat;
+  mix-blend-mode:screen;opacity:0;
+  animation:moteIn 2.4s ease-out forwards,moteDrift 34s linear 2.4s infinite alternate}
+
+/* 外溢的雾晕：让旧景像从镜里漫出来，而不是一块弹窗 */
+#visionAura{position:absolute;z-index:4;pointer-events:none;mix-blend-mode:screen;
+  background-image:var(--mistA),radial-gradient(ellipse at 50% 50%,
+    rgba(160,206,190,.28) 0%,rgba(112,160,144,.12) 42%,rgba(96,140,126,0) 72%);
+  background-size:160% 160%,100% 100%;
+  background-repeat:no-repeat,no-repeat;
+  background-position:center,center;
+  -webkit-mask-image:radial-gradient(ellipse 62% 62% at 50% 50%,#000 28%,transparent 78%);
+  mask-image:radial-gradient(ellipse 62% 62% at 50% 50%,#000 28%,transparent 78%);
+  animation:auraBreath 5.5s ease-in-out infinite alternate,
+           mistFlow 38s linear infinite alternate}
+#visionFrame{position:absolute;z-index:5;pointer-events:auto;cursor:pointer;overflow:hidden;
+  border:1px solid rgba(176,150,94,.12);border-radius:2px;
+  background:radial-gradient(ellipse at 50% 48%,rgba(28,46,42,.98),rgba(9,18,17,.99));
+  box-shadow:0 0 42px 10px rgba(126,176,158,.16),
+             0 0 130px 40px rgba(88,140,124,.11),0 26px 76px rgba(0,0,0,.80);
+  /* 整幅（含遮罩外的云气层）一起被雾啃边，否则硬矩形会重新浮出来 */
+  -webkit-mask-image:var(--frameMask);mask-image:var(--frameMask);
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  /* 从雾深处由远及近推近，而不是「啪」地弹出来 */
+  animation:visionEmerge 1.7s cubic-bezier(.16,.86,.24,1) both,
+            visionHover 7s ease-in-out 1.7s infinite alternate}
+#visionFrame::after{content:"";position:absolute;inset:5px;z-index:8;pointer-events:none;
+  border:1px solid rgba(176,150,94,.05)}
+/* 云雾遮罩：把画幅啃成不规则的雾边，而不是死板矩形 */
+#visionImage{position:absolute;inset:0;z-index:1;overflow:hidden;
+  -webkit-mask-image:var(--edgeMask);mask-image:var(--edgeMask);
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#visionCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;
+  animation:visionDevelop 1.8s cubic-bezier(.2,.75,.2,1) both}
+/* 两层反向流动的云气（大团 + 细缕 + 卷云纹）；中心只留一小块，雾可以漫进来 */
+#visionMist{position:absolute;inset:-14%;z-index:2;pointer-events:none;
+  background-image:var(--mistA),var(--mistB);
+  background-size:118% 118%,132% 132%;
+  background-repeat:no-repeat,no-repeat;
+  background-position:-6% 4%,104% -6%;
+  /* 中央留空要大：雾只围在画幅四边，别把旧景洗成灰，否则玩家读不出五处不同 */
+  -webkit-mask-image:radial-gradient(ellipse 60% 58% at 50% 48%,transparent 44%,#000 100%);
+  mask-image:radial-gradient(ellipse 60% 58% at 50% 48%,transparent 44%,#000 100%);
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  mix-blend-mode:screen;
+  animation:mistFlow 30s linear infinite alternate,
+           mistSwell 1.5s ease-out both}
+/* 常驻云气：四边与四角各有软云团涌进来 */
+#visionVeil{position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:screen;
+  box-shadow:
+    inset 62px 0 76px -38px rgba(176,216,200,.30),
+    inset -62px 0 76px -38px rgba(176,216,200,.30),
+    inset 0 54px 72px -34px rgba(176,216,200,.26),
+    inset 0 -54px 72px -34px rgba(176,216,200,.26);
+  background:
+    radial-gradient(ellipse 46% 36% at 4% 34%,rgba(176,216,200,.32),transparent 72%),
+    radial-gradient(ellipse 42% 34% at 96% 28%,rgba(168,210,196,.30),transparent 72%),
+    radial-gradient(ellipse 50% 30% at 26% 102%,rgba(160,204,188,.28),transparent 74%),
+    radial-gradient(ellipse 48% 30% at 78% 102%,rgba(160,204,188,.28),transparent 74%),
+    radial-gradient(ellipse 56% 26% at 50% -2%,rgba(180,220,206,.28),transparent 76%),
+    linear-gradient(to right,rgba(170,210,196,.19),transparent 16%,
+      transparent 84%,rgba(170,210,196,.19)),
+    linear-gradient(to bottom,rgba(170,210,196,.12),transparent 14%,
+      transparent 86%,rgba(170,210,196,.11))}
+/* 一道极淡的冷光缓缓扫过画面 */
+#visionSweep{position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:screen;
+  background:linear-gradient(104deg,transparent 34%,rgba(184,222,206,.12) 48%,transparent 62%);
+  background-size:260% 100%;
+  animation:mistSweep 9s ease-in-out infinite}
+/* 照镜瞬间从中心炸开的一团雾，只播一次 */
+#visionBurst{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:screen;
+  background:radial-gradient(ellipse at 50% 52%,rgba(196,230,214,.60) 0%,
+    rgba(148,192,176,.26) 30%,transparent 68%);
+  animation:mistBurst 1.8s ease-out both}
+/* 横扫整幅的浓雾带：雾不只聚在四边，画面里也有一层层飘过去 */
+#visionDrift{position:absolute;inset:-20%;z-index:5;pointer-events:none;mix-blend-mode:screen;
+  background-image:var(--mistB),var(--mistA);
+  background-size:150% 110%,130% 130%;
+  background-position:-30% 20%,120% 70%;
+  /* 中心留空：雾从四边涌进来，别把整幅涂成均匀灰白 */
+  -webkit-mask-image:radial-gradient(ellipse 62% 60% at 50% 48%,transparent 46%,#000 100%);
+  mask-image:radial-gradient(ellipse 62% 60% at 50% 48%,transparent 46%,#000 100%);
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  opacity:.32;animation:driftAcross 17s linear infinite alternate}
+/* 题头下移并去掉硬背景条：不受上缘羽化影响，也更像浮在雾里 */
+#visionHead{position:absolute;top:26px;left:0;right:0;height:22px;z-index:7;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 28px;
+  background:none;border:0}
+#visionHead b{font:400 14px/1 var(--serif);letter-spacing:.16em;color:#eadfc4;font-weight:400;
+  text-shadow:0 1px 10px rgba(0,0,0,.95),0 0 20px rgba(0,0,0,.8)}
+#visionHead small{font:400 10px/1 var(--mono);color:var(--dim);letter-spacing:.05em;
+  text-shadow:0 1px 8px rgba(0,0,0,.95)}
+#visionMarkers{position:absolute;inset:0;z-index:6;pointer-events:none}
+.vm{position:absolute;transform:translate(-50%,-50%);width:25px;height:25px;border-radius:50%;
+  place-items:center;font:400 12px/1 var(--serif);color:#ffe8dd;
+  border:1px solid rgba(192,90,65,.9);background:rgba(192,90,65,.26);
+  box-shadow:0 0 0 4px rgba(192,90,65,.12),0 0 18px rgba(192,90,65,.5);
+  animation:pulse 2.2s ease-in-out infinite}
+.vm.ok{border-color:rgba(131,184,166,.55);background:rgba(131,184,166,.13);color:#cfeade;
+  box-shadow:0 0 0 4px rgba(131,184,166,.08);animation:none}
+#visionCompare{position:absolute;left:0;right:0;bottom:0;height:80px;z-index:7;
+  display:grid;grid-template-columns:repeat(5,1fr);pointer-events:none;
+  background:linear-gradient(to top,rgba(6,10,10,.97),rgba(6,10,10,.80));
+  border-top:1px solid rgba(176,150,94,.22);
+  box-shadow:0 -12px 26px -10px rgba(164,208,192,.16)}
+.vc{position:relative;padding:9px 8px 8px;border-right:1px solid rgba(150,178,166,.14);
+  font-size:10px;line-height:1.45;color:var(--dim);overflow:hidden}
+.vc:last-child{border-right:0}
+.vcn{position:absolute;top:8px;right:8px;color:rgba(176,150,94,.55);font:400 10px/1 var(--mono)}
+.vcl{display:block;color:#e6e4da;font-size:11px;margin-bottom:4px;padding-right:14px}
+.vcs{display:block;font-size:10px;color:var(--dim);white-space:nowrap}
+.vcst{position:absolute;left:8px;bottom:6px;font-size:9px;color:var(--cinnabar);letter-spacing:.08em}
+.vc.ok .vcl{color:#cfeade}
+.vc.ok .vcst{color:var(--jade)}
+
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(192,90,65,.05),0 0 24px rgba(192,90,65,.7)}}
+@keyframes visionEmerge{
+  0%{opacity:0;transform:scale(1.32) translateY(28px);filter:blur(18px)}
+  60%{opacity:.92;transform:scale(1.03) translateY(4px);filter:blur(4px)}
+  100%{opacity:1;transform:none;filter:none}}
+@keyframes visionDevelop{
+  0%{opacity:.18;filter:blur(16px) brightness(.42) saturate(.40);transform:scale(1.12)}
+  55%{opacity:1;filter:blur(4px) brightness(.88) saturate(.80);transform:scale(1.02)}
+  100%{opacity:1;filter:none;transform:none}}
+@keyframes mistSwell{
+  0%{opacity:.98;transform:scale(1.30) translateY(-2%)}
+  100%{opacity:.54;transform:scale(1) translateY(0)}}
+@keyframes visionHover{
+  0%{transform:translateY(-3px) scale(.998)}
+  100%{transform:translateY(4px) scale(1.004)}}
+@keyframes mistFlow{
+  0%{background-position:-6% 4%,104% -6%}
+  100%{background-position:22% -10%,76% 12%}}
+@keyframes mistSweep{
+  0%{background-position:190% 0}
+  100%{background-position:-90% 0}}
+@keyframes mistBurst{
+  0%{opacity:0;transform:scale(.30)}
+  22%{opacity:.98}
+  100%{opacity:0;transform:scale(1.95)}}
+@keyframes auraBreath{
+  0%{opacity:.58;transform:scale(.96)}
+  100%{opacity:1;transform:scale(1.06)}}
+@keyframes dimIn{0%{opacity:0}100%{opacity:.84}}
+@keyframes fogSurge{
+  0%{opacity:0;transform:scale(1.34) translateY(5%)}
+  32%{opacity:.98;transform:scale(1.10) translateY(1%)}
+  100%{opacity:.80;transform:scale(1) translateY(0)}}
+@keyframes rippleOut{
+  0%{opacity:0;transform:scale(.18)}
+  18%{opacity:.86}
+  100%{opacity:0;transform:scale(3.1)}}
+@keyframes moteIn{0%{opacity:0}100%{opacity:.62}}
+@keyframes moteDrift{
+  0%{background-position:0 0;transform:translateY(0)}
+  100%{background-position:130px -190px;transform:translateY(-3%)}}
+@keyframes driftAcross{
+  0%{background-position:-40% 22%,130% 68%}
+  100%{background-position:40% 32%,70% 78%}}
+
+/* ?mist=0 无雾对照：关掉全部云气与显影，回到静态画幅 */
+body.nomist #visionDim,body.nomist #visionFog,body.nomist #visionRipple,
+body.nomist #visionMotes,body.nomist #visionDrift,
+body.nomist #visionAura,body.nomist #visionMist,body.nomist #visionVeil,
+body.nomist #visionSweep,body.nomist #visionBurst{display:none}
+body.nomist #visionImage,body.nomist #visionFrame{-webkit-mask-image:none;mask-image:none}
+body.nomist #visionCanvas,body.nomist #visionFrame{animation:none}
+/* ?mist=burst 定格「穿越瞬间」：静态样式而非暂停动画，避免无头浏览器虚拟时钟挂起 */
+body.miststill #visionFrame{animation:none;opacity:.78;
+  transform:scale(1.10) translateY(14px);filter:blur(7px)}
+body.miststill #visionCanvas{animation:none;opacity:.62;
+  filter:blur(10px) brightness(.68) saturate(.62);transform:scale(1.06)}
+body.miststill #visionMist{animation:none;opacity:.94;transform:scale(1.20);
+  -webkit-mask-image:none;mask-image:none;
+  background-position:4% 0,92% 8%}
+body.miststill #visionBurst{animation:none;opacity:.90;transform:scale(.82)}
+body.miststill #visionSweep{animation:none;background-position:120% 0}
+body.miststill #visionAura{animation:none;opacity:.96;transform:scale(1.04)}
+body.miststill #visionDim{animation:none;opacity:.92}
+body.miststill #visionFog{animation:none;opacity:.96;transform:scale(1.12)}
+body.miststill #visionRipple{animation:none;opacity:.60;transform:scale(1.42)}
+body.miststill #visionMotes{animation:none;opacity:.80}
+body.miststill #visionDrift{animation:none;opacity:.90;
+  -webkit-mask-image:none;mask-image:none;
+  background-position:-10% 26%,100% 72%}
+
+/* clean 出图：整幅静态化，不跑任何 CSS 动画。
+   SwiftShader 软渲染下 blur + 多层 screen 混合逐帧重算极慢，会让无头截图超时。
+   静态值就是「雾散之后仍满屏流动的浓雾态」；穿越瞬间由 ?mist=burst 静态定格。
+   正常游玩（非 clean）不受影响：显影 / 浮动 / 云气流动 / 扫光 / 涟漪全部照常。 */
+body.clean:not(.miststill) #visionFrame,
+body.clean:not(.miststill) #visionCanvas,
+body.clean:not(.miststill) #visionMist,
+body.clean:not(.miststill) #visionBurst,
+body.clean:not(.miststill) #visionSweep,
+body.clean:not(.miststill) #visionAura,
+body.clean:not(.miststill) #visionDim,
+body.clean:not(.miststill) #visionFog,
+body.clean:not(.miststill) #visionRipple,
+body.clean:not(.miststill) #visionMotes,
+body.clean:not(.miststill) #visionDrift,
+body.clean:not(.miststill) .vm{animation:none}
+body.clean:not(.miststill) #visionFrame{opacity:1;transform:none;filter:none}
+body.clean:not(.miststill) #visionCanvas{opacity:1;filter:none;transform:none}
+body.clean:not(.miststill) #visionMist{opacity:.40;transform:none;
+  background-position:8% -2%,88% 10%}
+body.clean:not(.miststill) #visionBurst{opacity:0}
+body.clean:not(.miststill) #visionSweep{background-position:120% 0}
+body.clean:not(.miststill) #visionAura{opacity:1}
+body.clean:not(.miststill) #visionDim{opacity:.58}
+body.clean:not(.miststill) #visionFog{opacity:.82;transform:none}
+body.clean:not(.miststill) #visionRipple{opacity:.12;transform:scale(1.9)}
+body.clean:not(.miststill) #visionMotes{opacity:.48}
+body.clean:not(.miststill) #visionDrift{opacity:.28;background-position:6% 26%,94% 72%}
+
+#loading{position:fixed;inset:0;z-index:30;background:#080b0c;display:grid;place-items:center;
+  transition:opacity .6s ease;text-align:center}
+#loading.done{opacity:0;pointer-events:none;visibility:hidden}
+.ring{width:34px;height:34px;border:2px solid rgba(131,184,166,.18);border-top-color:var(--jade);
+  border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadTitle{font:400 18px/1.4 var(--serif);letter-spacing:.12em}
+#loadTxt{font-size:11px;color:var(--dim);margin-top:9px;font-family:var(--mono)}
+
+#toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:12;
+  padding:14px 26px;border:1px solid rgba(131,184,166,.5);background:rgba(10,16,16,.9);
+  border-radius:6px;font:400 15px/1.5 var(--serif);letter-spacing:.1em;color:#dff3e8;
+  opacity:0;transition:opacity .4s;pointer-events:none;text-align:center}
+#toast.on{opacity:1}
+#toast small{display:block;font:400 10px/1.6 var(--mono);color:var(--dim);letter-spacing:.06em;margin-top:6px}
+
+/* v7.2 万能逃生键：z-index 高于照镜暗幕/雾层，任何状态下都点得到 */
+#rescue{position:fixed;left:18px;bottom:18px;z-index:20;cursor:pointer;
+  padding:9px 15px;border-radius:3px;border:1px solid rgba(176,150,94,.55);
+  background:rgba(9,18,17,.88);color:#e8d9b8;
+  font:400 12px/1 var(--serif);letter-spacing:.08em}
+#rescue:hover{background:rgba(131,184,166,.18);border-color:var(--jade);color:#dff3e8}
+body.clean #rescue{display:none!important}
+
+/* v7.3 两厅串联：从序厅穿门进来时的一句承接对白 + 通关后的回厅入口。
+   只在 ?from=prologue=1 时出现；正常直接进第一殿 / clean 出图一律不显示，
+   13 张定稿图与默认页构图完全不受影响。 */
+#carryIn{position:fixed;left:50%;top:74px;transform:translate(-50%,-10px);z-index:14;
+  max-width:min(640px,86vw);padding:12px 20px;box-sizing:border-box;
+  background:rgba(10,17,16,.90);border:1px solid rgba(176,150,94,.30);
+  border-left:2px solid rgba(192,90,65,.7);border-radius:4px;
+  color:var(--ink);font:400 13px/1.8 var(--serif);letter-spacing:.05em;
+  text-align:center;opacity:0;pointer-events:none;transition:opacity .8s,transform .8s}
+#carryIn.on{opacity:1;transform:translate(-50%,0)}
+#carryIn small{display:block;margin-top:4px;font:400 10px/1.6 var(--mono);
+  letter-spacing:.08em;color:var(--dim)}
+#toPrologue{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);z-index:15;
+  padding:10px 20px;cursor:pointer;border:1px solid rgba(192,90,65,.5);border-radius:4px;
+  background:rgba(10,17,16,.92);color:#e8b6a7;font:400 13px/1.4 var(--serif);
+  letter-spacing:.1em;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s,visibility .6s,background .15s}
+#toPrologue.on{opacity:1;visibility:visible;pointer-events:auto}
+#toPrologue:hover{background:rgba(192,90,65,.18)}
+body.clean #carryIn,body.clean #toPrologue{display:none!important}
+
+/* v7.4：第一殿开场旁白——背景介绍四句，揭幕后自动播，点字幕推进 / 自动定时。
+   位置在底部字幕带上方，避开 hint(18) / toPrologue(74) / carryIn(顶部 74)。
+   空格留给照镜透视，不抢任何既有按键。clean 出图一律隐藏，13 张定稿图不受影响。 */
+#intro{position:fixed;left:50%;bottom:106px;transform:translate(-50%,10px);z-index:13;
+  width:min(700px,86vw);padding:15px 21px 13px;box-sizing:border-box;
+  background:rgba(12,17,16,.92);border:1px solid rgba(186,200,190,.24);
+  border-left:2px solid rgba(192,90,65,.75);border-radius:4px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 14px 44px rgba(0,0,0,.55);opacity:0;pointer-events:none;
+  transition:opacity .45s,transform .45s;cursor:pointer}
+#intro.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.intro-who{font:400 11px/1.4 var(--serif);letter-spacing:.16em;color:var(--cinnabar);margin-bottom:7px}
+.intro-text{font:400 15px/1.85 var(--serif);letter-spacing:.045em;color:var(--ink);min-height:28px}
+.intro-foot{display:flex;justify-content:space-between;gap:12px;margin-top:9px;
+  font:10px/1.4 var(--mono);color:var(--dim);opacity:.72}
+.intro-next{color:var(--jade);white-space:nowrap}
+#replayIntro{position:fixed;left:18px;bottom:60px;z-index:14;cursor:pointer;
+  padding:7px 12px;border-radius:3px;border:1px solid rgba(176,150,94,.42);
+  background:rgba(9,18,17,.86);color:#e8d9b8;
+  font:400 11px/1 var(--serif);letter-spacing:.08em}
+#replayIntro:hover{background:rgba(131,184,166,.16);border-color:var(--jade)}
+body.clean #intro,body.clean #replayIntro{display:none!important}
+
+@media(max-width:820px){
+  .topbar{top:12px;left:12px}.topbar h1{font-size:16px}.seal{width:32px;height:32px;font-size:16px}
+  #panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;height:44vh}
+  #hint{display:none}
+  #visionHead small{display:none}
+  .vcs{font-size:8px}
+}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="grade"></div>
+<div id="grain"></div>
+
+<header class="topbar">
+  <div class="seal">壹</div>
+  <div>
+    <h1>第一殿 · 孽镜台 <em>HALL ONE / KARMA MIRROR</em></h1>
+    <p>还魂路引 · 雾里另有一座殿</p>
+  </div>
+</header>
+
+<button id="showPanel" title="展开面板">☰</button>
+
+<aside id="panel">
+  <div class="phead">
+    <h2>殿中陈设</h2>
+    <p>点殿中的镜子，雾里会浮出这座殿从前的样子。</p>
+    <button id="collapse" style="float:right;margin-top:-26px;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer" title="收起面板">×</button>
+  </div>
+  <div class="pbody">
+    <div class="lab">实景状态 · 点击切换</div>
+    <div id="diffList"></div>
+    <div id="verdict">镜面只起一层薄雾……</div>
+    <div class="btns">
+      <button class="btn" id="reset">重置陈设</button>
+      <button class="btn" id="solve">摆成镜中样</button>
+      <button class="btn" id="shot">保存画面 PNG</button>
+      <button class="btn" id="viewFront">居中构图</button>
+      <button class="btn wide" id="toggleMirror">照镜 · 看进门之前</button>
+    </div>
+    <div class="meta">
+      <div class="lab">场景规格</div>
+      <dl id="meta"></dl>
+      <p class="note">6 件证物为 Aholo Lux3D 生成的真实 PBR 资产（<code>S1-xx</code> 规范版，1 unit = 1 m）。墙、地、柱、案、匾、窗棂与全部彩画雕饰为程序化搭建。旧景画幅由离屏渲染定格而成，是<b style="color:var(--jade);font-weight:400">屏幕空间里独立的一幅画</b>，不贴在镜面上，从侧面看也不会穿帮。</p>
+      <p class="note"><b style="color:var(--jade);font-weight:400">走动</b>：W / S 前后，A / D 左右（方向键同效），Q / E 降／升视点，按住 Shift 快走，R 回到居中构图。左键拖动转视角、滚轮缩放、右键平移。碰到墙、柱和镜面会自动停住。</p>
+      <p class="note"><b style="color:var(--jade);font-weight:400">照镜</b>：点镜子（或右侧按钮），满殿涌雾，旧景在雾里由远及近地显出来。再点画幅 / 镜子 / Esc 收起。<b>按住空格</b>暂时收起雾与画幅看实景，松开回来。画幅按<b>照镜那一瞬的机位</b>定格，先摆好视角再照镜。</p>
+    </div>
+  </div>
+</aside>
+
+<div id="hint"><b style="color:var(--jade);font-weight:400">点镜子 · 雾中照见旧景</b> · 空格透视实景 · WASD 走动 · Q/E 升降 · Shift 快走 · <b style="color:#e8b6a7;font-weight:400">画面变黑／卡住：按 R 或双击画面回殿中央</b> · 点物件切换</div>
+<button id="rescue" title="退出照镜、回到殿中央（快捷键 R）">回殿中 · R</button>
+<div id="carryIn">香还在烧。你从那道自己开的门里走出来，雾里另有一座殿。
+  <small>还魂路引 · 承接序厅 · 第一殿</small></div>
+<button id="toPrologue" title="回到序厅 · 阴司便民司">← 回到便民司</button>
+<div id="intro" title="点字幕继续">
+  <div class="intro-who">旁白 · 还魂路引</div>
+  <div class="intro-text"></div>
+  <div class="intro-foot"><span class="intro-src"></span><span class="intro-next">点字幕继续 · 自动播放 ▸</span></div>
+</div>
+<button id="replayIntro" title="重听第一殿旁白">◁ 重听旁白</button>
+<div id="toast"></div>
+
+<div id="visionLayer">
+  <div id="visionDim"></div>
+  <div id="visionFog"></div>
+  <div id="visionRipple"></div>
+  <div id="visionMotes"></div>
+  <div id="visionAura"></div>
+  <div id="visionFrame" title="再点一次收起旧景">
+    <div id="visionImage">
+      <canvas id="visionCanvas"></canvas>
+      <div id="visionMist"></div>
+    </div>
+    <!-- 云气层放在遮罩之外：否则刚加的边缘雾又被遮罩擦掉 -->
+    <div id="visionVeil"></div>
+    <div id="visionSweep"></div>
+    <div id="visionBurst"></div>
+    <div id="visionDrift"></div>
+    <div id="visionMarkers"></div>
+    <div id="visionCompare"></div>
+    <div id="visionHead"><b>孽镜 · 进门之前</b><small>雾里另有一座殿</small></div>
+  </div>
+</div>
+
+<div id="loading"><div><div class="ring"></div><div id="loadTitle">第一殿 · 孽镜台</div><div id="loadTxt">准备中…</div></div></div>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/GLTFLoader.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="vendor/RoomEnvironment.js"></script>
+<!-- v7.3：带版本号破浏览器缓存，避免预览面板一直拿旧的 app.js / scene.js -->
+<script src="scene.js?v=10"></script>
+<script src="app.js?v=10"></script>
+</body>
+</html>
